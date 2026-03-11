@@ -7,8 +7,22 @@
   const orderTotalField = document.querySelector("#order-total-field");
   const submitOrderButton = document.querySelector("#submit-order");
   const checkoutNote = document.querySelector("#checkout-note");
+  const successOverlay = document.querySelector("#success-overlay");
+  const successText = document.querySelector("#success-text");
+  const successCountdown = document.querySelector("#success-countdown");
+  const successGo = document.querySelector("#success-go");
 
-  if (!checkoutForm || !orderSummary || !orderTotalField || !submitOrderButton || !checkoutNote) {
+  if (
+    !checkoutForm ||
+    !orderSummary ||
+    !orderTotalField ||
+    !submitOrderButton ||
+    !checkoutNote ||
+    !successOverlay ||
+    !successText ||
+    !successCountdown ||
+    !successGo
+  ) {
     return;
   }
 
@@ -77,7 +91,39 @@
       .join("");
   };
 
-  checkoutForm.addEventListener("submit", (event) => {
+  let successTimer = null;
+  let countdownTimer = null;
+
+  const showSuccessModal = (orderId) => {
+    const shortId = String(orderId || "").slice(0, 8) || "—";
+
+    successText.textContent = `Заказ принят (№ ${shortId}). Менеджер свяжется с вами.`;
+    let seconds = 5;
+    successCountdown.textContent = String(seconds);
+
+    successOverlay.hidden = false;
+    document.body.classList.add("modal-open");
+
+    const goHome = () => {
+      if (countdownTimer) clearInterval(countdownTimer);
+      if (successTimer) clearTimeout(successTimer);
+      window.location.href = "index.html";
+    };
+
+    successGo.onclick = goHome;
+
+    countdownTimer = setInterval(() => {
+      seconds -= 1;
+      successCountdown.textContent = String(Math.max(0, seconds));
+      if (seconds <= 0) {
+        goHome();
+      }
+    }, 1000);
+
+    successTimer = setTimeout(goHome, 5000);
+  };
+
+  checkoutForm.addEventListener("submit", async (event) => {
     event.preventDefault();
     setNote("");
 
@@ -100,31 +146,32 @@
     submitOrderButton.disabled = true;
     setNote("Отправляем заказ...");
 
-    fetch("/api/public/orders", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ customer, items: orderItems }),
-    })
-      .then(async (res) => {
-        const json = await res.json().catch(() => ({}));
-        if (!res.ok) {
-          const msg = json?.error ? String(json.error) : `HTTP ${res.status}`;
-          throw new Error(msg);
-        }
-        return json;
-      })
-      .then((result) => {
-        localStorage.removeItem(STORAGE_KEY);
-        checkoutForm.reset();
-        renderOrderSummary();
-        setNote(`Заказ принят (№ ${String(result.id).slice(0, 8)}). Менеджер свяжется с вами.`);
-      })
-      .catch((err) => {
-        setNote(`Не удалось отправить заказ: ${err.message}`, "error");
-      })
-      .finally(() => {
-        submitOrderButton.disabled = false;
+    let didSucceed = false;
+    try {
+      const res = await fetch("/api/public/orders", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ customer, items: orderItems }),
       });
+      const json = await res.json().catch(() => ({}));
+      if (!res.ok) {
+        const msg = json?.error ? String(json.error) : `HTTP ${res.status}`;
+        throw new Error(msg);
+      }
+
+      localStorage.removeItem(STORAGE_KEY);
+      checkoutForm.reset();
+      renderOrderSummary();
+      setNote("");
+      didSucceed = true;
+      showSuccessModal(json.id);
+    } catch (err) {
+      setNote(`Не удалось отправить заказ: ${err.message}`, "error");
+    } finally {
+      if (!didSucceed) {
+        submitOrderButton.disabled = false;
+      }
+    }
   });
 
   renderOrderSummary();

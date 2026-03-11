@@ -136,6 +136,33 @@ const statusLabel = (status) => {
   }
 };
 
+const orderTimeMs = (order) => {
+  const iso = order?.createdAt || order?.updatedAt || "";
+  const ms = new Date(iso).getTime();
+  return Number.isFinite(ms) ? ms : 0;
+};
+
+const orderStatusPriority = (status) => {
+  switch (status) {
+    case "incoming":
+      return 0;
+    case "delivered":
+      return 1;
+    case "cancelled":
+      return 2;
+    default:
+      return 9;
+  }
+};
+
+const sortOrders = (orders) =>
+  [...(Array.isArray(orders) ? orders : [])].sort((a, b) => {
+    const pa = orderStatusPriority(a?.status);
+    const pb = orderStatusPriority(b?.status);
+    if (pa !== pb) return pa - pb;
+    return orderTimeMs(b) - orderTimeMs(a);
+  });
+
 const formatTime = (iso) => {
   if (!iso) return "";
   const date = new Date(iso);
@@ -191,11 +218,71 @@ const renderOrders = (orders) => {
     .join("");
 };
 
-const loadOrders = async () => {
+const filterOrdersByStatus = (orders, status) => {
+  if (!status) return orders;
+  return orders.filter((o) => o?.status === status);
+};
+
+const loadOrders = async (prefetchedAll = null) => {
   const status = ordersStatus.value;
-  const qs = status ? `?status=${encodeURIComponent(status)}` : "";
-  const orders = await apiJson(`/api/admin/orders${qs}`);
-  renderOrders(Array.isArray(orders) ? orders : []);
+  let orders = null;
+
+  if (prefetchedAll) {
+    orders = filterOrdersByStatus(prefetchedAll, status);
+  } else {
+    const qs = status ? `?status=${encodeURIComponent(status)}` : "";
+    orders = await apiJson(`/api/admin/orders${qs}`);
+  }
+
+  const sorted = sortOrders(orders);
+  renderOrders(sorted);
+  return sorted;
+};
+
+const ordersSignature = (orders) =>
+  JSON.stringify(
+    (Array.isArray(orders) ? orders : []).map((o) => [o?.id, o?.status, o?.updatedAt, o?.createdAt]),
+  );
+
+let lastAllOrdersSig = "";
+let lastAllOrdersIds = new Set();
+
+const fetchAllOrdersSorted = async () => {
+  const all = await apiJson("/api/admin/orders");
+  return sortOrders(all);
+};
+
+const primeOrdersWatch = async (sortedAll = null) => {
+  const next = sortedAll || (await fetchAllOrdersSorted());
+  lastAllOrdersSig = ordersSignature(next);
+  lastAllOrdersIds = new Set(next.map((o) => String(o?.id || "")).filter(Boolean));
+};
+
+const pollOrders = async () => {
+  const sortedAll = await fetchAllOrdersSorted();
+  const sig = ordersSignature(sortedAll);
+  if (sig === lastAllOrdersSig) {
+    return;
+  }
+
+  const newIncoming = sortedAll.filter(
+    (o) => o?.status === "incoming" && !lastAllOrdersIds.has(String(o?.id || "")),
+  );
+
+  lastAllOrdersSig = sig;
+  lastAllOrdersIds = new Set(sortedAll.map((o) => String(o?.id || "")).filter(Boolean));
+
+  if (currentTab === "orders") {
+    await loadOrders(sortedAll);
+    if (newIncoming.length > 0) {
+      setOrdersNote(`Новый заказ: +<b>${newIncoming.length}</b>`);
+      setTimeout(() => {
+        if (ordersNote && ordersNote.textContent.startsWith("Новый заказ")) {
+          setOrdersNote("");
+        }
+      }, 5000);
+    }
+  }
 };
 
 let menuData = [];
@@ -436,7 +523,9 @@ tokenSaveButton.addEventListener("click", async () => {
   setAuthStatus("Токен сохранён.");
 
   try {
-    await loadOrders();
+    const allOrders = await fetchAllOrdersSorted();
+    await primeOrdersWatch(allOrders);
+    await loadOrders(allOrders);
     await loadCategories();
     await loadMenu();
     await loadPromos();
@@ -960,7 +1049,9 @@ const init = async () => {
   }
 
   try {
-    await loadOrders();
+    const allOrders = await fetchAllOrdersSorted();
+    await primeOrdersWatch(allOrders);
+    await loadOrders(allOrders);
     await loadCategories();
     await loadMenu();
     await loadPromos();
@@ -986,5 +1077,5 @@ setInterval(() => {
   if (!getToken()) {
     return;
   }
-  loadOrders().catch(() => {});
-}, 10000);
+  pollOrders().catch(() => {});
+}, 5000);

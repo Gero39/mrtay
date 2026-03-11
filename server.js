@@ -102,6 +102,26 @@ const asMoney = (value) => {
   return Math.round(num);
 };
 
+const normalizeMenuOptions = (value) => {
+  if (!Array.isArray(value)) {
+    return [];
+  }
+
+  const out = [];
+  for (const raw of value) {
+    const label = String(raw?.label ?? raw?.name ?? "").trim();
+    const price = asMoney(raw?.price);
+    if (!label || price === null || price < 0) {
+      continue;
+    }
+
+    const id = String(raw?.id || "").trim() || crypto.randomUUID();
+    out.push({ id, label, price });
+  }
+
+  return out;
+};
+
 const storage = multer.diskStorage({
   destination(_req, _file, cb) {
     cb(null, UPLOADS_DIR);
@@ -183,6 +203,7 @@ app.post("/api/public/orders", async (req, res) => {
 
     for (const item of items) {
       const id = String(item?.id || "");
+      const requestedOptionId = String(item?.optionId || "").trim();
       const quantity = Number(item?.quantity || 0);
       if (!id || !Number.isFinite(quantity) || quantity <= 0) {
         continue;
@@ -193,10 +214,35 @@ app.post("/api/public/orders", async (req, res) => {
         continue;
       }
 
+      const options = Array.isArray(menuItem.options) ? menuItem.options : [];
+      let optionId = "";
+      let optionLabel = "";
+      let unitPrice = Number(menuItem.price) || 0;
+
+      if (options.length > 0) {
+        const picked = requestedOptionId
+          ? options.find((o) => String(o?.id || "") === requestedOptionId)
+          : options[0];
+        if (!picked) {
+          continue;
+        }
+
+        const optPrice = asMoney(picked.price);
+        if (optPrice === null || optPrice < 0) {
+          continue;
+        }
+
+        optionId = String(picked.id || "").trim();
+        optionLabel = String(picked.label || "").trim();
+        unitPrice = optPrice;
+      }
+
       normalizedItems.push({
         id: menuItem.id,
         name: menuItem.title,
-        price: Number(menuItem.price),
+        optionId,
+        optionLabel,
+        price: unitPrice,
         quantity: Math.min(99, Math.floor(quantity)),
       });
     }

@@ -1,6 +1,83 @@
 {
   "menu": [
     {
+      "id": "40203dbe-8576-4a3e-b27f-a79e38e0674e",
+      "title": "Маргарита",
+      "description": "Красный соус, помидоры черри, моцарелла 2 вида, песто",
+      "category": "Пицца",
+      "imageUrl": "",
+      "price": 400,
+      "active": true,
+      "createdAt": "2026-03-11T19:03:24.174Z",
+      "updatedAt": "2026-03-11T19:03:24.174Z"
+    },
+    {
+      "id": "4540cede-ba13-46c7-b7d2-978b625ddda1",
+      "title": "Охота",
+      "description": "Красный соус, моцарелла, помидор, грибы, охотничьи колбаски",
+      "category": "",
+      "imageUrl": "",
+      "price": 550,
+      "active": true,
+      "createdAt": "2026-03-11T19:03:01.084Z",
+      "updatedAt": "2026-03-11T19:03:01.084Z"
+    },
+    {
+      "id": "2f705929-5603-46e8-9b19-44d34909604d",
+      "title": "Гавайская",
+      "description": "Красный соус, моцарелла, курочка, ананас",
+      "category": "Пицца",
+      "imageUrl": "",
+      "price": 500,
+      "active": true,
+      "createdAt": "2026-03-11T19:02:24.503Z",
+      "updatedAt": "2026-03-11T19:02:24.503Z"
+    },
+    {
+      "id": "c1ffcca5-c57b-4374-9909-0f7630fe19a5",
+      "title": "Мясная",
+      "description": "Красный соус, моцарелла, помидор, грибы, сервелат, охот колбаски, курочка",
+      "category": "Пицца",
+      "imageUrl": "",
+      "price": 550,
+      "active": true,
+      "createdAt": "2026-03-11T19:01:56.269Z",
+      "updatedAt": "2026-03-11T19:01:56.269Z"
+    },
+    {
+      "id": "a54edd63-a8fd-43f1-b19a-eca77f3afca9",
+      "title": "Яхта",
+      "description": "Белый соус, горчица зерно, моцарелла, лосось, помидор, огур сол, лук красный",
+      "category": "Пицца",
+      "imageUrl": "",
+      "price": 650,
+      "active": true,
+      "createdAt": "2026-03-11T19:01:31.799Z",
+      "updatedAt": "2026-03-11T19:01:31.799Z"
+    },
+    {
+      "id": "9367ae75-82f8-443e-89f2-804677ee3385",
+      "title": "Жульен",
+      "description": "Белый соус, моцарелла, кур филе, грибы, лук",
+      "category": "Пицца",
+      "imageUrl": "",
+      "price": 550,
+      "active": true,
+      "createdAt": "2026-03-11T19:00:59.700Z",
+      "updatedAt": "2026-03-11T19:00:59.700Z"
+    },
+    {
+      "id": "33e3ea42-8f69-45b6-af2e-c63020c0d4b2",
+      "title": "Пепперони",
+      "description": "Красный соус, моцарелла, пепперони",
+      "category": "Пицца",
+      "imageUrl": "",
+      "price": 500,
+      "active": true,
+      "createdAt": "2026-03-11T19:00:21.808Z",
+      "updatedAt": "2026-03-11T19:00:21.808Z"
+    },
+    {
       "id": "3ac73ecf-7a10-411c-a44c-9412d8a28a20",
       "title": "4 сыра",
       "description": "Белый соус, моцарелла, Фета, дор-блю, пармезан",
@@ -85,9 +162,9 @@
       "text": "ТЕСТ",
       "theme": "sand",
       "imageUrl": "/uploads/1773191068279_2d0eb597-7118-4b82-a984-0fc7b54948a8.png",
-      "active": true,
+      "active": false,
       "createdAt": "2026-03-11T01:04:29.213Z",
-      "updatedAt": "2026-03-11T01:11:20.456Z"
+      "updatedAt": "2026-03-11T18:58:55.486Z"
     },
     {
       "id": "promo-thai-evening",
@@ -122,12 +199,6 @@
   ],
   "categories": [
     {
-      "id": "a9f7981f-2426-4d4a-abfe-44a15d10bf76",
-      "name": "ТЕСТ",
-      "createdAt": "2026-03-11T01:44:44.449Z",
-      "updatedAt": "2026-03-11T01:44:44.449Z"
-    },
-    {
       "id": "cat-wok",
       "name": "Вок и лапша",
       "createdAt": "2026-03-11T00:00:00.000Z",
@@ -160,31 +231,37 @@
   ],
   "orders": [
     {
-      "id": "3a9f58c9-664f-41ab-ac04-ea04dea4e1ce",
-      "status": "delivered",
+      "id": "ea7c9e57-7dbc-498d-80db-b504ddc59452",
+      "status": "incoming",
       "customer": {
-        "name": "Егор",
-        "phone": "79781030117",
-        "address": "Балаклавская д 71 кв 85",
-        "comment": "Не звонить"
+        "name": "Александр",
+        "phone": "+79781030117",
+        "address": "ул. Пушкина д. 145",
+        "comment": ""
       },
       "items": [
         {
-          "id": "roll-tom-yam",
-          "name": "Ролл \"Том Ям\"",
-          "price": 395,
+          "id": "2f705929-5603-46e8-9b19-44d34909604d",
+          "name": "Гавайская",
+          "price": 500,
           "quantity": 1
         },
         {
-          "id": "pad-thai-chicken",
-          "name": "Пад Тай с курицей",
-          "price": 460,
+          "id": "40203dbe-8576-4a3e-b27f-a79e38e0674e",
+          "name": "Маргарита",
+          "price": 400,
+          "quantity": 1
+        },
+        {
+          "id": "9367ae75-82f8-443e-89f2-804677ee3385",
+          "name": "Жульен",
+          "price": 550,
           "quantity": 1
         }
       ],
-      "total": 855,
-      "createdAt": "2026-03-11T00:59:25.728Z",
-      "updatedAt": "2026-03-11T01:10:52.882Z"
+      "total": 1450,
+      "createdAt": "2026-03-11T19:05:46.395Z",
+      "updatedAt": "2026-03-11T19:05:46.395Z"
     }
   ]
 }

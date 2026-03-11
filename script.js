@@ -224,6 +224,19 @@
     window.location.href = "checkout.html";
   });
 
-  loadCart();
-  renderCart();
+  const syncCartFromStorage = () => {
+    cartState.clear();
+    loadCart();
+    renderCart();
+  };
+
+  // Keep cart in sync when returning via back/forward cache after checkout.
+  window.addEventListener("pageshow", () => syncCartFromStorage());
+  window.addEventListener("storage", (event) => {
+    if (event.key === STORAGE_KEY) {
+      syncCartFromStorage();
+    }
+  });
+
+  syncCartFromStorage();
 })();

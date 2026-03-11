@@ -58,6 +58,17 @@
     </main>
   </div>
 
+  <div class="modal-overlay" id="success-overlay" hidden>
+    <div class="modal-card" role="dialog" aria-modal="true" aria-labelledby="success-title">
+      <h2 id="success-title">Заказ принят</h2>
+      <p class="modal-text" id="success-text"></p>
+      <p class="modal-text">Переходим на главную через <b id="success-countdown">5</b> сек.</p>
+      <div class="modal-actions">
+        <button type="button" class="checkout-submit" id="success-go">Перейти сейчас</button>
+      </div>
+    </div>
+  </div>
+
   <script src="checkout.js"></script>
 </body>
 </html>
