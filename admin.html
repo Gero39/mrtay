@@ -1,0 +1,209 @@
+<!doctype html>
+<html lang="ru">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Mr. Тай | Админка</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;700;800&family=Rubik:wght@400;500;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="styles.css">
+  <link rel="stylesheet" href="admin.css">
+</head>
+<body>
+  <div class="page-shell">
+    <header class="topbar checkout-head admin-head">
+      <div class="brand">
+        <div class="brand-logo">Mr. Тай</div>
+        <div class="brand-subtitle">админ панель</div>
+      </div>
+      <a class="back-link" href="index.html">&lt; На сайт</a>
+    </header>
+
+    <main class="admin-main">
+      <section class="admin-card">
+        <div class="admin-toolbar">
+          <div class="admin-auth">
+            <label>
+              Токен
+              <input id="admin-token-input" type="password" placeholder="ADMIN_TOKEN">
+            </label>
+            <button class="admin-btn" id="admin-token-save" type="button">Сохранить</button>
+            <span class="admin-auth-status" id="admin-auth-status"></span>
+          </div>
+          <div class="admin-tabs" role="tablist" aria-label="Разделы админки">
+            <button class="admin-tab-btn active" type="button" data-tab="orders" role="tab">Заказы</button>
+            <button class="admin-tab-btn" type="button" data-tab="categories" role="tab">Категории</button>
+            <button class="admin-tab-btn" type="button" data-tab="menu" role="tab">Меню</button>
+            <button class="admin-tab-btn" type="button" data-tab="promos" role="tab">Акции</button>
+          </div>
+        </div>
+
+        <div class="admin-panels">
+          <section class="admin-panel active" id="panel-orders" role="tabpanel">
+            <div class="admin-panel-head">
+              <div class="admin-filters">
+                <label>
+                  Статус
+                  <select id="orders-status">
+                    <option value="">Все</option>
+                    <option value="incoming">Поступившие</option>
+                    <option value="cancelled">Отменённые</option>
+                    <option value="delivered">Доставлено</option>
+                  </select>
+                </label>
+              </div>
+              <button class="admin-btn" id="orders-refresh" type="button">Обновить</button>
+            </div>
+            <div class="admin-list" id="orders-list"></div>
+          </section>
+
+          <section class="admin-panel" id="panel-categories" role="tabpanel">
+            <div class="admin-split">
+              <div>
+                <div class="admin-panel-head">
+                  <h2>Категории</h2>
+                  <button class="admin-btn" id="categories-refresh" type="button">Обновить</button>
+                </div>
+                <div class="admin-list" id="categories-list"></div>
+              </div>
+              <div class="admin-form-card">
+                <h2 id="category-form-title">Новая категория</h2>
+                <form id="category-form" class="admin-form">
+                  <input type="hidden" id="category-id">
+                  <label>
+                    Название
+                    <input type="text" id="category-name" required>
+                  </label>
+                  <div class="admin-actions">
+                    <button class="admin-btn admin-btn--primary" type="submit">Сохранить</button>
+                    <button class="admin-btn admin-btn--danger" id="category-delete" type="button" hidden>Удалить</button>
+                    <button class="admin-btn" id="category-reset" type="button">Сбросить</button>
+                  </div>
+                  <p class="admin-note" id="category-note"></p>
+                </form>
+              </div>
+            </div>
+          </section>
+
+          <section class="admin-panel" id="panel-menu" role="tabpanel">
+            <div class="admin-split">
+              <div>
+                <div class="admin-panel-head">
+                  <h2>Блюда</h2>
+                  <div class="admin-filters">
+                    <label>
+                      Категория
+                      <select id="menu-filter-category"></select>
+                    </label>
+                  </div>
+                  <button class="admin-btn" id="menu-refresh" type="button">Обновить</button>
+                </div>
+                <div class="admin-list" id="menu-list"></div>
+              </div>
+              <div class="admin-form-card">
+                <h2 id="menu-form-title">Новое блюдо</h2>
+                <form id="menu-form" class="admin-form">
+                  <input type="hidden" id="menu-id">
+                  <label>
+                    Название
+                    <input type="text" id="menu-title" required>
+                  </label>
+                  <label>
+                    Описание
+                    <textarea id="menu-description" rows="3"></textarea>
+                  </label>
+                  <label>
+                    Категория
+                    <select id="menu-category"></select>
+                  </label>
+                  <label>
+                    Цена (₽)
+                    <input type="number" id="menu-price" min="0" step="1" required>
+                  </label>
+                  <label class="admin-inline">
+                    <input type="checkbox" id="menu-active" checked>
+                    Активно (показывать на сайте)
+                  </label>
+
+                  <div class="admin-upload">
+                    <label>
+                      Картинка
+                      <input type="file" id="menu-image-file" accept="image/*">
+                    </label>
+                    <input type="hidden" id="menu-image-url">
+                    <div class="admin-thumb" id="menu-image-preview"></div>
+                  </div>
+
+                  <div class="admin-actions">
+                    <button class="admin-btn admin-btn--primary" type="submit">Сохранить</button>
+                    <button class="admin-btn admin-btn--danger" id="menu-delete" type="button" hidden>Удалить</button>
+                    <button class="admin-btn" id="menu-reset" type="button">Сбросить</button>
+                  </div>
+                  <p class="admin-note" id="menu-note"></p>
+                </form>
+              </div>
+            </div>
+          </section>
+
+          <section class="admin-panel" id="panel-promos" role="tabpanel">
+            <div class="admin-split">
+              <div>
+                <div class="admin-panel-head">
+                  <h2>Акции</h2>
+                  <button class="admin-btn" id="promos-refresh" type="button">Обновить</button>
+                </div>
+                <div class="admin-list" id="promos-list"></div>
+              </div>
+              <div class="admin-form-card">
+                <h2 id="promo-form-title">Новая акция</h2>
+                <form id="promo-form" class="admin-form">
+                  <input type="hidden" id="promo-id">
+                  <label>
+                    Заголовок
+                    <input type="text" id="promo-title" required>
+                  </label>
+                  <label>
+                    Текст
+                    <textarea id="promo-text" rows="3" required></textarea>
+                  </label>
+                  <label>
+                    Тема
+                    <select id="promo-theme">
+                      <option value="pink">Розовая</option>
+                      <option value="blue">Синяя</option>
+                      <option value="sand">Песочная</option>
+                    </select>
+                  </label>
+                  <label class="admin-inline">
+                    <input type="checkbox" id="promo-active" checked>
+                    Активно (показывать на сайте)
+                  </label>
+
+                  <div class="admin-upload">
+                    <label>
+                      Картинка (опционально)
+                      <input type="file" id="promo-image-file" accept="image/*">
+                    </label>
+                    <input type="hidden" id="promo-image-url">
+                    <div class="admin-thumb" id="promo-image-preview"></div>
+                  </div>
+
+                  <div class="admin-actions">
+                    <button class="admin-btn admin-btn--primary" type="submit">Сохранить</button>
+                    <button class="admin-btn admin-btn--danger" id="promo-delete" type="button" hidden>Удалить</button>
+                    <button class="admin-btn" id="promo-reset" type="button">Сбросить</button>
+                  </div>
+                  <p class="admin-note" id="promo-note"></p>
+                </form>
+              </div>
+            </div>
+          </section>
+        </div>
+      </section>
+    </main>
+  </div>
+
+  <script src="admin.js"></script>
+</body>
+</html>

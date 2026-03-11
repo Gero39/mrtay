@@ -1,0 +1,151 @@
+<!doctype html>
+<html lang="ru">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Mr. Тай | Доставка азиатской кухни</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;700;800&family=Rubik:wght@400;500;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+  <div class="page-shell">
+    <header class="topbar">
+      <div class="brand">
+        <div class="brand-logo">Mr. Тай</div>
+        <div class="brand-subtitle">доставка азиатской кухни</div>
+      </div>
+      <div class="city-panel">
+        <p>Симферополь</p>
+        <span>Ежедневно: 10:00-23:30</span>
+      </div>
+      <label class="search">
+        <input type="search" placeholder="Поиск по меню">
+      </label>
+      <button class="icon-btn" type="button" aria-label="Профиль">
+        <span class="profile-icon" aria-hidden="true"></span>
+      </button>
+      <button class="cart-pill" type="button" id="cart-toggle" aria-expanded="false" aria-controls="cart-drawer">
+        <span>Корзина <small id="cart-count">0</small></span>
+        <strong id="cart-total">0 &#8381;</strong>
+      </button>
+    </header>
+
+    <main class="layout">
+      <aside class="category-sidebar">
+        <h2>Категории</h2>
+        <nav id="category-nav">
+          <a href="#" class="active">Акции и новинки</a>
+          <a href="#">Сеты</a>
+          <a href="#">Роллы</a>
+          <a href="#">Супы</a>
+          <a href="#">Вок и лапша</a>
+          <a href="#">Поке</a>
+          <a href="#">Том Ям</a>
+          <a href="#">Горячие блюда</a>
+          <a href="#">Десерты</a>
+          <a href="#">Напитки</a>
+        </nav>
+      </aside>
+
+      <section class="content">
+        <div class="promo-row" id="promo-row">
+          <article class="promo-card promo-card--pink">
+            <h3>Набор "Тай Вечер"</h3>
+            <p>Скидка 15% на любимые роллы после 19:00</p>
+          </article>
+          <article class="promo-card promo-card--blue">
+            <h3>Дарим Том Ям</h3>
+            <p>При заказе от 1800 &#8381; добавим суп в подарок</p>
+          </article>
+          <article class="promo-card promo-card--sand">
+            <h3>Бенто ланч</h3>
+            <p>Быстрые обеды в будни с 12:00 до 16:00</p>
+          </article>
+        </div>
+
+        <div class="menu-grid" id="menu-grid">
+          <article class="food-card" data-id="roll-tom-yam" data-name='Ролл "Том Ям"' data-price="395">
+            <div class="food-image food-image--1"></div>
+            <h4>Ролл "Том Ям"</h4>
+            <p>Сливочный сыр, креветка, огурец и острый соус.</p>
+            <div class="food-footer">
+              <b>395 &#8381;</b>
+              <button class="order-btn" type="button">В корзину</button>
+            </div>
+          </article>
+
+          <article class="food-card" data-id="roll-salmon" data-name="Ролл с лососем" data-price="405">
+            <div class="food-image food-image--2"></div>
+            <h4>Ролл с лососем</h4>
+            <p>Нежный лосось, соус унаги, кунжут и сливочный сыр.</p>
+            <div class="food-footer">
+              <b>405 &#8381;</b>
+              <button class="order-btn" type="button">В корзину</button>
+            </div>
+          </article>
+
+          <article class="food-card" data-id="roll-eel" data-name="Ролл с угрем" data-price="225">
+            <div class="food-image food-image--3"></div>
+            <h4>Ролл с угрем</h4>
+            <p>Копченый угорь, рис, нори и фирменная заправка.</p>
+            <div class="food-footer">
+              <b>225 &#8381;</b>
+              <button class="order-btn" type="button">В корзину</button>
+            </div>
+          </article>
+
+          <article class="food-card" data-id="tom-yam-shrimp" data-name="Том Ям с креветкой" data-price="520">
+            <div class="food-image food-image--4"></div>
+            <h4>Том Ям с креветкой</h4>
+            <p>Кокосовое молоко, паста том ям, шампиньоны и лайм.</p>
+            <div class="food-footer">
+              <b>520 &#8381;</b>
+              <button class="order-btn" type="button">В корзину</button>
+            </div>
+          </article>
+
+          <article class="food-card" data-id="pad-thai-chicken" data-name="Пад Тай с курицей" data-price="460">
+            <div class="food-image food-image--5"></div>
+            <h4>Пад Тай с курицей</h4>
+            <p>Рисовая лапша, овощи, арахис, соус тамаринд.</p>
+            <div class="food-footer">
+              <b>460 &#8381;</b>
+              <button class="order-btn" type="button">В корзину</button>
+            </div>
+          </article>
+
+          <article class="food-card" data-id="mango-cheesecake" data-name="Манго чизкейк" data-price="330">
+            <div class="food-image food-image--6"></div>
+            <h4>Манго чизкейк</h4>
+            <p>Нежный сливочный десерт с манговым пюре.</p>
+            <div class="food-footer">
+              <b>330 &#8381;</b>
+              <button class="order-btn" type="button">В корзину</button>
+            </div>
+          </article>
+        </div>
+      </section>
+    </main>
+  </div>
+
+  <div class="cart-overlay" id="cart-overlay" hidden></div>
+  <aside class="cart-drawer" id="cart-drawer" aria-hidden="true">
+    <div class="cart-drawer__header">
+      <h2>Корзина</h2>
+      <button class="cart-close" type="button" id="cart-close" aria-label="Закрыть корзину">&times;</button>
+    </div>
+    <div class="cart-items" id="cart-items">
+      <p class="cart-empty">Корзина пока пустая. Добавьте блюда из меню.</p>
+    </div>
+    <div class="cart-drawer__footer">
+      <p>Итого: <strong id="cart-drawer-total">0 &#8381;</strong></p>
+      <button class="checkout-btn" type="button" id="go-to-order">Оформить заказ</button>
+    </div>
+  </aside>
+
+  <script src="site.js"></script>
+  <script src="script.js"></script>
+</body>
+</html>

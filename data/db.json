@@ -1,0 +1,190 @@
+{
+  "menu": [
+    {
+      "id": "3ac73ecf-7a10-411c-a44c-9412d8a28a20",
+      "title": "4 сыра",
+      "description": "Белый соус, моцарелла, Фета, дор-блю, пармезан",
+      "category": "Пицца",
+      "imageUrl": "",
+      "price": 600,
+      "active": true,
+      "createdAt": "2026-03-11T01:15:10.710Z",
+      "updatedAt": "2026-03-11T01:15:10.710Z"
+    },
+    {
+      "id": "roll-tom-yam",
+      "title": "Ролл \"Том Ям\"",
+      "description": "Сливочный сыр, креветка, огурец и острый соус.",
+      "category": "Роллы",
+      "imageUrl": "",
+      "price": 395,
+      "active": true,
+      "createdAt": "2026-03-11T00:00:00.000Z",
+      "updatedAt": "2026-03-11T00:00:00.000Z"
+    },
+    {
+      "id": "roll-salmon",
+      "title": "Ролл с лососем",
+      "description": "Нежный лосось, соус унаги, кунжут и сливочный сыр.",
+      "category": "Роллы",
+      "imageUrl": "",
+      "price": 405,
+      "active": true,
+      "createdAt": "2026-03-11T00:00:00.000Z",
+      "updatedAt": "2026-03-11T00:00:00.000Z"
+    },
+    {
+      "id": "roll-eel",
+      "title": "Ролл с угрем",
+      "description": "Копченый угорь, рис, нори и фирменная заправка.",
+      "category": "Роллы",
+      "imageUrl": "",
+      "price": 225,
+      "active": true,
+      "createdAt": "2026-03-11T00:00:00.000Z",
+      "updatedAt": "2026-03-11T00:00:00.000Z"
+    },
+    {
+      "id": "tom-yam-shrimp",
+      "title": "Том Ям с креветкой",
+      "description": "Кокосовое молоко, паста том ям, шампиньоны и лайм.",
+      "category": "Супы",
+      "imageUrl": "",
+      "price": 520,
+      "active": true,
+      "createdAt": "2026-03-11T00:00:00.000Z",
+      "updatedAt": "2026-03-11T00:00:00.000Z"
+    },
+    {
+      "id": "pad-thai-chicken",
+      "title": "Пад Тай с курицей",
+      "description": "Рисовая лапша, овощи, арахис, соус тамаринд.",
+      "category": "Вок и лапша",
+      "imageUrl": "",
+      "price": 460,
+      "active": true,
+      "createdAt": "2026-03-11T00:00:00.000Z",
+      "updatedAt": "2026-03-11T00:00:00.000Z"
+    },
+    {
+      "id": "mango-cheesecake",
+      "title": "Манго чизкейк",
+      "description": "Нежный сливочный десерт с манговым пюре.",
+      "category": "Десерты",
+      "imageUrl": "",
+      "price": 330,
+      "active": true,
+      "createdAt": "2026-03-11T00:00:00.000Z",
+      "updatedAt": "2026-03-11T00:00:00.000Z"
+    }
+  ],
+  "promos": [
+    {
+      "id": "36dcf475-71d9-434e-922f-fe55d266adef",
+      "title": "ТЕСТ",
+      "text": "ТЕСТ",
+      "theme": "sand",
+      "imageUrl": "/uploads/1773191068279_2d0eb597-7118-4b82-a984-0fc7b54948a8.png",
+      "active": true,
+      "createdAt": "2026-03-11T01:04:29.213Z",
+      "updatedAt": "2026-03-11T01:11:20.456Z"
+    },
+    {
+      "id": "promo-thai-evening",
+      "title": "Набор \"Тай Вечер\"",
+      "text": "Скидка 15% на любимые роллы после 19:00",
+      "theme": "pink",
+      "imageUrl": "",
+      "active": true,
+      "createdAt": "2026-03-11T00:00:00.000Z",
+      "updatedAt": "2026-03-11T00:00:00.000Z"
+    },
+    {
+      "id": "promo-free-tom-yam",
+      "title": "Дарим Том Ям",
+      "text": "При заказе от 1800 ₽ добавим суп в подарок",
+      "theme": "blue",
+      "imageUrl": "",
+      "active": true,
+      "createdAt": "2026-03-11T00:00:00.000Z",
+      "updatedAt": "2026-03-11T00:00:00.000Z"
+    },
+    {
+      "id": "promo-bento",
+      "title": "Бенто ланч",
+      "text": "Быстрые обеды в будни с 12:00 до 16:00",
+      "theme": "sand",
+      "imageUrl": "",
+      "active": true,
+      "createdAt": "2026-03-11T00:00:00.000Z",
+      "updatedAt": "2026-03-11T00:00:00.000Z"
+    }
+  ],
+  "categories": [
+    {
+      "id": "a9f7981f-2426-4d4a-abfe-44a15d10bf76",
+      "name": "ТЕСТ",
+      "createdAt": "2026-03-11T01:44:44.449Z",
+      "updatedAt": "2026-03-11T01:44:44.449Z"
+    },
+    {
+      "id": "cat-wok",
+      "name": "Вок и лапша",
+      "createdAt": "2026-03-11T00:00:00.000Z",
+      "updatedAt": "2026-03-11T00:00:00.000Z"
+    },
+    {
+      "id": "cat-rolls",
+      "name": "Роллы",
+      "createdAt": "2026-03-11T00:00:00.000Z",
+      "updatedAt": "2026-03-11T00:00:00.000Z"
+    },
+    {
+      "id": "cat-desserts",
+      "name": "Десерты",
+      "createdAt": "2026-03-11T00:00:00.000Z",
+      "updatedAt": "2026-03-11T00:00:00.000Z"
+    },
+    {
+      "id": "cat-pizza",
+      "name": "Пицца",
+      "createdAt": "2026-03-11T00:00:00.000Z",
+      "updatedAt": "2026-03-11T00:00:00.000Z"
+    },
+    {
+      "id": "cat-soups",
+      "name": "Супы",
+      "createdAt": "2026-03-11T00:00:00.000Z",
+      "updatedAt": "2026-03-11T00:00:00.000Z"
+    }
+  ],
+  "orders": [
+    {
+      "id": "3a9f58c9-664f-41ab-ac04-ea04dea4e1ce",
+      "status": "delivered",
+      "customer": {
+        "name": "Егор",
+        "phone": "79781030117",
+        "address": "Балаклавская д 71 кв 85",
+        "comment": "Не звонить"
+      },
+      "items": [
+        {
+          "id": "roll-tom-yam",
+          "name": "Ролл \"Том Ям\"",
+          "price": 395,
+          "quantity": 1
+        },
+        {
+          "id": "pad-thai-chicken",
+          "name": "Пад Тай с курицей",
+          "price": 460,
+          "quantity": 1
+        }
+      ],
+      "total": 855,
+      "createdAt": "2026-03-11T00:59:25.728Z",
+      "updatedAt": "2026-03-11T01:10:52.882Z"
+    }
+  ]
+}
