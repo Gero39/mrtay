@@ -46,6 +46,8 @@ const menuActive = document.querySelector("#menu-active");
 const menuImageFile = document.querySelector("#menu-image-file");
 const menuImageUrl = document.querySelector("#menu-image-url");
 const menuImagePreview = document.querySelector("#menu-image-preview");
+const menuOptionsList = document.querySelector("#menu-options-list");
+const menuOptionAdd = document.querySelector("#menu-option-add");
 
 const promosList = document.querySelector("#promos-list");
 const promosRefresh = document.querySelector("#promos-refresh");
@@ -182,7 +184,9 @@ const renderOrders = (orders) => {
       const itemsHtml = (order.items || [])
         .map((i) => {
           const lineTotal = Number(i.price || 0) * Number(i.quantity || 0);
-          return `<li>${escapeHtml(i.name)} x${Number(i.quantity || 0)} = <b>${formatPrice(lineTotal)}</b></li>`;
+          const label = String(i.optionLabel || "").trim();
+          const title = label ? `${String(i.name || "")} (${label})` : String(i.name || "");
+          return `<li>${escapeHtml(title)} x${Number(i.quantity || 0)} = <b>${formatPrice(lineTotal)}</b></li>`;
         })
         .join("");
 
@@ -357,9 +361,89 @@ const setMenuForm = (item) => {
   menuImageUrl.value = item?.imageUrl || "";
   menuImageFile.value = "";
   menuImagePreview.style.backgroundImage = menuImageUrl.value ? `url("${menuImageUrl.value}")` : "";
+  renderMenuOptions(Array.isArray(item?.options) ? item.options : []);
   menuFormTitle.textContent = menuId.value ? "Редактировать блюдо" : "Новое блюдо";
   menuDelete.hidden = !menuId.value;
   menuNote.textContent = "";
+};
+
+function renderMenuOptions(options) {
+  if (!menuOptionsList) return;
+  const list = Array.isArray(options) ? options : [];
+
+  if (list.length === 0) {
+    menuOptionsList.innerHTML = '<p class="admin-option-empty">Вариантов нет.</p>';
+    return;
+  }
+
+  menuOptionsList.innerHTML = list
+    .map((opt) => {
+      const id = String(opt?.id || "").trim() || (crypto.randomUUID ? crypto.randomUUID() : `${Date.now()}`);
+      const label = String(opt?.label || "").trim();
+      const price = Number(opt?.price ?? "");
+      return `
+        <div class="admin-option-row" data-id="${escapeHtml(id)}">
+          <input type="text" class="admin-option-label" placeholder="Напр. 25 см" value="${escapeHtml(label)}">
+          <input type="number" class="admin-option-price" min="0" step="1" value="${Number.isFinite(price) ? price : ""}">
+          <button class="admin-btn admin-btn--danger admin-btn--sm" type="button" data-action="remove-option">Удалить</button>
+        </div>
+      `;
+    })
+    .join("");
+}
+
+const appendMenuOptionRow = (opt = null) => {
+  if (!menuOptionsList) return;
+
+  const isEmpty = Boolean(menuOptionsList.querySelector(".admin-option-empty"));
+  if (isEmpty) {
+    menuOptionsList.innerHTML = "";
+  }
+
+  const id = String(opt?.id || "").trim() || (crypto.randomUUID ? crypto.randomUUID() : `${Date.now()}`);
+  const label = String(opt?.label || "").trim();
+  const price = opt?.price !== undefined ? Number(opt.price) : "";
+
+  const row = document.createElement("div");
+  row.className = "admin-option-row";
+  row.dataset.id = id;
+  row.innerHTML = `
+    <input type="text" class="admin-option-label" placeholder="Напр. 25 см" value="${escapeHtml(label)}">
+    <input type="number" class="admin-option-price" min="0" step="1" value="${Number.isFinite(price) ? price : ""}">
+    <button class="admin-btn admin-btn--danger admin-btn--sm" type="button" data-action="remove-option">Удалить</button>
+  `;
+  menuOptionsList.appendChild(row);
+};
+
+const readMenuOptionsFromEditor = () => {
+  if (!menuOptionsList) return { options: [], error: null };
+
+  const rows = Array.from(menuOptionsList.querySelectorAll(".admin-option-row"));
+  const out = [];
+
+  for (const row of rows) {
+    const id = String(row.dataset.id || "").trim() || (crypto.randomUUID ? crypto.randomUUID() : `${Date.now()}`);
+    const labelInput = row.querySelector(".admin-option-label");
+    const priceInput = row.querySelector(".admin-option-price");
+    const label = String(labelInput?.value || "").trim();
+    const rawPrice = String(priceInput?.value || "").trim();
+
+    if (!label && !rawPrice) {
+      continue;
+    }
+    if (!label) {
+      return { options: [], error: "У варианта нет названия." };
+    }
+
+    const price = Number(rawPrice);
+    if (!Number.isFinite(price) || price < 0) {
+      return { options: [], error: `Неверная цена у варианта "${label}".` };
+    }
+
+    out.push({ id, label, price: Math.round(price) });
+  }
+
+  return { options: out, error: null };
 };
 
 let categoriesData = [];
@@ -824,6 +908,26 @@ menuRefresh.addEventListener("click", async () => {
 
 menuReset.addEventListener("click", () => setMenuForm(null));
 
+if (menuOptionAdd) {
+  menuOptionAdd.addEventListener("click", () => appendMenuOptionRow());
+}
+
+if (menuOptionsList) {
+  menuOptionsList.addEventListener("click", (event) => {
+    const target = event.target;
+    if (!(target instanceof HTMLElement)) return;
+    const btn = target.closest('[data-action="remove-option"]');
+    if (!(btn instanceof HTMLButtonElement)) return;
+    const row = btn.closest(".admin-option-row");
+    if (row) {
+      row.remove();
+    }
+    if (menuOptionsList.querySelectorAll(".admin-option-row").length === 0) {
+      menuOptionsList.innerHTML = '<p class="admin-option-empty">Вариантов нет.</p>';
+    }
+  });
+}
+
 if (menuFilterCategory) {
   menuFilterCategory.addEventListener("change", () => {
     menuFilterValue = menuFilterCategory.value;
@@ -886,12 +990,18 @@ menuForm.addEventListener("submit", async (event) => {
   menuNote.textContent = "";
 
   const selectedCategory = menuCategory.value.trim();
+  const optionsResult = readMenuOptionsFromEditor();
+  if (optionsResult.error) {
+    menuNote.textContent = optionsResult.error;
+    return;
+  }
 
   const payload = {
     title: menuTitle.value.trim(),
     description: menuDescription.value.trim(),
     category: selectedCategory,
     price: Number(menuPrice.value),
+    options: optionsResult.options,
     active: Boolean(menuActive.checked),
     imageUrl: menuImageUrl.value.trim(),
   };

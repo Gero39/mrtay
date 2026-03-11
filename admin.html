@@ -126,6 +126,15 @@
                     Цена (₽)
                     <input type="number" id="menu-price" min="0" step="1" required>
                   </label>
+
+                  <div class="admin-options">
+                    <div class="admin-options__head">
+                      <p class="admin-options__title">Варианты (например: 25 см / 30 см)</p>
+                      <button class="admin-btn admin-btn--sm" id="menu-option-add" type="button">Добавить вариант</button>
+                    </div>
+                    <div class="admin-options__list" id="menu-options-list"></div>
+                    <p class="admin-note">Если вариантов нет, выбор на карточке блюда не появится.</p>
+                  </div>
                   <label class="admin-inline">
                     <input type="checkbox" id="menu-active" checked>
                     Активно (показывать на сайте)

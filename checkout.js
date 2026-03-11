@@ -81,9 +81,10 @@
     orderSummary.innerHTML = items
       .map((item) => {
         const lineTotal = item.price * item.quantity;
+        const title = item.optionLabel ? `${item.name} (${item.optionLabel})` : item.name;
         return `
           <article class="order-summary__item">
-            <p>${escapeHtml(item.name)}</p>
+            <p>${escapeHtml(title)}</p>
             <span>${item.quantity} x ${formatPrice(item.price)} = ${formatPrice(lineTotal)}</span>
           </article>
         `;
@@ -141,7 +142,11 @@
       comment: String(form.get("comment") || "").trim(),
     };
 
-    const orderItems = items.map((i) => ({ id: i.id, quantity: i.quantity }));
+    const orderItems = items.map((i) => ({
+      id: i.id,
+      optionId: String(i.optionId || "").trim(),
+      quantity: i.quantity,
+    }));
 
     submitOrderButton.disabled = true;
     setNote("Отправляем заказ...");

@@ -417,6 +417,7 @@ app.post("/api/admin/menu", requireAdmin, async (req, res) => {
   const imageUrl = String(payload.imageUrl || "").trim();
   const price = asMoney(payload.price);
   const active = Boolean(payload.active);
+  const options = normalizeMenuOptions(payload.options);
 
   if (!title || price === null || price < 0) {
     res.status(400).json({ error: "invalid_payload" });
@@ -432,6 +433,7 @@ app.post("/api/admin/menu", requireAdmin, async (req, res) => {
       category,
       imageUrl,
       price,
+      options,
       active,
       createdAt: now,
       updatedAt: now,
@@ -469,6 +471,8 @@ app.put("/api/admin/menu/:id", requireAdmin, async (req, res) => {
       category: payload.category !== undefined ? String(payload.category || "").trim() : current.category,
       imageUrl: payload.imageUrl !== undefined ? String(payload.imageUrl || "").trim() : current.imageUrl,
       price,
+      options:
+        payload.options !== undefined ? normalizeMenuOptions(payload.options) : (Array.isArray(current.options) ? current.options : []),
       active: payload.active !== undefined ? Boolean(payload.active) : current.active,
       updatedAt: now,
     };

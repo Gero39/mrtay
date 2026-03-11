@@ -733,6 +733,39 @@ body.modal-open {
   display: flex;
   align-items: center;
   justify-content: space-between;
+  gap: 10px;
+}
+
+.food-price {
+  white-space: nowrap;
+}
+
+.food-actions {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.food-option {
+  border: 1px solid var(--line);
+  border-radius: 999px;
+  padding: 9px 12px;
+  font: inherit;
+  font-weight: 700;
+  background: var(--surface);
+  width: 76px;
+  appearance: none;
+  background-image: linear-gradient(45deg, transparent 50%, var(--muted) 50%),
+    linear-gradient(135deg, var(--muted) 50%, transparent 50%);
+  background-position: calc(100% - 16px) 52%, calc(100% - 11px) 52%;
+  background-size: 5px 5px, 5px 5px;
+  background-repeat: no-repeat;
+  padding-right: 30px;
+}
+
+.food-actions .order-btn {
+  min-width: 132px;
+  text-align: center;
 }
 
 .order-btn {
@@ -816,6 +849,14 @@ body.modal-open {
 
   .section-header h1 {
     font-size: 1.6rem;
+  }
+
+  .food-option {
+    width: 72px;
+  }
+
+  .food-actions .order-btn {
+    min-width: 124px;
   }
 
   .category-sidebar nav {

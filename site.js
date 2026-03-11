@@ -63,17 +63,44 @@
       .map((item, idx) => {
         const fallbackClass = `food-image--${(idx % 6) + 1}`;
         const imageStyle = item.imageUrl ? `style="background-image:url('${escapeHtml(item.imageUrl)}')"` : "";
+        const options = Array.isArray(item.options)
+          ? item.options
+              .map((o) => ({
+                id: String(o?.id || "").trim(),
+                label: String(o?.label || "").trim(),
+                price: Number(o?.price || 0),
+              }))
+              .filter((o) => o.id && o.label && Number.isFinite(o.price) && o.price >= 0)
+          : [];
+
+        const basePrice = Number(item.price) || 0;
+        const initialPrice = options.length ? Number(options[0].price) : basePrice;
+        const optionsHtml = options.length
+          ? `
+            <select class="food-option" aria-label="Вариант блюда">
+              ${options
+                .map(
+                  (o) =>
+                    `<option value="${escapeHtml(o.id)}" data-price="${Number(o.price) || 0}">${escapeHtml(o.label)}</option>`,
+                )
+                .join("")}
+            </select>
+          `
+          : "";
 
         return `
           <article class="food-card" data-id="${escapeHtml(item.id)}" data-name="${escapeHtml(
             item.title,
-          )}" data-price="${Number(item.price) || 0}">
+          )}" data-price="${initialPrice}" data-base-price="${basePrice}">
             <div class="food-image ${fallbackClass}" ${imageStyle}></div>
             <h4>${escapeHtml(item.title)}</h4>
             <p>${escapeHtml(item.description || "")}</p>
             <div class="food-footer">
-              <b>${Number(item.price) || 0} &#8381;</b>
-              <button class="order-btn" type="button">В корзину</button>
+              <b class="food-price">${initialPrice} &#8381;</b>
+              <div class="food-actions">
+                ${optionsHtml}
+                <button class="order-btn" type="button">В корзину</button>
+              </div>
             </div>
           </article>
         `;

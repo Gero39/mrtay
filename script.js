@@ -55,8 +55,13 @@
     try {
       const parsed = JSON.parse(raw);
       for (const item of parsed) {
+        const baseId = String(item?.id || "").trim();
+        const optionId = String(item?.optionId || "").trim();
+        const key = String(item?.key || (optionId ? `${baseId}::${optionId}` : baseId)).trim();
+        const optionLabel = String(item?.optionLabel || "").trim();
         if (
-          !item?.id ||
+          !baseId ||
+          !key ||
           !item?.name ||
           !Number.isFinite(item?.price) ||
           !Number.isFinite(item?.quantity) ||
@@ -65,10 +70,13 @@
           continue;
         }
 
-        cartState.set(item.id, {
-          id: String(item.id),
+        cartState.set(key, {
+          key,
+          id: baseId,
           name: String(item.name),
           price: Number(item.price),
+          optionId,
+          optionLabel,
           quantity: Number(item.quantity),
         });
       }
@@ -89,9 +97,17 @@
     const card = button.closest(".food-card");
     const id = card?.dataset.id || "";
     const name = card?.dataset.name || card?.querySelector("h4")?.textContent?.trim() || "";
-    const price = Number(card?.dataset.price || 0);
+    const basePrice = Number(card?.dataset.basePrice || card?.dataset.price || 0);
 
-    return { id, name, price };
+    const optionSelect = card?.querySelector(".food-option");
+    const selectedOption = optionSelect?.selectedOptions?.[0] || null;
+    const optionId = optionSelect ? String(optionSelect.value || "").trim() : "";
+    const optionLabel = optionSelect ? String(selectedOption?.textContent || "").trim() : "";
+    const optionPrice = optionSelect ? Number(selectedOption?.dataset.price || 0) : NaN;
+    const price = Number.isFinite(optionPrice) && optionPrice >= 0 ? optionPrice : basePrice;
+    const key = optionId ? `${id}::${optionId}` : id;
+
+    return { key, id, name, price, optionId, optionLabel };
   };
 
   const renderCart = () => {
@@ -112,16 +128,17 @@
     cartItemsContainer.innerHTML = items
       .map((item) => {
         const lineTotal = item.price * item.quantity;
+        const title = item.optionLabel ? `${item.name} (${item.optionLabel})` : item.name;
         return `
           <article class="cart-item">
             <div class="cart-item__top">
-              <h4>${escapeHtml(item.name)}</h4>
+              <h4>${escapeHtml(title)}</h4>
               <span class="cart-item__sum">${formatPrice(lineTotal)}</span>
             </div>
             <div class="qty-controls">
-              <button type="button" class="qty-btn" data-action="decrease" data-id="${escapeHtml(item.id)}" aria-label="Уменьшить количество">-</button>
+              <button type="button" class="qty-btn" data-action="decrease" data-key="${escapeHtml(item.key)}" aria-label="Уменьшить количество">-</button>
               <span class="qty-value">${item.quantity}</span>
-              <button type="button" class="qty-btn" data-action="increase" data-id="${escapeHtml(item.id)}" aria-label="Увеличить количество">+</button>
+              <button type="button" class="qty-btn" data-action="increase" data-key="${escapeHtml(item.key)}" aria-label="Увеличить количество">+</button>
             </div>
           </article>
         `;
@@ -131,8 +148,8 @@
     persistCart();
   };
 
-  const updateItemQuantity = (id, delta) => {
-    const item = cartState.get(id);
+  const updateItemQuantity = (key, delta) => {
+    const item = cartState.get(key);
     if (!item) {
       return;
     }
@@ -147,15 +164,15 @@
 
   const addToCart = (button) => {
     const item = getCardData(button);
-    if (!item.id || !item.name || item.price <= 0) {
+    if (!item.key || !item.id || !item.name || item.price <= 0) {
       return;
     }
 
-    const existingItem = cartState.get(item.id);
+    const existingItem = cartState.get(item.key);
     if (existingItem) {
       existingItem.quantity += 1;
     } else {
-      cartState.set(item.id, { ...item, quantity: 1 });
+      cartState.set(item.key, { ...item, quantity: 1 });
     }
 
     renderCart();
@@ -181,6 +198,31 @@
     addToCart(button);
   });
 
+  // Keep price label in sync when a user changes variant (e.g. pizza size).
+  document.addEventListener("change", (event) => {
+    const target = event.target;
+    if (!(target instanceof HTMLSelectElement)) {
+      return;
+    }
+    if (!target.classList.contains("food-option")) {
+      return;
+    }
+
+    const card = target.closest(".food-card");
+    const priceEl = card?.querySelector(".food-price");
+    const opt = target.selectedOptions?.[0] || null;
+    const optionPrice = Number(opt?.dataset.price || 0);
+    const basePrice = Number(card?.dataset.basePrice || card?.dataset.price || 0);
+    const nextPrice = Number.isFinite(optionPrice) && optionPrice >= 0 ? optionPrice : basePrice;
+
+    if (priceEl) {
+      priceEl.textContent = formatPrice(nextPrice);
+    }
+    if (card) {
+      card.dataset.price = String(nextPrice);
+    }
+  });
+
   cartItemsContainer.addEventListener("click", (event) => {
     const target = event.target;
     if (!(target instanceof HTMLButtonElement)) {
@@ -191,13 +233,13 @@
       return;
     }
 
-    const itemId = target.dataset.id;
-    if (!itemId) {
+    const itemKey = target.dataset.key;
+    if (!itemKey) {
       return;
     }
 
     const delta = target.dataset.action === "increase" ? 1 : -1;
-    updateItemQuantity(itemId, delta);
+    updateItemQuantity(itemKey, delta);
   });
 
   cartToggleButton.addEventListener("click", () => {
