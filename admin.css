@@ -128,6 +128,11 @@
   color: #c81d31;
 }
 
+.admin-btn--sm {
+  padding: 6px 10px;
+  font-size: 0.92rem;
+}
+
 .admin-btn:disabled {
   opacity: 0.55;
   cursor: not-allowed;
@@ -307,6 +312,10 @@
   min-height: 20px;
   color: var(--muted);
   font-weight: 700;
+}
+
+#panel-orders .admin-note {
+  margin: 0 0 12px;
 }
 
 @media (max-width: 980px) {

@@ -12,6 +12,7 @@ const ADMIN_TOKEN = String(process.env.ADMIN_TOKEN || "dev");
 const DATA_DIR = path.join(__dirname, "data");
 const UPLOADS_DIR = path.join(__dirname, "uploads");
 const DB_FILE = path.join(DATA_DIR, "db.json");
+const ARCHIVES_DIR = path.join(DATA_DIR, "archives");
 
 const app = express();
 
@@ -28,11 +29,15 @@ const ensureDirsAndDb = async () => {
   if (!fssync.existsSync(UPLOADS_DIR)) {
     await fs.mkdir(UPLOADS_DIR, { recursive: true });
   }
+  if (!fssync.existsSync(ARCHIVES_DIR)) {
+    await fs.mkdir(ARCHIVES_DIR, { recursive: true });
+  }
   if (!fssync.existsSync(DB_FILE)) {
     const initial = {
       menu: [],
       promos: [],
       orders: [],
+      categories: [],
     };
     await fs.writeFile(DB_FILE, JSON.stringify(initial, null, 2), "utf8");
   }
@@ -591,6 +596,104 @@ app.patch("/api/admin/orders/:id", requireAdmin, async (req, res) => {
   }
 
   res.json(updated);
+});
+
+const isSafeArchiveName = (value) => /^[a-z0-9._-]+\\.json$/i.test(value) && !value.includes("..");
+
+app.post("/api/admin/orders/archive", requireAdmin, async (req, res) => {
+  const confirm = Boolean(req.body?.confirm);
+  if (!confirm) {
+    res.status(400).json({ error: "confirm_required" });
+    return;
+  }
+
+  const result = await updateDb(async (db) => {
+    const orders = Array.isArray(db.orders) ? db.orders : [];
+    if (orders.length === 0) {
+      return { archived: false, count: 0 };
+    }
+
+    const archivedAt = new Date().toISOString();
+    const safeStamp = archivedAt.replaceAll(":", "-").replaceAll(".", "-");
+    const file = `orders_${safeStamp}_${crypto.randomUUID().slice(0, 8)}.json`;
+
+    const archivePayload = {
+      version: 1,
+      archivedAt,
+      orders,
+    };
+
+    await fs.mkdir(ARCHIVES_DIR, { recursive: true });
+    await fs.writeFile(path.join(ARCHIVES_DIR, file), JSON.stringify(archivePayload, null, 2), "utf8");
+
+    db.orders = [];
+    return { archived: true, count: orders.length, file, archivedAt };
+  });
+
+  res.json(result);
+});
+
+app.post("/api/admin/orders/clear", requireAdmin, async (req, res) => {
+  const confirm = Boolean(req.body?.confirm);
+  if (!confirm) {
+    res.status(400).json({ error: "confirm_required" });
+    return;
+  }
+
+  const result = await updateDb(async (db) => {
+    const before = Array.isArray(db.orders) ? db.orders.length : 0;
+    db.orders = [];
+    return { ok: true, cleared: before };
+  });
+
+  res.json(result);
+});
+
+app.get("/api/admin/orders/archives", requireAdmin, async (_req, res) => {
+  let files = [];
+  try {
+    files = await fs.readdir(ARCHIVES_DIR);
+  } catch {
+    files = [];
+  }
+
+  const jsonFiles = files.filter((f) => f.toLowerCase().endsWith(".json") && isSafeArchiveName(f));
+  jsonFiles.sort((a, b) => b.localeCompare(a));
+
+  const items = await Promise.all(
+    jsonFiles.map(async (file) => {
+      try {
+        const full = path.join(ARCHIVES_DIR, file);
+        const raw = await fs.readFile(full, "utf8");
+        const parsed = JSON.parse(raw);
+        const count = Array.isArray(parsed?.orders) ? parsed.orders.length : null;
+        const archivedAt = typeof parsed?.archivedAt === "string" ? parsed.archivedAt : null;
+        return { file, archivedAt, count };
+      } catch {
+        return { file, archivedAt: null, count: null };
+      }
+    }),
+  );
+
+  res.json(items);
+});
+
+app.get("/api/admin/orders/archives/:file", requireAdmin, async (req, res) => {
+  const file = String(req.params.file || "");
+  if (!isSafeArchiveName(file)) {
+    res.status(400).json({ error: "invalid_archive" });
+    return;
+  }
+
+  const full = path.join(ARCHIVES_DIR, path.basename(file));
+  try {
+    const raw = await fs.readFile(full, "utf8");
+    res.setHeader("Content-Type", "application/json; charset=utf-8");
+    res.setHeader("Content-Disposition", `attachment; filename=\"${file}\"`);
+    res.send(raw);
+  } catch {
+    res.status(404).json({ error: "not_found" });
+  }
 });
 
 app.use((err, _req, res, _next) => {

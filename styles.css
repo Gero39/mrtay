@@ -197,18 +197,40 @@ body.cart-open {
 }
 
 .promo-row {
-  display: grid;
-  grid-template-columns: repeat(3, minmax(0, 1fr));
+  display: flex;
   gap: 14px;
+  overflow-x: auto;
+  overflow-y: hidden;
+  padding: 2px 2px 12px;
+  scroll-snap-type: x mandatory;
+  overscroll-behavior-x: contain;
+  -webkit-overflow-scrolling: touch;
+}
+
+.promo-row::-webkit-scrollbar {
+  height: 10px;
+}
+
+.promo-row::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+.promo-row::-webkit-scrollbar-thumb {
+  background: rgba(32, 40, 57, 0.18);
+  border-radius: 999px;
+  border: 3px solid transparent;
+  background-clip: content-box;
 }
 
 .promo-card {
   border-radius: 20px;
   padding: 18px 18px 20px;
   border: 1px solid rgba(255, 79, 95, 0.25);
+  flex: 0 0 360px;
   min-height: 160px;
   box-shadow: inset 0 0 0 1px rgba(255, 255, 255, 0.65);
   animation: reveal 0.65s ease both;
+  scroll-snap-align: start;
 }
 
 .promo-card:nth-child(2) {
@@ -727,7 +749,11 @@ body.cart-open {
   }
 
   .promo-row {
-    grid-template-columns: 1fr;
+    padding-bottom: 10px;
+  }
+
+  .promo-card {
+    flex-basis: min(84vw, 420px);
   }
 
   .section-header h1 {

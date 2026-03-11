@@ -53,8 +53,13 @@
                   </select>
                 </label>
               </div>
-              <button class="admin-btn" id="orders-refresh" type="button">Обновить</button>
+              <div class="admin-actions">
+                <button class="admin-btn" id="orders-archive" type="button">Архивировать</button>
+                <button class="admin-btn admin-btn--danger" id="orders-clear" type="button">Очистить</button>
+                <button class="admin-btn" id="orders-refresh" type="button">Обновить</button>
+              </div>
             </div>
+            <p class="admin-note" id="orders-note"></p>
             <div class="admin-list" id="orders-list"></div>
           </section>
 

@@ -15,6 +15,9 @@ const panels = {
 const ordersList = document.querySelector("#orders-list");
 const ordersStatus = document.querySelector("#orders-status");
 const ordersRefresh = document.querySelector("#orders-refresh");
+const ordersArchive = document.querySelector("#orders-archive");
+const ordersClear = document.querySelector("#orders-clear");
+const ordersNote = document.querySelector("#orders-note");
 
 const categoriesList = document.querySelector("#categories-list");
 const categoriesRefresh = document.querySelector("#categories-refresh");
@@ -77,6 +80,12 @@ const setToken = (token) => localStorage.setItem(TOKEN_KEY, token);
 const setAuthStatus = (text, isError = false) => {
   authStatus.textContent = text;
   authStatus.style.color = isError ? "#c81d31" : "";
+};
+
+const setOrdersNote = (html, isError = false) => {
+  if (!ordersNote) return;
+  ordersNote.innerHTML = html || "";
+  ordersNote.style.color = isError ? "#c81d31" : "";
 };
 
 const apiFetch = async (url, options = {}) => {
@@ -448,6 +457,128 @@ ordersRefresh.addEventListener("click", async () => {
     setAuthStatus(`Ошибка: ${err.message}`, true);
   }
 });
+
+if (ordersArchive) {
+  ordersArchive.addEventListener("click", async () => {
+    if (!confirm("Архивировать все текущие заказы? После этого список заказов будет очищен.")) {
+      return;
+    }
+
+    ordersArchive.disabled = true;
+    if (ordersClear) ordersClear.disabled = true;
+    ordersRefresh.disabled = true;
+    setOrdersNote("Архивируем...");
+
+    try {
+      const result = await apiJson("/api/admin/orders/archive", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ confirm: true }),
+      });
+
+      if (!result?.archived) {
+        setOrdersNote("Заказов нет.");
+      } else {
+        const file = String(result.file || "");
+        const count = Number(result.count || 0);
+        setOrdersNote(
+          `Архив создан: <b>${escapeHtml(file)}</b> (${count}) <button class="admin-btn admin-btn--sm" type="button" data-archive-download="${escapeHtml(file)}">Скачать</button>`,
+        );
+      }
+
+      await loadOrders();
+    } catch (err) {
+      setOrdersNote(`Ошибка: ${escapeHtml(err.message)}`, true);
+    } finally {
+      ordersArchive.disabled = false;
+      if (ordersClear) ordersClear.disabled = false;
+      ordersRefresh.disabled = false;
+    }
+  });
+}
+
+if (ordersNote) {
+  ordersNote.addEventListener("click", async (event) => {
+    const target = event.target;
+    if (!(target instanceof HTMLElement)) {
+      return;
+    }
+    const btn = target.closest("[data-archive-download]");
+    if (!(btn instanceof HTMLButtonElement)) {
+      return;
+    }
+
+    const file = String(btn.dataset.archiveDownload || "").trim();
+    if (!file) return;
+
+    btn.disabled = true;
+    setOrdersNote(`Скачиваем архив: <b>${escapeHtml(file)}</b> ...`);
+
+    try {
+      const response = await apiFetch(`/api/admin/orders/archives/${encodeURIComponent(file)}`);
+      if (!response.ok) {
+        const text = await response.text();
+        let msg = `HTTP ${response.status}`;
+        try {
+          const json = text ? JSON.parse(text) : null;
+          if (json?.error) msg = String(json.error);
+        } catch {
+          // ignore
+        }
+        throw new Error(msg);
+      }
+
+      const blob = await response.blob();
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement("a");
+      a.href = url;
+      a.download = file;
+      document.body.appendChild(a);
+      a.click();
+      a.remove();
+      URL.revokeObjectURL(url);
+
+      setOrdersNote(`Архив скачан: <b>${escapeHtml(file)}</b>.`);
+    } catch (err) {
+      setOrdersNote(`Ошибка: ${escapeHtml(err.message)}`, true);
+    } finally {
+      btn.disabled = false;
+    }
+  });
+}
+
+if (ordersClear) {
+  ordersClear.addEventListener("click", async () => {
+    if (!confirm("Очистить все заказы без архива? Это действие нельзя отменить.")) {
+      return;
+    }
+
+    if (!confirm("Точно удалить все заказы?")) {
+      return;
+    }
+
+    ordersClear.disabled = true;
+    if (ordersArchive) ordersArchive.disabled = true;
+    ordersRefresh.disabled = true;
+    setOrdersNote("Очищаем...");
+
+    try {
+      const result = await apiJson("/api/admin/orders/clear", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ confirm: true }),
+      });
+      setOrdersNote(`Удалено заказов: <b>${Number(result?.cleared || 0)}</b>.`);
+      await loadOrders();
+    } catch (err) {
+      setOrdersNote(`Ошибка: ${escapeHtml(err.message)}`, true);
+    } finally {
+      ordersClear.disabled = false;
+      if (ordersArchive) ordersArchive.disabled = false;
+      ordersRefresh.disabled = false;
+    }
+  });
+}
 
 ordersStatus.addEventListener("change", async () => {
   try {
