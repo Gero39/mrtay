@@ -9,7 +9,19 @@
       "price": 400,
       "active": true,
       "createdAt": "2026-03-11T19:03:24.174Z",
-      "updatedAt": "2026-03-11T19:03:24.174Z"
+      "updatedAt": "2026-03-11T19:30:29.961Z",
+      "options": [
+        {
+          "id": "b838f382-6fb8-4d1f-b54a-24b2fe7d5b41",
+          "label": "30 см",
+          "price": 400
+        },
+        {
+          "id": "eeefd7f7-ef48-4853-b379-14b55f9db468",
+          "label": "40 см",
+          "price": 600
+        }
+      ]
     },
     {
       "id": "4540cede-ba13-46c7-b7d2-978b625ddda1",

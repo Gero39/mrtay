@@ -88,8 +88,10 @@
           `
           : "";
 
+        const cardClass = options.length ? "food-card has-options" : "food-card";
+
         return `
-          <article class="food-card" data-id="${escapeHtml(item.id)}" data-name="${escapeHtml(
+          <article class="${cardClass}" data-id="${escapeHtml(item.id)}" data-name="${escapeHtml(
             item.title,
           )}" data-price="${initialPrice}" data-base-price="${basePrice}">
             <div class="food-image ${fallbackClass}" ${imageStyle}></div>

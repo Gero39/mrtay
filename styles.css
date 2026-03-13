@@ -753,7 +753,11 @@ body.modal-open {
   font: inherit;
   font-weight: 700;
   background: var(--surface);
-  width: 76px;
+  width: 90px;
+  max-width: 100%;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
   appearance: none;
   background-image: linear-gradient(45deg, transparent 50%, var(--muted) 50%),
     linear-gradient(135deg, var(--muted) 50%, transparent 50%);
@@ -763,9 +767,14 @@ body.modal-open {
   padding-right: 30px;
 }
 
-.food-actions .order-btn {
-  min-width: 132px;
-  text-align: center;
+.food-card.has-options .food-footer {
+  align-items: flex-end;
+}
+
+.food-card.has-options .food-actions {
+  display: grid;
+  justify-items: end;
+  gap: 8px;
 }
 
 .order-btn {
@@ -853,10 +862,6 @@ body.modal-open {
 
   .food-option {
     width: 72px;
-  }
-
-  .food-actions .order-btn {
-    min-width: 124px;
   }
 
   .category-sidebar nav {
