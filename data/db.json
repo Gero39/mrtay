@@ -43,7 +43,19 @@
       "price": 500,
       "active": true,
       "createdAt": "2026-03-11T19:02:24.503Z",
-      "updatedAt": "2026-03-11T19:02:24.503Z"
+      "updatedAt": "2026-03-13T21:40:07.165Z",
+      "options": [
+        {
+          "id": "33a330fc-c9c4-44b0-b93d-c4667c7dfebe",
+          "label": "30 см",
+          "price": 500
+        },
+        {
+          "id": "8c00749e-d1be-4235-9bd1-c70a9fbf0c2e",
+          "label": "40 см",
+          "price": 750
+        }
+      ]
     },
     {
       "id": "c1ffcca5-c57b-4374-9909-0f7630fe19a5",
@@ -54,7 +66,19 @@
       "price": 550,
       "active": true,
       "createdAt": "2026-03-11T19:01:56.269Z",
-      "updatedAt": "2026-03-11T19:01:56.269Z"
+      "updatedAt": "2026-03-13T21:40:58.105Z",
+      "options": [
+        {
+          "id": "add6148c-bf91-4382-9809-b00555596da3",
+          "label": "30 см",
+          "price": 550
+        },
+        {
+          "id": "49e90915-3daa-4c54-924d-143b53307ba7",
+          "label": "40 см",
+          "price": 750
+        }
+      ]
     },
     {
       "id": "a54edd63-a8fd-43f1-b19a-eca77f3afca9",
@@ -99,72 +123,6 @@
       "active": true,
       "createdAt": "2026-03-11T01:15:10.710Z",
       "updatedAt": "2026-03-11T01:15:10.710Z"
-    },
-    {
-      "id": "roll-tom-yam",
-      "title": "Ролл \"Том Ям\"",
-      "description": "Сливочный сыр, креветка, огурец и острый соус.",
-      "category": "Роллы",
-      "imageUrl": "",
-      "price": 395,
-      "active": true,
-      "createdAt": "2026-03-11T00:00:00.000Z",
-      "updatedAt": "2026-03-11T00:00:00.000Z"
-    },
-    {
-      "id": "roll-salmon",
-      "title": "Ролл с лососем",
-      "description": "Нежный лосось, соус унаги, кунжут и сливочный сыр.",
-      "category": "Роллы",
-      "imageUrl": "",
-      "price": 405,
-      "active": true,
-      "createdAt": "2026-03-11T00:00:00.000Z",
-      "updatedAt": "2026-03-11T00:00:00.000Z"
-    },
-    {
-      "id": "roll-eel",
-      "title": "Ролл с угрем",
-      "description": "Копченый угорь, рис, нори и фирменная заправка.",
-      "category": "Роллы",
-      "imageUrl": "",
-      "price": 225,
-      "active": true,
-      "createdAt": "2026-03-11T00:00:00.000Z",
-      "updatedAt": "2026-03-11T00:00:00.000Z"
-    },
-    {
-      "id": "tom-yam-shrimp",
-      "title": "Том Ям с креветкой",
-      "description": "Кокосовое молоко, паста том ям, шампиньоны и лайм.",
-      "category": "Супы",
-      "imageUrl": "",
-      "price": 520,
-      "active": true,
-      "createdAt": "2026-03-11T00:00:00.000Z",
-      "updatedAt": "2026-03-11T00:00:00.000Z"
-    },
-    {
-      "id": "pad-thai-chicken",
-      "title": "Пад Тай с курицей",
-      "description": "Рисовая лапша, овощи, арахис, соус тамаринд.",
-      "category": "Вок и лапша",
-      "imageUrl": "",
-      "price": 460,
-      "active": true,
-      "createdAt": "2026-03-11T00:00:00.000Z",
-      "updatedAt": "2026-03-11T00:00:00.000Z"
-    },
-    {
-      "id": "mango-cheesecake",
-      "title": "Манго чизкейк",
-      "description": "Нежный сливочный десерт с манговым пюре.",
-      "category": "Десерты",
-      "imageUrl": "",
-      "price": 330,
-      "active": true,
-      "createdAt": "2026-03-11T00:00:00.000Z",
-      "updatedAt": "2026-03-11T00:00:00.000Z"
     }
   ],
   "promos": [
@@ -211,22 +169,16 @@
   ],
   "categories": [
     {
-      "id": "cat-wok",
-      "name": "Вок и лапша",
-      "createdAt": "2026-03-11T00:00:00.000Z",
-      "updatedAt": "2026-03-11T00:00:00.000Z"
+      "id": "60f314d6-493f-4b11-aa85-acbf417fe0eb",
+      "name": "Супы",
+      "createdAt": "2026-03-13T19:34:52.421Z",
+      "updatedAt": "2026-03-13T19:34:52.421Z"
     },
     {
-      "id": "cat-rolls",
-      "name": "Роллы",
-      "createdAt": "2026-03-11T00:00:00.000Z",
-      "updatedAt": "2026-03-11T00:00:00.000Z"
-    },
-    {
-      "id": "cat-desserts",
-      "name": "Десерты",
-      "createdAt": "2026-03-11T00:00:00.000Z",
-      "updatedAt": "2026-03-11T00:00:00.000Z"
+      "id": "350edf2b-5901-4536-9a95-68062fcca38b",
+      "name": "Салаты",
+      "createdAt": "2026-03-13T19:25:10.892Z",
+      "updatedAt": "2026-03-13T19:27:06.160Z"
     },
     {
       "id": "cat-pizza",
@@ -235,16 +187,40 @@
       "updatedAt": "2026-03-11T00:00:00.000Z"
     },
     {
-      "id": "cat-soups",
-      "name": "Супы",
-      "createdAt": "2026-03-11T00:00:00.000Z",
-      "updatedAt": "2026-03-11T00:00:00.000Z"
+      "id": "56fe2099-6033-477c-94b7-6df95e8eceb8",
+      "name": "Суши пицца",
+      "createdAt": "2026-03-13T19:27:17.001Z",
+      "updatedAt": "2026-03-13T19:27:17.001Z"
+    },
+    {
+      "id": "5a2a83d5-54e8-478a-9111-f9aeada18bf8",
+      "name": "Роллы",
+      "createdAt": "2026-03-13T19:27:52.430Z",
+      "updatedAt": "2026-03-13T19:27:52.430Z"
+    },
+    {
+      "id": "d3bd1388-9edc-4494-ab74-22eac7c05bcc",
+      "name": "Роллы запечённые",
+      "createdAt": "2026-03-13T19:33:58.196Z",
+      "updatedAt": "2026-03-13T19:33:58.196Z"
+    },
+    {
+      "id": "908ccb38-fdf2-4924-ba04-2083c537afaa",
+      "name": "Роллы темпура",
+      "createdAt": "2026-03-13T19:34:05.610Z",
+      "updatedAt": "2026-03-13T19:34:05.610Z"
+    },
+    {
+      "id": "ae601232-10bb-44e9-8bd2-28ac397d26dc",
+      "name": "Ролл-дог",
+      "createdAt": "2026-03-13T19:34:14.757Z",
+      "updatedAt": "2026-03-13T19:34:14.757Z"
     }
   ],
   "orders": [
     {
       "id": "ea7c9e57-7dbc-498d-80db-b504ddc59452",
-      "status": "incoming",
+      "status": "delivered",
       "customer": {
         "name": "Александр",
         "phone": "+79781030117",
@@ -273,7 +249,7 @@
       ],
       "total": 1450,
       "createdAt": "2026-03-11T19:05:46.395Z",
-      "updatedAt": "2026-03-11T19:05:46.395Z"
+      "updatedAt": "2026-03-13T19:24:39.885Z"
     }
   ]
 }

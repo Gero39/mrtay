@@ -350,14 +350,22 @@ const loadCategories = async () => {
 };
 
 const setMenuForm = (item) => {
+  const prevCategory = menuCategory.value;
   menuId.value = item?.id || "";
   menuTitle.value = item?.title || "";
   menuDescription.value = item?.description || "";
   const cat = String(item?.category || "").trim();
   const options = new Set(Array.from(menuCategory.options).map((o) => o.value));
-  menuCategory.value = options.has(cat) ? cat : "";
+  if (item) {
+    menuCategory.value = options.has(cat) ? cat : "";
+  } else {
+    menuCategory.value = options.has(prevCategory) ? prevCategory : "";
+  }
   menuPrice.value = item?.price ?? "";
-  menuActive.checked = Boolean(item?.active);
+  if (!item) {
+    menuPrice.value = "";
+  }
+  menuActive.checked = item ? Boolean(item.active) : true;
   menuImageUrl.value = item?.imageUrl || "";
   menuImageFile.value = "";
   menuImagePreview.style.backgroundImage = menuImageUrl.value ? `url("${menuImageUrl.value}")` : "";
@@ -383,7 +391,7 @@ function renderMenuOptions(options) {
       const price = Number(opt?.price ?? "");
       return `
         <div class="admin-option-row" data-id="${escapeHtml(id)}">
-          <input type="text" class="admin-option-label" placeholder="Напр. 25 см" value="${escapeHtml(label)}">
+          <input type="text" class="admin-option-label" placeholder="Напр. 30 см" value="${escapeHtml(label)}">
           <input type="number" class="admin-option-price" min="0" step="1" value="${Number.isFinite(price) ? price : ""}">
           <button class="admin-btn admin-btn--danger admin-btn--sm" type="button" data-action="remove-option">Удалить</button>
         </div>
@@ -408,7 +416,7 @@ const appendMenuOptionRow = (opt = null) => {
   row.className = "admin-option-row";
   row.dataset.id = id;
   row.innerHTML = `
-    <input type="text" class="admin-option-label" placeholder="Напр. 25 см" value="${escapeHtml(label)}">
+    <input type="text" class="admin-option-label" placeholder="Напр. 30 см" value="${escapeHtml(label)}">
     <input type="number" class="admin-option-price" min="0" step="1" value="${Number.isFinite(price) ? price : ""}">
     <button class="admin-btn admin-btn--danger admin-btn--sm" type="button" data-action="remove-option">Удалить</button>
   `;
@@ -821,14 +829,15 @@ if (categoryForm) {
         });
         categoryNote.textContent = "Сохранено.";
       } else {
-        const created = await apiJson("/api/admin/categories", {
+        await apiJson("/api/admin/categories", {
           method: "POST",
           headers: { "Content-Type": "application/json" },
           body: JSON.stringify({ name }),
         });
         categoryNote.textContent = "Создано.";
         await loadCategories();
-        setCategoryForm(created);
+        setCategoryForm(null);
+        categoryNote.textContent = "Создано.";
       }
 
       await loadMenu();
@@ -1015,14 +1024,16 @@ menuForm.addEventListener("submit", async (event) => {
       });
       menuNote.textContent = "Сохранено.";
     } else {
-      const created = await apiJson("/api/admin/menu", {
+      await apiJson("/api/admin/menu", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(payload),
       });
       menuNote.textContent = "Создано.";
       await loadMenu();
-      setMenuForm(created);
+      setMenuForm(null);
+      menuCategory.value = selectedCategory;
+      menuNote.textContent = "Создано.";
     }
     if (menuId.value) {
       await loadMenu();
