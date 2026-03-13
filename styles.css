@@ -664,8 +664,13 @@ body.modal-open {
   padding: 16px;
   box-shadow: 0 12px 26px rgba(20, 33, 56, 0.05);
   display: grid;
+  grid-template-rows: auto auto 1fr auto;
   gap: 12px;
   animation: reveal 0.45s ease both;
+}
+
+.food-card.has-options p {
+  padding-bottom: 44px;
 }
 
 .food-image {
@@ -767,14 +772,14 @@ body.modal-open {
   padding-right: 30px;
 }
 
-.food-card.has-options .food-footer {
-  align-items: flex-end;
+.food-card.has-options .food-actions {
+  position: relative;
 }
 
-.food-card.has-options .food-actions {
-  display: grid;
-  justify-items: end;
-  gap: 8px;
+.food-card.has-options .food-option {
+  position: absolute;
+  right: 0;
+  bottom: calc(100% + 8px);
 }
 
 .order-btn {
@@ -862,6 +867,10 @@ body.modal-open {
 
   .food-option {
     width: 72px;
+  }
+
+  .food-card.has-options p {
+    padding-bottom: 42px;
   }
 
   .category-sidebar nav {
