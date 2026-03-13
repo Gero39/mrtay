@@ -1,15 +1,38 @@
 {
   "menu": [
     {
+      "id": "1909298c-aa3b-426f-be94-d56f76a6a62a",
+      "title": "Том-ям с морепродуктами",
+      "description": "Соус том-ям, моцарелла, помидор, грибы, кальмар, креветка, мидия",
+      "category": "Пицца",
+      "imageUrl": "/uploads/1773439887749_ec44860a-fb68-4d84-b3d3-2ad579ab87be.jpeg",
+      "price": 650,
+      "options": [
+        {
+          "id": "7e4999b7-ab89-4adc-a1d5-1841c50fee3a",
+          "label": "30 см",
+          "price": 650
+        },
+        {
+          "id": "7ee192bd-5a07-4cfb-b1a8-7d4d5b741a2d",
+          "label": "40 см",
+          "price": 850
+        }
+      ],
+      "active": true,
+      "createdAt": "2026-03-13T21:56:51.316Z",
+      "updatedAt": "2026-03-13T22:11:28.771Z"
+    },
+    {
       "id": "40203dbe-8576-4a3e-b27f-a79e38e0674e",
       "title": "Маргарита",
       "description": "Красный соус, помидоры черри, моцарелла 2 вида, песто",
       "category": "Пицца",
-      "imageUrl": "",
+      "imageUrl": "/uploads/1773440064778_1e00e29e-0bbf-4e1e-9eef-958a8097ff96.jpeg",
       "price": 400,
       "active": true,
       "createdAt": "2026-03-11T19:03:24.174Z",
-      "updatedAt": "2026-03-11T19:30:29.961Z",
+      "updatedAt": "2026-03-13T22:14:25.616Z",
       "options": [
         {
           "id": "b838f382-6fb8-4d1f-b54a-24b2fe7d5b41",
@@ -27,23 +50,35 @@
       "id": "4540cede-ba13-46c7-b7d2-978b625ddda1",
       "title": "Охота",
       "description": "Красный соус, моцарелла, помидор, грибы, охотничьи колбаски",
-      "category": "",
-      "imageUrl": "",
+      "category": "Пицца",
+      "imageUrl": "/uploads/1773440135238_d56e5214-c9f5-4447-8a2d-b7175d0f1fb3.jpeg",
       "price": 550,
       "active": true,
       "createdAt": "2026-03-11T19:03:01.084Z",
-      "updatedAt": "2026-03-11T19:03:01.084Z"
+      "updatedAt": "2026-03-13T22:15:36.054Z",
+      "options": [
+        {
+          "id": "d30f43fc-27ca-4a12-9d8b-869660a283ed",
+          "label": "30 см",
+          "price": 550
+        },
+        {
+          "id": "ae237ad1-3aa7-4d03-88da-5b3ed202bd65",
+          "label": "40 см",
+          "price": 750
+        }
+      ]
     },
     {
       "id": "2f705929-5603-46e8-9b19-44d34909604d",
       "title": "Гавайская",
       "description": "Красный соус, моцарелла, курочка, ананас",
       "category": "Пицца",
-      "imageUrl": "",
+      "imageUrl": "/uploads/1773440178049_4670c182-96ae-44dd-9824-b410f2f728d4.jpeg",
       "price": 500,
       "active": true,
       "createdAt": "2026-03-11T19:02:24.503Z",
-      "updatedAt": "2026-03-13T21:40:07.165Z",
+      "updatedAt": "2026-03-13T22:16:19.359Z",
       "options": [
         {
           "id": "33a330fc-c9c4-44b0-b93d-c4667c7dfebe",
@@ -62,11 +97,11 @@
       "title": "Мясная",
       "description": "Красный соус, моцарелла, помидор, грибы, сервелат, охот колбаски, курочка",
       "category": "Пицца",
-      "imageUrl": "",
+      "imageUrl": "/uploads/1773440268486_f7a851b8-fe8d-431a-83e2-f19d231719b2.jpeg",
       "price": 550,
       "active": true,
       "createdAt": "2026-03-11T19:01:56.269Z",
-      "updatedAt": "2026-03-13T21:40:58.105Z",
+      "updatedAt": "2026-03-13T22:17:49.688Z",
       "options": [
         {
           "id": "add6148c-bf91-4382-9809-b00555596da3",
@@ -89,7 +124,19 @@
       "price": 650,
       "active": true,
       "createdAt": "2026-03-11T19:01:31.799Z",
-      "updatedAt": "2026-03-11T19:01:31.799Z"
+      "updatedAt": "2026-03-13T21:54:15.486Z",
+      "options": [
+        {
+          "id": "db31ff9c-d9ca-40f7-9322-50fe93270e9a",
+          "label": "30 см",
+          "price": 650
+        },
+        {
+          "id": "da2970de-a7e6-4377-a8d2-b619275250ef",
+          "label": "40 см",
+          "price": 850
+        }
+      ]
     },
     {
       "id": "9367ae75-82f8-443e-89f2-804677ee3385",
@@ -100,7 +147,19 @@
       "price": 550,
       "active": true,
       "createdAt": "2026-03-11T19:00:59.700Z",
-      "updatedAt": "2026-03-11T19:00:59.700Z"
+      "updatedAt": "2026-03-13T21:54:43.084Z",
+      "options": [
+        {
+          "id": "ba351b52-1e6e-41da-8e08-bf0d40a3c79b",
+          "label": "30 см",
+          "price": 550
+        },
+        {
+          "id": "cc18e496-7250-4075-bc37-7b87d91b8f48",
+          "label": "40 см",
+          "price": 750
+        }
+      ]
     },
     {
       "id": "33e3ea42-8f69-45b6-af2e-c63020c0d4b2",
@@ -111,7 +170,19 @@
       "price": 500,
       "active": true,
       "createdAt": "2026-03-11T19:00:21.808Z",
-      "updatedAt": "2026-03-11T19:00:21.808Z"
+      "updatedAt": "2026-03-13T21:55:11.951Z",
+      "options": [
+        {
+          "id": "712a7dc9-1ec4-40ba-9a54-adbfbd1b7c47",
+          "label": "30 см",
+          "price": 500
+        },
+        {
+          "id": "5332dae5-9115-406f-addc-9f3fc6ecedc1",
+          "label": "40 см",
+          "price": 700
+        }
+      ]
     },
     {
       "id": "3ac73ecf-7a10-411c-a44c-9412d8a28a20",
@@ -122,7 +193,19 @@
       "price": 600,
       "active": true,
       "createdAt": "2026-03-11T01:15:10.710Z",
-      "updatedAt": "2026-03-11T01:15:10.710Z"
+      "updatedAt": "2026-03-13T21:55:41.653Z",
+      "options": [
+        {
+          "id": "dfcb9e0d-1891-4ca4-a569-71c0720cdbb2",
+          "label": "30 см",
+          "price": 600
+        },
+        {
+          "id": "d4e5e74a-463d-4342-aeb2-f934eafb794e",
+          "label": "40 см",
+          "price": 800
+        }
+      ]
     }
   ],
   "promos": [

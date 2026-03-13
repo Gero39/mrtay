@@ -306,12 +306,14 @@
   align-items: center;
   justify-content: space-between;
   gap: 10px;
+  flex-wrap: wrap;
 }
 
 .admin-options__title {
   margin: 0;
   font-size: 0.92rem;
   font-weight: 800;
+  min-width: 0;
 }
 
 .admin-options__list {
@@ -321,9 +323,30 @@
 
 .admin-option-row {
   display: grid;
-  grid-template-columns: 1fr 140px auto;
+  grid-template-columns: 1fr 110px;
+  grid-template-areas:
+    "label price"
+    "del del";
   gap: 8px;
   align-items: center;
+}
+
+.admin-option-row input {
+  min-width: 0;
+}
+
+.admin-option-row .admin-option-label {
+  grid-area: label;
+}
+
+.admin-option-row .admin-option-price {
+  grid-area: price;
+}
+
+.admin-option-row [data-action="remove-option"] {
+  grid-area: del;
+  justify-self: end;
+  width: max-content;
 }
 
 .admin-option-empty {
@@ -365,6 +388,10 @@
 
   .admin-option-row {
     grid-template-columns: 1fr;
+  }
+
+  .admin-options__head .admin-btn {
+    width: 100%;
   }
 
   .admin-form-card {
