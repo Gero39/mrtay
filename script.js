@@ -247,6 +247,36 @@
     setCartOpenState(!isOpen);
   });
 
+  // Header phone popover (index.html).
+  const phoneBtn = document.querySelector("#phone-btn");
+  const phonePopover = document.querySelector("#phone-popover");
+  const setPhoneOpen = (isOpen) => {
+    if (!phoneBtn || !phonePopover) return;
+    phonePopover.hidden = !isOpen;
+    phoneBtn.setAttribute("aria-expanded", String(isOpen));
+  };
+  if (phoneBtn && phonePopover) {
+    phoneBtn.addEventListener("click", (e) => {
+      e.preventDefault();
+      const next = phonePopover.hidden;
+      setPhoneOpen(next);
+    });
+
+    document.addEventListener("click", (e) => {
+      const t = e.target;
+      if (!(t instanceof Node)) return;
+      if (phonePopover.hidden) return;
+      if (phoneBtn.contains(t) || phonePopover.contains(t)) return;
+      setPhoneOpen(false);
+    });
+
+    document.addEventListener("keydown", (e) => {
+      if (e.key === "Escape" && !phonePopover.hidden) {
+        setPhoneOpen(false);
+      }
+    });
+  }
+
   cartCloseButton.addEventListener("click", () => setCartOpenState(false));
   cartOverlay.addEventListener("click", () => setCartOpenState(false));
 
