@@ -1,6 +1,198 @@
 {
   "menu": [
     {
+      "id": "c8439c84-532a-468d-83eb-fa1d96872dab",
+      "title": "Маки с угрём",
+      "description": "Рис, нори, угорь",
+      "weight": "8 шт.",
+      "category": "Маки",
+      "imageUrl": "/uploads/1773446500174_bd03adb8-367b-4fbb-944c-283ee860c69b.jpeg",
+      "price": 320,
+      "options": [],
+      "active": true,
+      "createdAt": "2026-03-14T00:01:43.196Z",
+      "updatedAt": "2026-03-14T00:01:43.196Z"
+    },
+    {
+      "id": "c76ff703-40f7-43b0-82dd-eb998ab8660d",
+      "title": "Маки с креветкой",
+      "description": "Рис, нори, креветка",
+      "weight": "8 шт.",
+      "category": "Маки",
+      "imageUrl": "/uploads/1773446355799_3be1b793-7855-4754-adf3-1726e7518910.jpeg",
+      "price": 320,
+      "options": [],
+      "active": true,
+      "createdAt": "2026-03-13T23:59:16.765Z",
+      "updatedAt": "2026-03-13T23:59:16.765Z"
+    },
+    {
+      "id": "c7af10ee-b3b6-4d7f-a67c-bbb356ebccb6",
+      "title": "Маки с лососем",
+      "description": "Рис, нори, лосось",
+      "weight": "8 шт.",
+      "category": "Маки",
+      "imageUrl": "/uploads/1773446083002_3e3dff25-5f0a-416c-a486-d389459675ec.jpeg",
+      "price": 320,
+      "options": [],
+      "active": true,
+      "createdAt": "2026-03-13T23:54:44.097Z",
+      "updatedAt": "2026-03-13T23:54:44.097Z"
+    },
+    {
+      "id": "1b8b14c4-c2f5-45fa-801f-28ffcd5eb5af",
+      "title": "Маки с огурцом",
+      "description": "Рис, нори, огурец",
+      "weight": "8 шт.",
+      "category": "Маки",
+      "imageUrl": "/uploads/1773445972756_03063819-1e5b-44da-bd3c-e35ddfda6e2d.jpeg",
+      "price": 200,
+      "options": [],
+      "active": true,
+      "createdAt": "2026-03-13T23:52:59.196Z",
+      "updatedAt": "2026-03-13T23:53:16.767Z"
+    },
+    {
+      "id": "b16259b9-04a7-4955-b96e-7ff4fee3a242",
+      "title": "Онигири с лососем",
+      "description": "Нори, рис, лосось, огурец, крем-чиз,темпура, панко, спайси, унаги",
+      "weight": "230 гр.",
+      "category": "Онигири",
+      "imageUrl": "/uploads/1773445795339_1d924904-cbba-4d8b-a23f-2d9043c91f33.jpeg",
+      "price": 300,
+      "options": [],
+      "active": true,
+      "createdAt": "2026-03-13T23:49:56.535Z",
+      "updatedAt": "2026-03-13T23:49:56.535Z"
+    },
+    {
+      "id": "eba1f983-7024-43f5-b53c-c3ca41d5bc80",
+      "title": "Онигири с тунцом",
+      "description": "Нори, рис, тунец, огурец, крем-чиз, темпура, панко, спайси, унаги",
+      "weight": "230 гр.",
+      "category": "Онигири",
+      "imageUrl": "/uploads/1773445651583_bff19250-c12e-4a98-930c-cc491640d13e.jpeg",
+      "price": 300,
+      "options": [],
+      "active": true,
+      "createdAt": "2026-03-13T23:47:36.101Z",
+      "updatedAt": "2026-03-13T23:47:36.101Z"
+    },
+    {
+      "id": "a3600d79-b8af-4c36-920d-31d727a6471c",
+      "title": "Наггетсы",
+      "description": "",
+      "weight": "6 шт",
+      "category": "Закуски",
+      "imageUrl": "/uploads/1773445445955_f0919add-2078-40d1-ad60-da3424dc1ff9.jpeg",
+      "price": 220,
+      "options": [],
+      "active": true,
+      "createdAt": "2026-03-13T23:22:41.138Z",
+      "updatedAt": "2026-03-13T23:44:08.299Z"
+    },
+    {
+      "id": "58db8899-f605-4e5d-b32d-f22f575ebfa7",
+      "title": "Фри",
+      "description": "",
+      "weight": "130 гр.",
+      "category": "Закуски",
+      "imageUrl": "/uploads/1773444036558_4f235684-4e40-4e48-9550-5363972c6ce2.jpeg",
+      "price": 170,
+      "options": [],
+      "active": true,
+      "createdAt": "2026-03-13T23:20:43.518Z",
+      "updatedAt": "2026-03-13T23:20:43.518Z"
+    },
+    {
+      "id": "6ae43ac1-4515-4bee-a609-ba8320fa5f59",
+      "title": "Хрустящий баклажан с грибочками",
+      "description": "Айсберг, баклажан, грибы, помидор, соус унаги+ свит чили, кунжут, фета",
+      "category": "Салаты",
+      "imageUrl": "/uploads/1773443051752_d09c913f-962f-451c-92d2-df09997b4250.jpeg",
+      "price": 400,
+      "options": [],
+      "active": true,
+      "createdAt": "2026-03-13T23:04:12.641Z",
+      "updatedAt": "2026-03-13T23:18:15.774Z",
+      "weight": "300 гр."
+    },
+    {
+      "id": "61153a60-eeda-4314-8123-70f70a74885a",
+      "title": "Салат Цезарь с лососем",
+      "description": "Айсберг, филе лосося, помидор черри, яйцо переп, соус цезарь, пармезан, сухарик",
+      "category": "Салаты",
+      "imageUrl": "/uploads/1773442784036_d486ae5d-7d05-464c-b024-ae348432ee77.jpeg",
+      "price": 500,
+      "options": [],
+      "active": true,
+      "createdAt": "2026-03-13T22:59:53.692Z",
+      "updatedAt": "2026-03-13T23:18:04.873Z",
+      "weight": "300 гр."
+    },
+    {
+      "id": "49cf6bbd-7fb2-4fd7-82cb-e06364e81dac",
+      "title": "Цезарь с креветкой",
+      "description": "Айсберг, креветка, помидор черри, яйцо переп, соус цезарь, пармезан, сухарики",
+      "category": "Салаты",
+      "imageUrl": "/uploads/1773442045834_2dd0940c-2f55-49fe-9797-3876bda0c9f5.jpeg",
+      "price": 500,
+      "options": [],
+      "active": true,
+      "createdAt": "2026-03-13T22:43:16.372Z",
+      "updatedAt": "2026-03-13T23:18:41.980Z",
+      "weight": "300 гр."
+    },
+    {
+      "id": "8e1801bd-85bd-4b3a-bfe7-f91ff21ed4b0",
+      "title": "Цезарь с курицей",
+      "description": "Айсберг, кур филе, помидор черри, яйцо переп, соус цезарь, пармезан, сухарики",
+      "category": "Салаты",
+      "imageUrl": "/uploads/1773441561225_12eb81e8-8271-4256-ab25-c54ea33007d4.jpeg",
+      "price": 450,
+      "options": [],
+      "active": true,
+      "createdAt": "2026-03-13T22:39:23.847Z",
+      "updatedAt": "2026-03-13T23:18:34.565Z",
+      "weight": "300 гр."
+    },
+    {
+      "id": "03367147-4bc5-4393-ad9c-19c58e562452",
+      "title": "Греческий",
+      "description": "Айсберг, помидор, огурец, перец болг, лук красный, фета, маслины, травы, заправка дрессинг ( соевый+ масло)",
+      "category": "Салаты",
+      "imageUrl": "/uploads/1773441438578_5c765b46-3b16-4b22-a772-da575941004d.jpeg",
+      "price": 300,
+      "options": [],
+      "active": true,
+      "createdAt": "2026-03-13T22:36:10.579Z",
+      "updatedAt": "2026-03-13T23:18:56.918Z",
+      "weight": "280 гр."
+    },
+    {
+      "id": "480fef01-209c-4d96-90e0-877c07c8616b",
+      "title": "Цезарь",
+      "description": "Белый соус, моцарелла, курочка, бекон, айсберг, соус Цезарь, яйцо переп, пармезан",
+      "category": "Пицца",
+      "imageUrl": "/uploads/1773441261153_c4e8ca8d-89b1-4881-9f36-cd15f623532d.jpeg",
+      "price": 600,
+      "options": [
+        {
+          "id": "33be6d00-66d8-43e7-b21d-8d584ff48a67",
+          "label": "30 см",
+          "price": 600
+        },
+        {
+          "id": "7b1c2bbd-5dfc-44d0-8d4c-bb5a5f683868",
+          "label": "40 см",
+          "price": 800
+        }
+      ],
+      "active": true,
+      "createdAt": "2026-03-13T22:32:59.098Z",
+      "updatedAt": "2026-03-13T22:34:22.208Z"
+    },
+    {
       "id": "1909298c-aa3b-426f-be94-d56f76a6a62a",
       "title": "Том-ям с морепродуктами",
       "description": "Соус том-ям, моцарелла, помидор, грибы, кальмар, креветка, мидия",
@@ -120,11 +312,11 @@
       "title": "Яхта",
       "description": "Белый соус, горчица зерно, моцарелла, лосось, помидор, огур сол, лук красный",
       "category": "Пицца",
-      "imageUrl": "",
+      "imageUrl": "/uploads/1773440708190_b24b6ecd-42e2-4871-96d0-4dd476c49b75.jpeg",
       "price": 650,
       "active": true,
       "createdAt": "2026-03-11T19:01:31.799Z",
-      "updatedAt": "2026-03-13T21:54:15.486Z",
+      "updatedAt": "2026-03-13T22:25:09.525Z",
       "options": [
         {
           "id": "db31ff9c-d9ca-40f7-9322-50fe93270e9a",
@@ -143,11 +335,11 @@
       "title": "Жульен",
       "description": "Белый соус, моцарелла, кур филе, грибы, лук",
       "category": "Пицца",
-      "imageUrl": "",
+      "imageUrl": "/uploads/1773440754591_b56b38c0-9def-4159-8bbd-e5a6c3d5480c.jpeg",
       "price": 550,
       "active": true,
       "createdAt": "2026-03-11T19:00:59.700Z",
-      "updatedAt": "2026-03-13T21:54:43.084Z",
+      "updatedAt": "2026-03-13T22:25:59.819Z",
       "options": [
         {
           "id": "ba351b52-1e6e-41da-8e08-bf0d40a3c79b",
@@ -166,11 +358,11 @@
       "title": "Пепперони",
       "description": "Красный соус, моцарелла, пепперони",
       "category": "Пицца",
-      "imageUrl": "",
+      "imageUrl": "/uploads/1773440850754_855fe8cd-8170-46a8-b608-a519c7b6f197.jpeg",
       "price": 500,
       "active": true,
       "createdAt": "2026-03-11T19:00:21.808Z",
-      "updatedAt": "2026-03-13T21:55:11.951Z",
+      "updatedAt": "2026-03-13T22:27:32.160Z",
       "options": [
         {
           "id": "712a7dc9-1ec4-40ba-9a54-adbfbd1b7c47",
@@ -189,11 +381,11 @@
       "title": "4 сыра",
       "description": "Белый соус, моцарелла, Фета, дор-блю, пармезан",
       "category": "Пицца",
-      "imageUrl": "",
+      "imageUrl": "/uploads/1773440975384_762c474c-9870-4c31-b0fa-f30d409c931f.jpeg",
       "price": 600,
       "active": true,
       "createdAt": "2026-03-11T01:15:10.710Z",
-      "updatedAt": "2026-03-13T21:55:41.653Z",
+      "updatedAt": "2026-03-13T22:29:36.201Z",
       "options": [
         {
           "id": "dfcb9e0d-1891-4ca4-a569-71c0720cdbb2",
@@ -298,6 +490,24 @@
       "name": "Ролл-дог",
       "createdAt": "2026-03-13T19:34:14.757Z",
       "updatedAt": "2026-03-13T19:34:14.757Z"
+    },
+    {
+      "id": "9b614779-def1-413e-b5fb-dea7d99664f7",
+      "name": "Закуски",
+      "createdAt": "2026-03-13T23:09:38.049Z",
+      "updatedAt": "2026-03-13T23:09:38.049Z"
+    },
+    {
+      "id": "ed148deb-7157-4869-8c61-53e0f87ef1c0",
+      "name": "Онигири",
+      "createdAt": "2026-03-13T23:45:33.109Z",
+      "updatedAt": "2026-03-13T23:45:33.109Z"
+    },
+    {
+      "id": "af50bd97-bcd5-436a-bf51-db1d74e7dfcb",
+      "name": "Маки",
+      "createdAt": "2026-03-13T23:50:51.218Z",
+      "updatedAt": "2026-03-13T23:50:51.218Z"
     }
   ],
   "orders": [

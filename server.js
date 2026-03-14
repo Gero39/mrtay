@@ -413,6 +413,7 @@ app.post("/api/admin/menu", requireAdmin, async (req, res) => {
   const payload = req.body || {};
   const title = String(payload.title || "").trim();
   const description = String(payload.description || "").trim();
+  const weight = String(payload.weight || "").trim();
   const category = String(payload.category || "").trim();
   const imageUrl = String(payload.imageUrl || "").trim();
   const price = asMoney(payload.price);
@@ -430,6 +431,7 @@ app.post("/api/admin/menu", requireAdmin, async (req, res) => {
       id: crypto.randomUUID(),
       title,
       description,
+      weight,
       category,
       imageUrl,
       price,
@@ -468,6 +470,7 @@ app.put("/api/admin/menu/:id", requireAdmin, async (req, res) => {
       title: payload.title !== undefined ? String(payload.title || "").trim() : current.title,
       description:
         payload.description !== undefined ? String(payload.description || "").trim() : current.description,
+      weight: payload.weight !== undefined ? String(payload.weight || "").trim() : (current.weight || ""),
       category: payload.category !== undefined ? String(payload.category || "").trim() : current.category,
       imageUrl: payload.imageUrl !== undefined ? String(payload.imageUrl || "").trim() : current.imageUrl,
       price,

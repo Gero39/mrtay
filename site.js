@@ -59,6 +59,23 @@
       return;
     }
 
+    const splitWeightFromDescription = (description) => {
+      const raw = String(description || "");
+      const lines = raw.replaceAll("\r\n", "\n").split("\n");
+      if (lines.length < 2) {
+        return { desc: raw.trim(), weight: "" };
+      }
+
+      const last = String(lines[lines.length - 1] || "").trim();
+      const maybeWeight = last.length <= 24 && /\d/.test(last) && /(г|гр|грамм)/i.test(last);
+      if (!maybeWeight) {
+        return { desc: raw.trim(), weight: "" };
+      }
+
+      const desc = lines.slice(0, -1).join("\n").trim();
+      return { desc, weight: last };
+    };
+
     menuGrid.innerHTML = menu
       .map((item, idx) => {
         const fallbackClass = `food-image--${(idx % 6) + 1}`;
@@ -90,13 +107,24 @@
 
         const cardClass = options.length ? "food-card has-options" : "food-card";
 
+        const explicitWeight = String(item.weight || "").trim();
+        const { desc: descFromSplit, weight: weightFromSplit } = splitWeightFromDescription(
+          item.description || "",
+        );
+        const description = explicitWeight ? String(item.description || "").trim() : descFromSplit;
+        const weight = explicitWeight || weightFromSplit;
+        const weightHtml = weight ? `<p class="food-weight">${escapeHtml(weight)}</p>` : "";
+
         return `
           <article class="${cardClass}" data-id="${escapeHtml(item.id)}" data-name="${escapeHtml(
             item.title,
           )}" data-price="${initialPrice}" data-base-price="${basePrice}">
             <div class="food-image ${fallbackClass}" ${imageStyle}></div>
             <h4>${escapeHtml(item.title)}</h4>
-            <p>${escapeHtml(item.description || "")}</p>
+            <div class="food-body">
+              <p class="food-desc">${escapeHtml(description)}</p>
+              ${weightHtml}
+            </div>
             <div class="food-footer">
               <b class="food-price">${initialPrice} &#8381;</b>
               <div class="food-actions">

@@ -40,6 +40,7 @@ const menuReset = document.querySelector("#menu-reset");
 const menuId = document.querySelector("#menu-id");
 const menuTitle = document.querySelector("#menu-title");
 const menuDescription = document.querySelector("#menu-description");
+const menuWeight = document.querySelector("#menu-weight");
 const menuCategory = document.querySelector("#menu-category");
 const menuPrice = document.querySelector("#menu-price");
 const menuActive = document.querySelector("#menu-active");
@@ -354,6 +355,7 @@ const setMenuForm = (item) => {
   menuId.value = item?.id || "";
   menuTitle.value = item?.title || "";
   menuDescription.value = item?.description || "";
+  menuWeight.value = item?.weight || "";
   const cat = String(item?.category || "").trim();
   const options = new Set(Array.from(menuCategory.options).map((o) => o.value));
   if (item) {
@@ -364,6 +366,7 @@ const setMenuForm = (item) => {
   menuPrice.value = item?.price ?? "";
   if (!item) {
     menuPrice.value = "";
+    menuWeight.value = "";
   }
   menuActive.checked = item ? Boolean(item.active) : true;
   menuImageUrl.value = item?.imageUrl || "";
@@ -516,9 +519,9 @@ const renderMenu = (items) => {
           <div class="admin-item__top">
             <div>
               <p class="admin-item__title">${item.title}</p>
-              <p class="admin-item__meta">${item.category || "—"} · <b>${formatPrice(item.price)}</b></p>
-              <p class="admin-item__meta">${item.active ? "Показывается на сайте" : "Скрыто"}</p>
-            </div>
+               <p class="admin-item__meta">${item.category || "—"} · <b>${formatPrice(item.price)}</b>${item.weight ? ` · <span class="admin-weight">${escapeHtml(item.weight)}</span>` : ""}</p>
+               <p class="admin-item__meta">${item.active ? "Показывается на сайте" : "Скрыто"}</p>
+             </div>
             <div class="admin-thumb" ${img}></div>
           </div>
           <div class="admin-item__actions">
@@ -1008,6 +1011,7 @@ menuForm.addEventListener("submit", async (event) => {
   const payload = {
     title: menuTitle.value.trim(),
     description: menuDescription.value.trim(),
+    weight: String(menuWeight.value || "").trim(),
     category: selectedCategory,
     price: Number(menuPrice.value),
     options: optionsResult.options,

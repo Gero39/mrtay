@@ -7,7 +7,7 @@
   border-radius: 22px;
   background: var(--surface);
   box-shadow: 0 12px 26px rgba(20, 33, 56, 0.05);
-  overflow: hidden;
+  overflow: visible;
 }
 
 .admin-toolbar {
@@ -248,6 +248,9 @@
   height: fit-content;
   position: sticky;
   top: 16px;
+  max-height: calc(100vh - 32px);
+  overflow: auto;
+  overscroll-behavior: contain;
 }
 
 .admin-form-card h2 {
@@ -377,6 +380,11 @@
   font-weight: 700;
 }
 
+.admin-weight {
+  font-weight: 800;
+  color: #3b4558;
+}
+
 #panel-orders .admin-note {
   margin: 0 0 12px;
 }
@@ -395,6 +403,10 @@
   }
 
   .admin-form-card {
-    position: static;
+    position: sticky;
+    top: 12px;
+    max-height: calc(100vh - 24px);
+    overflow: auto;
+    overscroll-behavior: contain;
   }
 }
