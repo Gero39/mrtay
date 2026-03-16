@@ -116,6 +116,9 @@
 
     promoRow.innerHTML = promos
       .map((promo, idx) => {
+        const fullText = String(promo.text || "").trim();
+        const oneLine = fullText.replaceAll("\r\n", "\n").replaceAll("\n", " ");
+        const preview = oneLine.length > 70 ? `${oneLine.slice(0, 70).trimEnd()}…` : oneLine;
         const bg = promo.imageUrl
           ? `style="background-image: linear-gradient(140deg, rgba(255,255,255,0.0) 0%, rgba(255,255,255,0.55) 100%), url('${escapeHtml(
               promo.imageUrl,
@@ -124,7 +127,7 @@
         return `
           <article class="promo-card ${themeClass(promo.theme, idx)}" data-id="${escapeHtml(promo.id)}" ${bg}>
             <h3>${escapeHtml(promo.title)}</h3>
-            <p>${escapeHtml(promo.text)}</p>
+            <p>${escapeHtml(preview)}</p>
           </article>
         `;
       })
@@ -265,7 +268,8 @@
     const text = String(promo.text || "").trim();
     const theme = String(promo.theme || "").trim();
     const heroClass = themeClass(theme, 0);
-    const imageStyle = promo.imageUrl
+    const hasImage = Boolean(String(promo.imageUrl || "").trim());
+    const imageStyle = hasImage
       ? `style="background-image: linear-gradient(140deg, rgba(255,255,255,0.05) 0%, rgba(255,255,255,0.72) 100%), url('${escapeHtml(
           promo.imageUrl,
         )}'); background-size: cover; background-position: center;"`
@@ -274,7 +278,7 @@
     const textHtml = escapeHtml(text).replaceAll("\n", "<br>");
 
     foodModalBody.innerHTML = `
-      <div class="promo-modal">
+      <div class="promo-modal ${hasImage ? "" : "promo-modal--noimage"}">
         <div class="promo-modal__hero ${heroClass}" ${imageStyle}></div>
         <div class="promo-modal__body">
           <h3 class="promo-modal__title" id="food-modal-title">${escapeHtml(title)}</h3>

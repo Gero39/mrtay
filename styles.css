@@ -1017,6 +1017,10 @@ body.modal-open {
   grid-template-rows: 220px auto;
 }
 
+.promo-modal--noimage {
+  grid-template-rows: 96px auto;
+}
+
 .promo-modal__hero {
   border-bottom: 1px solid var(--line);
   background: #f7f9fd;
@@ -1026,6 +1030,7 @@ body.modal-open {
   padding: 18px;
   display: grid;
   gap: 10px;
+  min-width: 0;
 }
 
 .promo-modal__title {
@@ -1039,6 +1044,11 @@ body.modal-open {
   margin: 0;
   color: var(--muted);
   line-height: 1.55;
+  white-space: normal;
+  overflow: visible;
+  text-overflow: clip;
+  overflow-wrap: anywhere;
+  word-break: break-word;
 }
 
 .promo-modal__text br {
