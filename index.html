@@ -24,7 +24,7 @@
         <span>Ежедневно: 9:00-22:00</span>
       </div>
       <label class="search">
-        <input type="search" placeholder="Поиск по меню">
+        <input id="menu-search" type="search" placeholder="Поиск по меню" autocomplete="off">
       </label>
       <div class="phone-pop">
         <button class="icon-btn" id="phone-btn" type="button" aria-label="Позвонить" aria-haspopup="dialog" aria-expanded="false" aria-controls="phone-popover">
@@ -154,6 +154,14 @@
       <button class="checkout-btn" type="button" id="go-to-order">Оформить заказ</button>
     </div>
   </aside>
+
+  <!-- Food details modal (opened by clicking a food card) -->
+  <div class="modal-overlay" id="food-modal" hidden>
+    <div class="modal-panel" role="dialog" aria-modal="true" aria-labelledby="food-modal-title">
+      <button class="modal-close" type="button" id="food-modal-close" aria-label="Закрыть">&times;</button>
+      <div id="food-modal-body"></div>
+    </div>
+  </div>
 
   <script src="site.js"></script>
   <script src="script.js"></script>

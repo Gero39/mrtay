@@ -73,6 +73,27 @@
                   <h2>Категории</h2>
                   <button class="admin-btn" id="categories-refresh" type="button">Обновить</button>
                 </div>
+                <div class="admin-card admin-card--subtle admin-nav-settings">
+                  <div class="admin-filters admin-filters--wrap">
+                    <label class="admin-check">
+                      <input type="checkbox" id="nav-all-enabled">
+                      Показывать "Все блюда"
+                    </label>
+                    <label>
+                      Позиция "Все блюда"
+                      <select id="nav-all-position">
+                        <option value="top">Сверху</option>
+                        <option value="bottom">Снизу</option>
+                      </select>
+                    </label>
+                    <label class="admin-check">
+                      <input type="checkbox" id="nav-shuffle-all">
+                      Перемешивать блюда в "Все блюда"
+                    </label>
+                    <button class="admin-btn" id="nav-settings-save" type="button">Сохранить</button>
+                  </div>
+                  <p class="admin-note" id="nav-settings-note"></p>
+                </div>
                 <div class="admin-list" id="categories-list"></div>
               </div>
               <div class="admin-form-card">

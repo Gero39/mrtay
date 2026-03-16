@@ -38,6 +38,13 @@ const ensureDirsAndDb = async () => {
       promos: [],
       orders: [],
       categories: [],
+      settings: {
+        nav: {
+          allCategoryEnabled: true,
+          allCategoryPosition: "top",
+          shuffleAll: true,
+        },
+      },
     };
     await fs.writeFile(DB_FILE, JSON.stringify(initial, null, 2), "utf8");
   }
@@ -53,6 +60,14 @@ const readDb = async () => {
   parsed.promos ||= [];
   parsed.orders ||= [];
   parsed.categories ||= [];
+  parsed.settings ||= {};
+  parsed.settings.nav ||= {};
+  parsed.settings.nav.allCategoryEnabled =
+    parsed.settings.nav.allCategoryEnabled !== undefined ? Boolean(parsed.settings.nav.allCategoryEnabled) : true;
+  parsed.settings.nav.allCategoryPosition =
+    parsed.settings.nav.allCategoryPosition === "bottom" ? "bottom" : "top";
+  parsed.settings.nav.shuffleAll =
+    parsed.settings.nav.shuffleAll !== undefined ? Boolean(parsed.settings.nav.shuffleAll) : true;
   return parsed;
 };
 
@@ -177,6 +192,11 @@ app.get("/api/public/categories", async (_req, res) => {
   res.json(db.categories);
 });
 
+app.get("/api/public/settings", async (_req, res) => {
+  const db = await readDb();
+  res.json({ nav: db.settings.nav });
+});
+
 app.post("/api/public/orders", async (req, res) => {
   const payload = req.body || {};
   const customer = payload.customer || {};
@@ -284,6 +304,44 @@ app.get("/api/admin/menu", requireAdmin, async (_req, res) => {
 app.get("/api/admin/categories", requireAdmin, async (_req, res) => {
   const db = await readDb();
   res.json(db.categories);
+});
+
+app.get("/api/admin/settings", requireAdmin, async (_req, res) => {
+  const db = await readDb();
+  res.json({ nav: db.settings.nav });
+});
+
+app.put("/api/admin/settings", requireAdmin, async (req, res) => {
+  const payload = req.body || {};
+  const nav = payload.nav || {};
+
+  const next = await updateDb(async (db) => {
+    const current = db.settings?.nav || {};
+    const allCategoryEnabled =
+      nav.allCategoryEnabled !== undefined ? Boolean(nav.allCategoryEnabled) : current.allCategoryEnabled;
+    const shuffleAll = nav.shuffleAll !== undefined ? Boolean(nav.shuffleAll) : current.shuffleAll;
+    const allCategoryPosition =
+      nav.allCategoryPosition !== undefined ? String(nav.allCategoryPosition || "").trim() : current.allCategoryPosition;
+
+    if (allCategoryPosition !== "top" && allCategoryPosition !== "bottom") {
+      return "invalid_position";
+    }
+
+    db.settings ||= {};
+    db.settings.nav = {
+      allCategoryEnabled,
+      allCategoryPosition,
+      shuffleAll,
+    };
+    return db.settings.nav;
+  });
+
+  if (next === "invalid_position") {
+    res.status(400).json({ error: "invalid_position" });
+    return;
+  }
+
+  res.json({ nav: next });
 });
 
 app.post("/api/admin/categories", requireAdmin, async (req, res) => {

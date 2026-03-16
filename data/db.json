@@ -1,6 +1,466 @@
 {
   "menu": [
     {
+      "id": "acb19df0-7688-46e0-91d6-da302249108b",
+      "title": "Суши пицца с лососем",
+      "description": "Рис, нори, помидор, лосось, огур сол, лук красный, моцарелла, соус спайси, унаги, кунжут, лук зелёный",
+      "weight": "500 гр.",
+      "category": "Суши пицца",
+      "imageUrl": "/uploads/1773643362406_b9c797d8-7760-49e9-b376-4c0076d416a6.jpeg",
+      "price": 600,
+      "options": [],
+      "active": true,
+      "createdAt": "2026-03-16T06:42:43.441Z",
+      "updatedAt": "2026-03-16T06:42:43.441Z"
+    },
+    {
+      "id": "d6956107-9b0b-47b3-a663-37ef2246469b",
+      "title": "Суши пицца с морепродуктами",
+      "description": "Рис, нори, помидор, кальмар, мидия, креветки, моцарелла, спайси соус, унаги, кунжут, лук зелёный",
+      "weight": "500 гр.",
+      "category": "Суши пицца",
+      "imageUrl": "/uploads/1773643237839_50a3ac81-45d1-4d35-9b5d-76f13cbe4756.png",
+      "price": 600,
+      "options": [],
+      "active": true,
+      "createdAt": "2026-03-16T06:40:39.251Z",
+      "updatedAt": "2026-03-16T06:40:39.251Z"
+    },
+    {
+      "id": "2eaa5365-4b6a-41d0-b76c-1fa6ad59de1b",
+      "title": "Суши пицца с курицей-грибами",
+      "description": "Рис, нори, кур, грибы, помидоры, моцарелла, спайси соус, унаги, кунжут, лук зелёный",
+      "weight": "500 гр.",
+      "category": "Суши пицца",
+      "imageUrl": "/uploads/1773642968181_36d4cc33-819e-4f6b-a8cc-f6c467b642f4.jpeg",
+      "price": 520,
+      "options": [],
+      "active": true,
+      "createdAt": "2026-03-16T06:36:11.980Z",
+      "updatedAt": "2026-03-16T06:36:11.980Z"
+    },
+    {
+      "id": "7dadc8c7-7baf-410f-a5f9-e36edb4c92c2",
+      "title": "Удон с курицей",
+      "description": "Лапша, курица, лук, морковь, перец, кабачок, унаги, терияки, свит чили, ким-чи, кунжут, лук зелёный",
+      "weight": "380 гр.",
+      "category": "Удоны",
+      "imageUrl": "/uploads/1773642707842_9b5d5f3e-76ee-4e37-8fcc-38a9ee43d850.jpeg",
+      "price": 430,
+      "options": [
+        {
+          "id": "93ebca2d-491c-4042-9244-0df4cabef001",
+          "label": "Пшеничный",
+          "price": 430
+        },
+        {
+          "id": "8909c5a0-a7f3-4919-b78e-33aad27bfbf1",
+          "label": "Гречневый",
+          "price": 430
+        }
+      ],
+      "active": true,
+      "createdAt": "2026-03-16T06:31:58.158Z",
+      "updatedAt": "2026-03-16T06:31:58.158Z"
+    },
+    {
+      "id": "29731700-8347-46bc-b26f-22d90edeed76",
+      "title": "Удон с креветкой",
+      "description": "Лапша, креветка, лук, морковь, перец, кабачок, унаги, терияки, свит чили, ким-чи, кунжут, лук зелёный",
+      "weight": "380 гр.",
+      "category": "Удоны",
+      "imageUrl": "/uploads/1773642486281_1c992e0d-3be4-4782-ba23-460a8d86ba49.jpeg",
+      "price": 550,
+      "options": [
+        {
+          "id": "96848fa6-e8b0-4286-a8dd-6958e6cdfc19",
+          "label": "Пшеничный",
+          "price": 550
+        },
+        {
+          "id": "abec12d1-381d-43ee-9969-3cdadea28e16",
+          "label": "Гречневый",
+          "price": 550
+        }
+      ],
+      "active": true,
+      "createdAt": "2026-03-16T06:28:11.205Z",
+      "updatedAt": "2026-03-16T06:32:48.299Z"
+    },
+    {
+      "id": "b1db3f01-c83d-439d-a68f-9613e5e92ff4",
+      "title": "Удон с морепродуктами",
+      "description": "Лапша, кальмар, мидия, креветка, лук, морковь, перец, кабачок, унаги, терияки, свит чили, ким-чи, кунжут, лук зелёный",
+      "weight": "380 гр.",
+      "category": "Удоны",
+      "imageUrl": "/uploads/1773642092553_4aaac246-6cf2-428c-ba0f-95c068c31f57.png",
+      "price": 550,
+      "options": [
+        {
+          "id": "6e828326-18c9-4acd-aad2-c26f8a04a89f",
+          "label": "Пшеничный",
+          "price": 550
+        },
+        {
+          "id": "4f38bf39-14d8-471d-a17b-39427bb32954",
+          "label": "Гречневый",
+          "price": 550
+        }
+      ],
+      "active": true,
+      "createdAt": "2026-03-16T06:21:38.455Z",
+      "updatedAt": "2026-03-16T06:32:35.706Z"
+    },
+    {
+      "id": "ebd97a3b-2a79-433a-bc22-64668b51b625",
+      "title": "Удон с говядиной",
+      "description": "Лапша, говядина, лук, морковь, перец, кабачок, унаги, терияки, свит чили, ким-чи, кунжут, лук зелёный",
+      "weight": "380 гр.",
+      "category": "Удоны",
+      "imageUrl": "/uploads/1773641759745_e5c17ea7-7242-490e-8aaf-a8321370a0a9.jpeg",
+      "price": 470,
+      "options": [
+        {
+          "id": "ab7b31f7-0410-4ff9-8e16-39e23d98f28c",
+          "label": "Пшеничный",
+          "price": 470
+        },
+        {
+          "id": "a24f673e-9e00-4fb3-86cb-d3cb7fe061b4",
+          "label": "Гречневый",
+          "price": 470
+        }
+      ],
+      "active": true,
+      "createdAt": "2026-03-16T06:16:00.505Z",
+      "updatedAt": "2026-03-16T06:32:17.547Z"
+    },
+    {
+      "id": "2edb29d2-e0cc-43a9-bac6-b6fa74f88d14",
+      "title": "Том Ям с курицей",
+      "description": "Курица, кокосовое молоко, паста том-ям, черри, грибы",
+      "weight": "380 гр.",
+      "category": "Супы",
+      "imageUrl": "/uploads/1773641571823_28b36a3d-0ecc-4f3b-abcb-d14b9e097651.jpeg",
+      "price": 550,
+      "options": [],
+      "active": true,
+      "createdAt": "2026-03-16T06:13:06.016Z",
+      "updatedAt": "2026-03-16T06:13:06.016Z"
+    },
+    {
+      "id": "983c3698-bc85-4b9a-8908-3ce25f8767cc",
+      "title": "Том Ям с морепродуктами",
+      "description": "Кальмар, мидия, креветка, кококс молоко, паста том-ям, черри, грибы",
+      "weight": "380",
+      "category": "Супы",
+      "imageUrl": "/uploads/1773641433903_43888649-62f1-4a14-8261-46d29d291272.jpeg",
+      "price": 550,
+      "options": [],
+      "active": true,
+      "createdAt": "2026-03-16T06:10:44.789Z",
+      "updatedAt": "2026-03-16T06:10:44.789Z"
+    },
+    {
+      "id": "246e3a00-5a85-49cb-8d05-cc3451048806",
+      "title": "Креветка-лосось",
+      "description": "Рис, нори, креветка, лосось, крем-чиз, огурец, авокадо, чука, икра, темпура, сухари,унаги, спайси, кунжут, зелень",
+      "weight": "300 гр.",
+      "category": "Ролл-дог",
+      "imageUrl": "/uploads/1773641151212_3a3d6314-1349-4ed7-b20d-3db07692d461.png",
+      "price": 500,
+      "options": [],
+      "active": true,
+      "createdAt": "2026-03-16T06:05:52.395Z",
+      "updatedAt": "2026-03-16T06:05:52.395Z"
+    },
+    {
+      "id": "ee0444f6-d30c-487e-9e77-ef9766602643",
+      "title": "Угорь-тунец",
+      "description": "Рис, нори, угорь, тунец,крем-чиз, огурец, авокадо, чука, икра, темпура, сухари, унаги, спайси, кунжут, зелень",
+      "weight": "300 гр.",
+      "category": "Ролл-дог",
+      "imageUrl": "/uploads/1773641081174_df724510-1ce4-4422-9b8f-f9a8d2e33364.png",
+      "price": 500,
+      "options": [],
+      "active": true,
+      "createdAt": "2026-03-16T06:04:43.796Z",
+      "updatedAt": "2026-03-16T06:04:43.796Z"
+    },
+    {
+      "id": "871315d3-4536-4a5b-8b26-57f464d89ed4",
+      "title": "Лосось-краб",
+      "description": "Рис, нори, лосось, краб, крем-чиз, огурец, авокадо, чука, икра,темпура, сухари унаги, спайси, кунжут, зелень",
+      "weight": "300 гр.",
+      "category": "Ролл-дог",
+      "imageUrl": "/uploads/1773640732645_41ed187b-256a-4805-a0d5-0cb4049cd6bd.png",
+      "price": 500,
+      "options": [],
+      "active": true,
+      "createdAt": "2026-03-16T05:58:54.711Z",
+      "updatedAt": "2026-03-16T05:58:54.711Z"
+    },
+    {
+      "id": "d2d22140-a70a-4f29-bf17-9ff28477aae8",
+      "title": "Угорь",
+      "description": "Рис, нори, угорь, крем-чиз, огурец, икра, темпура, сухари, унаги, кунжут",
+      "weight": "8 шт.",
+      "category": "Роллы темпура",
+      "imageUrl": "/uploads/1773640219940_4a6c9219-c296-44e1-86c7-664109151dce.jpeg",
+      "price": 500,
+      "options": [],
+      "active": true,
+      "createdAt": "2026-03-16T05:50:20.729Z",
+      "updatedAt": "2026-03-16T05:50:20.729Z"
+    },
+    {
+      "id": "6f29b81f-bf72-4bea-b508-b509a0b2d690",
+      "title": "Креветка",
+      "description": "Рис, нори, креветка, крем-чиз, огурец, икра, темпура, сухари, унаги, кунжут",
+      "weight": "8 шт.",
+      "category": "Роллы темпура",
+      "imageUrl": "/uploads/1773640294859_3d202d96-0eba-427b-94f5-b2930ee858b9.jpeg",
+      "price": 500,
+      "options": [],
+      "active": true,
+      "createdAt": "2026-03-16T05:47:41.427Z",
+      "updatedAt": "2026-03-16T05:51:35.554Z"
+    },
+    {
+      "id": "9583f5a7-ee29-45fb-9a19-c1b8a5c660a4",
+      "title": "Чикен",
+      "description": "Рис, нори, курочка, крем-чиз, огурец, икра, темпура, сухари, унаги, кунжут",
+      "weight": "8 шт.",
+      "category": "Роллы темпура",
+      "imageUrl": "/uploads/1773639916398_d3840cdf-1ce8-4367-a4a8-cc48cf1fb134.jpeg",
+      "price": 500,
+      "options": [],
+      "active": true,
+      "createdAt": "2026-03-16T05:45:16.937Z",
+      "updatedAt": "2026-03-16T05:45:16.937Z"
+    },
+    {
+      "id": "356cc375-1c20-421d-b9b6-a7ddb0beda06",
+      "title": "Лосось",
+      "description": "Рис, нори, лосось, крем-чиз, икра, огурец, темпура, сухари, унаги, кунжут",
+      "weight": "8 шт.",
+      "category": "Роллы темпура",
+      "imageUrl": "/uploads/1773639843958_138c908f-b6a4-4a77-80f3-a747a8b11bbe.jpeg",
+      "price": 500,
+      "options": [],
+      "active": true,
+      "createdAt": "2026-03-16T05:44:07.201Z",
+      "updatedAt": "2026-03-16T05:44:16.056Z"
+    },
+    {
+      "id": "c808120f-83b4-4ef4-bc0b-6a7925677b06",
+      "title": "С мидиями",
+      "description": "Рис, нори, крем-чиз, мидии, моцарелла, икра, майонез, огурец, унаги, спаи́си, кунжут",
+      "weight": "8 шт.",
+      "category": "Роллы запечённые",
+      "imageUrl": "/uploads/1773639715360_b9c2d5c5-e719-4c92-a7aa-9a98971c20d4.jpeg",
+      "price": 480,
+      "options": [],
+      "active": true,
+      "createdAt": "2026-03-16T05:41:56.638Z",
+      "updatedAt": "2026-03-16T05:41:56.638Z"
+    },
+    {
+      "id": "b8498428-34e6-47f6-b17e-174bfcf80639",
+      "title": "С крабом",
+      "description": "Рис, норт, крем-чиз, краб,огурец, моцарелла, икра, майонез,кнаги, кунжут",
+      "weight": "8 шт.",
+      "category": "Роллы запечённые",
+      "imageUrl": "/uploads/1773639416066_1cf98b70-0b54-45e1-9882-9084d9af22cc.jpeg",
+      "price": 480,
+      "options": [],
+      "active": true,
+      "createdAt": "2026-03-16T05:37:00.161Z",
+      "updatedAt": "2026-03-16T05:37:00.161Z"
+    },
+    {
+      "id": "a2303376-6341-479a-a8b6-90f96b0175ec",
+      "title": "С лососем",
+      "description": "Рис, нор , крем-чиз, огурец, лосось, моцарелла, икра, май, унаги, кунжут",
+      "weight": "8 шт.",
+      "category": "Роллы запечённые",
+      "imageUrl": "/uploads/1773639306927_bd71cc58-448c-41e1-a87c-e7b0bd0ce401.jpeg",
+      "price": 480,
+      "options": [],
+      "active": true,
+      "createdAt": "2026-03-16T05:35:08.048Z",
+      "updatedAt": "2026-03-16T05:35:08.048Z"
+    },
+    {
+      "id": "761524d1-5529-483c-b57a-2b7f29aa4fe3",
+      "title": "С креветкой",
+      "description": "Рис, нори, крем-чиз, огурец, креветка, моцарелла, икра, майонез, унаги, спайси, кунжут",
+      "weight": "8 шт.",
+      "category": "Роллы запечённые",
+      "imageUrl": "/uploads/1773639179821_e1e8962a-6f86-4c93-8653-4577bad278c1.jpeg",
+      "price": 480,
+      "options": [],
+      "active": true,
+      "createdAt": "2026-03-16T05:33:07.210Z",
+      "updatedAt": "2026-03-16T05:35:32.646Z"
+    },
+    {
+      "id": "e31bf09a-1380-433f-941f-328f43d68cb8",
+      "title": "Гейша",
+      "description": "Рис, нори, лосось, икра, крем-чиз, спайси, огурец",
+      "weight": "8 шт.",
+      "category": "Роллы",
+      "imageUrl": "/uploads/1773639093848_cc14148c-1ced-47d4-b55b-a828115e1bd7.jpeg",
+      "price": 500,
+      "options": [],
+      "active": true,
+      "createdAt": "2026-03-16T05:31:34.550Z",
+      "updatedAt": "2026-03-16T05:31:34.550Z"
+    },
+    {
+      "id": "59dbbbc8-178b-4611-8f49-7ad2245bf51a",
+      "title": "Динамит",
+      "description": "Рис, нори, лосось, спайси, айсберг, перец, помидор, огурец",
+      "weight": "8 шт.",
+      "category": "Роллы",
+      "imageUrl": "/uploads/1773638832474_abaddfe2-a75c-48d5-bc20-0b9239baa76c.jpeg",
+      "price": 440,
+      "options": [],
+      "active": true,
+      "createdAt": "2026-03-16T05:27:13.283Z",
+      "updatedAt": "2026-03-16T06:07:12.460Z"
+    },
+    {
+      "id": "8e8e26b3-6f8d-4e1a-8365-e1c657582902",
+      "title": "Лава с креветкой",
+      "description": "Рис, нори, креветка, огурец, крем-чиз, икра",
+      "weight": "8 шт.",
+      "category": "Роллы",
+      "imageUrl": "/uploads/1773638711473_b5879473-4c44-4a2e-8bfd-b1a149e87b57.jpeg",
+      "price": 440,
+      "options": [],
+      "active": true,
+      "createdAt": "2026-03-16T05:25:12.210Z",
+      "updatedAt": "2026-03-16T05:25:12.210Z"
+    },
+    {
+      "id": "c70301b0-9d6a-418a-bf22-a43a63c9f186",
+      "title": "Лава с лососем",
+      "description": "Рис, нори, лосось, крем-чиз, икра, огурец",
+      "weight": "8 шт.",
+      "category": "Роллы",
+      "imageUrl": "/uploads/1773638601148_bf488fc5-814f-4168-9359-bfd12fb95d86.jpeg",
+      "price": 440,
+      "options": [],
+      "active": true,
+      "createdAt": "2026-03-16T05:23:33.388Z",
+      "updatedAt": "2026-03-16T05:23:33.388Z"
+    },
+    {
+      "id": "50aae75f-5718-47b7-b510-f4f6371a3a18",
+      "title": "Зелёный дракон",
+      "description": "Рис, нори, авокадо, лосось, крем-чиз, огурец, икра, унаги, кунжут",
+      "weight": "8 шт.",
+      "category": "Роллы",
+      "imageUrl": "/uploads/1773638408183_4c6f56c6-8f53-4474-a835-a1f8a50e487b.jpeg",
+      "price": 550,
+      "options": [],
+      "active": true,
+      "createdAt": "2026-03-16T05:20:09.450Z",
+      "updatedAt": "2026-03-16T05:20:09.450Z"
+    },
+    {
+      "id": "65323d6c-3eb4-42cd-815d-c2fa2be31632",
+      "title": "Унаги блек",
+      "description": "Рис, нори, угорь, огурец, крем-чиз, икра",
+      "weight": "8 шт.",
+      "category": "Роллы",
+      "imageUrl": "/uploads/1773638190521_4a13cdce-d858-4e3c-bf84-279db08754f5.jpeg",
+      "price": 440,
+      "options": [],
+      "active": true,
+      "createdAt": "2026-03-16T05:16:32.521Z",
+      "updatedAt": "2026-03-16T05:16:32.521Z"
+    },
+    {
+      "id": "a429de62-a015-4cc3-8ec8-5b8753cde026",
+      "title": "Калифорния с лососем",
+      "description": "Рис, нори, лосось, огурец, крем-чиз, икра",
+      "weight": "8 шт.",
+      "category": "Роллы",
+      "imageUrl": "/uploads/1773637734082_fe2e3c7c-75dc-45f8-945a-2e97e5d011ea.jpeg",
+      "price": 440,
+      "options": [],
+      "active": true,
+      "createdAt": "2026-03-16T05:08:56.483Z",
+      "updatedAt": "2026-03-16T05:08:56.483Z"
+    },
+    {
+      "id": "c309b3c2-d287-415d-985b-df42594acd31",
+      "title": "Калифорния с крабом",
+      "description": "Рис, нори, снежный краб, огурец, икра, майонез",
+      "weight": "8 шт.",
+      "category": "Роллы",
+      "imageUrl": "/uploads/1773637614024_26beef80-c1f5-41cb-91bc-442f54230339.jpeg",
+      "price": 440,
+      "options": [],
+      "active": true,
+      "createdAt": "2026-03-16T05:06:54.710Z",
+      "updatedAt": "2026-03-16T05:07:02.787Z"
+    },
+    {
+      "id": "6d8a5cf6-67d7-499c-8da0-dc07a2adfd76",
+      "title": "Филадельфия с угрем",
+      "description": "Рис, нори, угорь, крем-чиз, огурец",
+      "weight": "8 шт.",
+      "category": "Роллы",
+      "imageUrl": "/uploads/1773637479719_1f8870c0-78a4-410c-a7ed-be4769b0c768.jpeg",
+      "price": 620,
+      "options": [],
+      "active": true,
+      "createdAt": "2026-03-16T05:04:40.556Z",
+      "updatedAt": "2026-03-16T05:04:40.556Z"
+    },
+    {
+      "id": "d3f04c02-c05e-4dd9-9ddc-965b50faee6c",
+      "title": "Филадельфия с креветкой",
+      "description": "Рис, нори, креветка тигр, крем-чиз, огурец",
+      "weight": "8 шт.",
+      "category": "Роллы",
+      "imageUrl": "/uploads/1773637317407_332662d2-ec2b-47a3-b2dd-958c50a14ba5.jpeg",
+      "price": 620,
+      "options": [],
+      "active": true,
+      "createdAt": "2026-03-16T05:02:08.263Z",
+      "updatedAt": "2026-03-16T05:02:08.263Z"
+    },
+    {
+      "id": "0ba90584-d457-4570-bfb1-15831fe27d20",
+      "title": "Филадельфия",
+      "description": "Рис, нори, лосось, огурец, крем-чиз",
+      "weight": "8 шт.",
+      "category": "Роллы",
+      "imageUrl": "/uploads/1773637091653_c1f6d9b6-d0cb-4ca9-89f9-9858a5993642.jpeg",
+      "price": 440,
+      "options": [],
+      "active": true,
+      "createdAt": "2026-03-16T04:58:46.453Z",
+      "updatedAt": "2026-03-16T05:04:52.094Z"
+    },
+    {
+      "id": "d6da7fbb-848f-4114-8d93-42e7be541cd0",
+      "title": "Аляска",
+      "description": "Рис, нори, лосось, огурец, крем-чиз, кунжут",
+      "weight": "8 шт.",
+      "category": "Роллы",
+      "imageUrl": "/uploads/1773636569359_edbe4a85-bafc-4ba4-9ce0-0ccd69051ac7.jpeg",
+      "price": 440,
+      "options": [],
+      "active": true,
+      "createdAt": "2026-03-16T04:49:30.935Z",
+      "updatedAt": "2026-03-16T05:04:54.959Z"
+    },
+    {
       "id": "c8439c84-532a-468d-83eb-fa1d96872dab",
       "title": "Маки с угрём",
       "description": "Рис, нори, угорь",
@@ -474,6 +934,12 @@
   ],
   "categories": [
     {
+      "id": "384d9127-83e1-4c24-9b26-34acd3c4f8b0",
+      "name": "Сеты",
+      "createdAt": "2026-03-16T06:54:32.321Z",
+      "updatedAt": "2026-03-16T06:54:32.321Z"
+    },
+    {
       "id": "60f314d6-493f-4b11-aa85-acbf417fe0eb",
       "name": "Супы",
       "createdAt": "2026-03-13T19:34:52.421Z",
@@ -538,12 +1004,57 @@
       "name": "Маки",
       "createdAt": "2026-03-13T23:50:51.218Z",
       "updatedAt": "2026-03-13T23:50:51.218Z"
+    },
+    {
+      "id": "9f0448c0-bf06-4e9a-a403-a9dca7aaf4bd",
+      "name": "Удоны",
+      "createdAt": "2026-03-16T06:13:23.510Z",
+      "updatedAt": "2026-03-16T06:13:23.510Z"
     }
   ],
   "orders": [
     {
-      "id": "ea7c9e57-7dbc-498d-80db-b504ddc59452",
+      "id": "6efacb5e-42be-4ba2-ad0f-80bd705b9c8a",
       "status": "delivered",
+      "customer": {
+        "name": "Ваня",
+        "phone": "79781030117",
+        "address": "Балаклавская 71 85",
+        "comment": ""
+      },
+      "items": [
+        {
+          "id": "4540cede-ba13-46c7-b7d2-978b625ddda1",
+          "name": "Охота",
+          "optionId": "d30f43fc-27ca-4a12-9d8b-869660a283ed",
+          "optionLabel": "30 см",
+          "price": 550,
+          "quantity": 1
+        },
+        {
+          "id": "a54edd63-a8fd-43f1-b19a-eca77f3afca9",
+          "name": "Яхта",
+          "optionId": "db31ff9c-d9ca-40f7-9322-50fe93270e9a",
+          "optionLabel": "30 см",
+          "price": 650,
+          "quantity": 1
+        },
+        {
+          "id": "9367ae75-82f8-443e-89f2-804677ee3385",
+          "name": "Жульен",
+          "optionId": "ba351b52-1e6e-41da-8e08-bf0d40a3c79b",
+          "optionLabel": "30 см",
+          "price": 550,
+          "quantity": 1
+        }
+      ],
+      "total": 1750,
+      "createdAt": "2026-03-14T10:09:32.397Z",
+      "updatedAt": "2026-03-16T07:08:26.001Z"
+    },
+    {
+      "id": "ea7c9e57-7dbc-498d-80db-b504ddc59452",
+      "status": "cancelled",
       "customer": {
         "name": "Александр",
         "phone": "+79781030117",
@@ -572,7 +1083,14 @@
       ],
       "total": 1450,
       "createdAt": "2026-03-11T19:05:46.395Z",
-      "updatedAt": "2026-03-13T19:24:39.885Z"
+      "updatedAt": "2026-03-16T07:08:23.482Z"
     }
-  ]
+  ],
+  "settings": {
+    "nav": {
+      "allCategoryEnabled": false,
+      "allCategoryPosition": "top",
+      "shuffleAll": false
+    }
+  }
 }

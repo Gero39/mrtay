@@ -32,6 +32,10 @@ body.cart-open {
   overflow: hidden;
 }
 
+body.modal-open {
+  overflow: hidden;
+}
+
 .page-shell {
   max-width: 1360px;
   margin: 0 auto;
@@ -359,6 +363,10 @@ body.cart-open {
   display: grid;
   grid-template-columns: repeat(auto-fill, minmax(235px, 1fr));
   gap: 16px;
+}
+
+.menu-grid.no-reveal .food-card {
+  animation: none;
 }
 
 .menu-empty {
@@ -885,6 +893,177 @@ body.modal-open {
 
 .order-btn.added {
   background: #2f9e6b;
+}
+
+/* Food details modal (scoped so it doesn't affect checkout modal) */
+#food-modal {
+  position: fixed;
+  inset: 0;
+  background: rgba(14, 19, 28, 0.42);
+  display: grid;
+  place-items: center;
+  padding: 18px;
+  z-index: 80;
+}
+
+#food-modal[hidden] {
+  display: none;
+}
+
+#food-modal .modal-panel {
+  width: min(920px, 100%);
+  background: var(--surface);
+  border: 1px solid var(--line);
+  border-radius: 24px;
+  box-shadow: 0 26px 80px rgba(15, 22, 38, 0.28);
+  position: relative;
+  max-height: calc(100vh - 36px);
+  overflow: auto;
+}
+
+#food-modal .modal-close {
+  position: absolute;
+  top: 12px;
+  right: 12px;
+  width: 40px;
+  height: 40px;
+  border-radius: 999px;
+  border: 1px solid var(--line);
+  background: #fff;
+  cursor: pointer;
+  font-size: 26px;
+  line-height: 1;
+  color: var(--text);
+  display: grid;
+  place-items: center;
+}
+
+#food-modal .modal-close:hover {
+  background: #f3f6fb;
+}
+
+.food-modal-card {
+  animation: none;
+  box-shadow: none;
+  border: none;
+  padding: 18px;
+  border-radius: 24px;
+  display: grid;
+  grid-template-columns: minmax(220px, 320px) 1fr;
+  grid-template-rows: auto;
+  gap: 16px;
+}
+
+.food-modal-card .food-image {
+  height: 280px;
+  border-radius: 18px;
+}
+
+.food-modal-card.has-options .food-actions {
+  position: static;
+}
+
+.food-modal-card.has-options .food-option {
+  position: static;
+  width: 140px;
+}
+
+.food-modal-meta {
+  min-width: 0;
+  display: grid;
+  gap: 10px;
+  align-content: start;
+}
+
+.food-modal-title {
+  margin: 4px 0 0;
+  font-size: 1.35rem;
+  letter-spacing: -0.01em;
+}
+
+.food-modal-chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  width: max-content;
+  border: 1px solid var(--line);
+  background: #f7f9fd;
+  color: var(--muted);
+  padding: 6px 10px;
+  border-radius: 999px;
+  font-weight: 700;
+  font-size: 0.86rem;
+}
+
+.food-modal-desc {
+  margin: 0;
+  color: var(--muted);
+  line-height: 1.5;
+}
+
+.food-modal-desc br {
+  content: "";
+  display: block;
+  margin-top: 6px;
+}
+
+.food-modal-card .food-footer {
+  margin-top: 6px;
+}
+
+/* Promo modal content (rendered inside #food-modal) */
+.promo-modal {
+  display: grid;
+  grid-template-rows: 220px auto;
+}
+
+.promo-modal__hero {
+  border-bottom: 1px solid var(--line);
+  background: #f7f9fd;
+}
+
+.promo-modal__body {
+  padding: 18px;
+  display: grid;
+  gap: 10px;
+}
+
+.promo-modal__title {
+  margin: 0;
+  font-size: 1.5rem;
+  line-height: 1.15;
+  letter-spacing: -0.01em;
+}
+
+.promo-modal__text {
+  margin: 0;
+  color: var(--muted);
+  line-height: 1.55;
+}
+
+.promo-modal__text br {
+  content: "";
+  display: block;
+  margin-top: 8px;
+}
+
+@media (max-width: 780px) {
+  #food-modal .modal-panel {
+    border-radius: 18px;
+  }
+
+  .food-modal-card {
+    grid-template-columns: 1fr;
+    padding: 14px;
+  }
+
+  .food-modal-card .food-image {
+    height: 210px;
+  }
+
+  .promo-modal {
+    grid-template-rows: 180px auto;
+  }
 }
 
 @keyframes reveal {

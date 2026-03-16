@@ -28,6 +28,11 @@ const categoryDelete = document.querySelector("#category-delete");
 const categoryReset = document.querySelector("#category-reset");
 const categoryId = document.querySelector("#category-id");
 const categoryName = document.querySelector("#category-name");
+const navAllEnabled = document.querySelector("#nav-all-enabled");
+const navAllPosition = document.querySelector("#nav-all-position");
+const navShuffleAll = document.querySelector("#nav-shuffle-all");
+const navSettingsSave = document.querySelector("#nav-settings-save");
+const navSettingsNote = document.querySelector("#nav-settings-note");
 
 const menuList = document.querySelector("#menu-list");
 const menuRefresh = document.querySelector("#menu-refresh");
@@ -458,6 +463,26 @@ const readMenuOptionsFromEditor = () => {
 };
 
 let categoriesData = [];
+let navSettings = { allCategoryEnabled: true, allCategoryPosition: "top", shuffleAll: true };
+
+const setNavSettingsForm = (nav) => {
+  if (!navAllEnabled || !navAllPosition || !navShuffleAll) return;
+  navAllEnabled.checked = nav.allCategoryEnabled !== false;
+  navAllPosition.value = nav.allCategoryPosition === "bottom" ? "bottom" : "top";
+  navShuffleAll.checked = nav.shuffleAll !== false;
+  if (navSettingsNote) navSettingsNote.textContent = "";
+};
+
+const loadNavSettings = async () => {
+  const settings = await apiJson("/api/admin/settings");
+  const nav = settings?.nav || {};
+  navSettings = {
+    allCategoryEnabled: nav.allCategoryEnabled !== undefined ? Boolean(nav.allCategoryEnabled) : true,
+    allCategoryPosition: nav.allCategoryPosition === "bottom" ? "bottom" : "top",
+    shuffleAll: nav.shuffleAll !== undefined ? Boolean(nav.shuffleAll) : true,
+  };
+  setNavSettingsForm(navSettings);
+};
 
 const populateCategorySelect = () => {
   const current = menuCategory.value;
@@ -621,6 +646,7 @@ tokenSaveButton.addEventListener("click", async () => {
     const allOrders = await fetchAllOrdersSorted();
     await primeOrdersWatch(allOrders);
     await loadOrders(allOrders);
+    await loadNavSettings();
     await loadCategories();
     await loadMenu();
     await loadPromos();
@@ -801,9 +827,45 @@ ordersList.addEventListener("change", async (event) => {
 if (categoriesRefresh) {
   categoriesRefresh.addEventListener("click", async () => {
     try {
+      await loadNavSettings();
       await loadCategories();
     } catch (err) {
       setAuthStatus(`Ошибка: ${err.message}`, true);
+    }
+  });
+}
+
+if (navSettingsSave) {
+  navSettingsSave.addEventListener("click", async () => {
+    if (!navAllEnabled || !navAllPosition || !navShuffleAll) return;
+    if (navSettingsNote) navSettingsNote.textContent = "";
+
+    try {
+      const payload = {
+        nav: {
+          allCategoryEnabled: Boolean(navAllEnabled.checked),
+          allCategoryPosition: String(navAllPosition.value || "top"),
+          shuffleAll: Boolean(navShuffleAll.checked),
+        },
+      };
+
+      const updated = await apiJson("/api/admin/settings", {
+        method: "PUT",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(payload),
+      });
+
+      const nav = updated?.nav || payload.nav;
+      navSettings = {
+        allCategoryEnabled: nav.allCategoryEnabled !== undefined ? Boolean(nav.allCategoryEnabled) : true,
+        allCategoryPosition: nav.allCategoryPosition === "bottom" ? "bottom" : "top",
+        shuffleAll: nav.shuffleAll !== undefined ? Boolean(nav.shuffleAll) : true,
+      };
+      setNavSettingsForm(navSettings);
+
+      if (navSettingsNote) navSettingsNote.textContent = "Сохранено. Обновите сайт (F5), чтобы увидеть изменения.";
+    } catch (err) {
+      if (navSettingsNote) navSettingsNote.textContent = `Ошибка: ${err.message}`;
     }
   });
 }
