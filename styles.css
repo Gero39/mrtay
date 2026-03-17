@@ -27,6 +27,7 @@ body {
   background: var(--bg);
   color: var(--ink);
   font-family: "Manrope", "Segoe UI", sans-serif;
+  overflow-x: hidden;
 }
 
 body.cart-open {
@@ -1142,7 +1143,38 @@ body.modal-open {
   .topbar {
     border-radius: 16px;
     padding: 12px;
-    grid-template-columns: 1fr;
+    grid-template-columns: auto 1fr;
+    grid-template-areas:
+      "brand brand"
+      "city city"
+      "search search"
+      "phone cart";
+    align-items: center;
+  }
+
+  .brand {
+    grid-area: brand;
+  }
+
+  .city-panel {
+    grid-area: city;
+    min-width: 0;
+  }
+
+  .search {
+    grid-area: search;
+  }
+
+  .phone-pop {
+    grid-area: phone;
+    justify-self: start;
+  }
+
+  .cart-pill {
+    grid-area: cart;
+    width: 100%;
+    justify-content: space-between;
+    padding: 11px 14px;
   }
 
   .brand-logo {
