@@ -21,9 +21,7 @@ html {
 
 body {
   margin: 0;
-  background:
-    color(srgb rgb(255, 255, 255))
-    var(--bg);
+  background: var(--bg);
   color: var(--ink);
   font-family: "Manrope", "Segoe UI", sans-serif;
 }
@@ -1134,6 +1132,10 @@ body.modal-open {
     padding: 14px 12px 26px;
   }
 
+  .layout {
+    gap: 14px;
+  }
+
   .topbar {
     border-radius: 16px;
     padding: 12px;
@@ -1148,6 +1150,21 @@ body.modal-open {
     flex-basis: min(84vw, 420px);
   }
 
+  .menu-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 12px;
+  }
+
+  .food-card {
+    padding: 14px;
+    border-radius: 18px;
+  }
+
+  .food-image {
+    height: 130px;
+    border-radius: 14px;
+  }
+
   .section-header h1 {
     font-size: 1.6rem;
   }
@@ -1160,8 +1177,44 @@ body.modal-open {
     padding-bottom: 42px;
   }
 
+  .category-sidebar {
+    padding: 12px 12px 10px;
+    border-radius: 18px;
+  }
+
+  .category-sidebar h2 {
+    display: none;
+  }
+
   .category-sidebar nav {
-    grid-template-columns: 1fr;
+    display: flex;
+    gap: 8px;
+    overflow-x: auto;
+    overflow-y: hidden;
+    padding: 2px 2px 10px;
+    scroll-snap-type: x mandatory;
+    overscroll-behavior-x: contain;
+    -webkit-overflow-scrolling: touch;
+  }
+
+  .category-sidebar nav a {
+    flex: 0 0 auto;
+    border: 1px solid var(--line);
+    background: #fbfcfe;
+    border-radius: 999px;
+    padding: 10px 12px;
+    white-space: nowrap;
+    scroll-snap-align: start;
+  }
+
+  .category-sidebar nav a:hover {
+    background: #f4f6fb;
+  }
+
+  .category-sidebar nav a.active {
+    background: #ffeef0;
+    border-color: #ffd2d8;
+    color: var(--accent);
   }
 
   .cart-pill {
@@ -1191,5 +1244,16 @@ body.modal-open {
 
   .cart-drawer {
     width: 100%;
+  }
+}
+
+@media (max-width: 420px) {
+  .menu-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .promo-card {
+    flex-basis: min(88vw, 360px);
+    min-height: 140px;
   }
 }
