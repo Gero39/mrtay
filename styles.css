@@ -28,6 +28,7 @@ body {
   color: var(--ink);
   font-family: "Manrope", "Segoe UI", sans-serif;
   overflow-x: hidden;
+  touch-action: pan-x pan-y;
 }
 
 body.cart-open {
