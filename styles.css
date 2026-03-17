@@ -27,7 +27,6 @@ body {
   background: var(--bg);
   color: var(--ink);
   font-family: "Manrope", "Segoe UI", sans-serif;
-  overflow-x: hidden;
   touch-action: pan-x pan-y;
 }
 
@@ -43,6 +42,8 @@ body.modal-open {
   max-width: 1360px;
   margin: 0 auto;
   padding: 20px 24px 40px;
+  width: 100%;
+  min-width: 0;
 }
 
 .topbar {
@@ -55,6 +56,9 @@ body.modal-open {
   border-radius: 22px;
   padding: 14px 18px;
   box-shadow: 0 16px 30px rgba(9, 21, 44, 0.06);
+  width: 100%;
+  max-width: 100%;
+  min-width: 0;
 }
 
 .brand {
@@ -227,6 +231,9 @@ body.modal-open {
   display: grid;
   gap: 24px;
   grid-template-columns: 240px minmax(0, 1fr);
+  width: 100%;
+  max-width: 100%;
+  min-width: 0;
 }
 
 .category-sidebar {
@@ -238,6 +245,13 @@ body.modal-open {
   position: sticky;
   top: 18px;
   overflow: auto;
+  min-width: 0;
+  max-width: 100%;
+}
+
+.content {
+  min-width: 0;
+  max-width: 100%;
 }
 
 .category-sidebar h2 {
@@ -277,6 +291,8 @@ body.modal-open {
   scroll-snap-type: x mandatory;
   overscroll-behavior-x: contain;
   -webkit-overflow-scrolling: touch;
+  max-width: 100%;
+  min-width: 0;
 }
 
 .promo-row::-webkit-scrollbar {
@@ -1239,6 +1255,8 @@ body.modal-open {
     scroll-snap-type: x mandatory;
     overscroll-behavior-x: contain;
     -webkit-overflow-scrolling: touch;
+    max-width: 100%;
+    min-width: 0;
   }
 
   .category-sidebar nav a {
