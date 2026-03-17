@@ -637,6 +637,7 @@ body.modal-open {
   right: 0;
   width: min(92vw, 400px);
   height: 100vh;
+  height: 100dvh;
   background: var(--surface);
   border-left: 1px solid var(--line);
   box-shadow: -18px 0 40px rgba(20, 33, 56, 0.18);
@@ -655,6 +656,10 @@ body.modal-open {
 .cart-drawer__footer {
   padding: 16px 18px;
   border-bottom: 1px solid var(--line);
+}
+
+.cart-drawer__footer {
+  padding-bottom: calc(16px + env(safe-area-inset-bottom, 0px));
 }
 
 .cart-drawer__header {
@@ -686,6 +691,7 @@ body.modal-open {
   display: grid;
   align-content: start;
   gap: 10px;
+  -webkit-overflow-scrolling: touch;
 }
 
 .cart-empty {
