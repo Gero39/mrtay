@@ -10,7 +10,7 @@
   <link rel="stylesheet" href="styles.css">
   <link rel="stylesheet" href="admin.css">
 </head>
-<body>
+  <body class="admin-locked">
   <div class="page-shell">
     <header class="topbar checkout-head admin-head">
       <div class="brand">
@@ -34,7 +34,7 @@
             <button class="admin-btn" id="admin-token-save" type="button">Сохранить</button>
             <span class="admin-auth-status" id="admin-auth-status"></span>
           </div>
-          <div class="admin-tabs" role="tablist" aria-label="Разделы админки">
+          <div class="admin-tabs" id="admin-tabs" role="tablist" aria-label="Разделы админки">
             <button class="admin-tab-btn active" type="button" data-tab="orders" role="tab">Заказы</button>
             <button class="admin-tab-btn" type="button" data-tab="categories" role="tab">Категории</button>
             <button class="admin-tab-btn" type="button" data-tab="menu" role="tab">Меню</button>
@@ -42,7 +42,7 @@
           </div>
         </div>
 
-        <div class="admin-panels">
+        <div class="admin-panels" id="admin-panels">
           <section class="admin-panel active" id="panel-orders" role="tabpanel">
             <div class="admin-panel-head">
               <div class="admin-filters">

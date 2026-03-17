@@ -156,7 +156,7 @@
 
     item.quantity += delta;
     if (item.quantity <= 0) {
-      cartState.delete(id);
+      cartState.delete(key);
     }
 
     renderCart();

@@ -90,6 +90,10 @@ const setAuthStatus = (text, isError = false) => {
   authStatus.style.color = isError ? "#c81d31" : "";
 };
 
+const setAdminLocked = (isLocked) => {
+  document.body.classList.toggle("admin-locked", isLocked);
+};
+
 const setOrdersNote = (html, isError = false) => {
   if (!ordersNote) return;
   ordersNote.innerHTML = html || "";
@@ -106,6 +110,7 @@ const apiFetch = async (url, options = {}) => {
   const response = await fetch(url, { ...options, headers });
   if (response.status === 401) {
     setAuthStatus("Не авторизовано (401). Проверь токен.", true);
+    setAdminLocked(true);
   }
   return response;
 };
@@ -651,8 +656,10 @@ tokenSaveButton.addEventListener("click", async () => {
     await loadMenu();
     await loadPromos();
     setAuthStatus("Авторизовано.");
+    setAdminLocked(false);
   } catch (err) {
     setAuthStatus(`Ошибка: ${err.message}`, true);
+    setAdminLocked(true);
   }
 });
 
@@ -1232,6 +1239,7 @@ const init = async () => {
   tokenInput.value = getToken();
   if (!tokenInput.value) {
     setAuthStatus("Введи ADMIN_TOKEN и нажми Сохранить.");
+    setAdminLocked(true);
     return;
   }
 
@@ -1243,8 +1251,10 @@ const init = async () => {
     await loadMenu();
     await loadPromos();
     setAuthStatus("Авторизовано.");
+    setAdminLocked(false);
   } catch (err) {
     setAuthStatus(`Ошибка: ${err.message}`, true);
+    setAdminLocked(true);
   }
 };
 
