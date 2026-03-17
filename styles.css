@@ -13,6 +13,9 @@
 
 html {
   scroll-behavior: smooth;
+  /* Prevent Chromium "font boosting" on narrow layouts (mobile Chrome). */
+  -webkit-text-size-adjust: 100%;
+  text-size-adjust: 100%;
 }
 
 * {
@@ -1140,6 +1143,14 @@ body.modal-open {
     border-radius: 16px;
     padding: 12px;
     grid-template-columns: 1fr;
+  }
+
+  .brand-logo {
+    font-size: 1.65rem;
+  }
+
+  .city-panel p {
+    font-size: 1.05rem;
   }
 
   .promo-row {
