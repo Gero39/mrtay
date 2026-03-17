@@ -16,11 +16,59 @@ const ARCHIVES_DIR = path.join(DATA_DIR, "archives");
 
 const app = express();
 
+// Behind nginx we want correct client IP (x-forwarded-for) for rate-limits.
+app.set("trust proxy", 1);
+
 app.use(express.json({ limit: "2mb" }));
 app.use("/api", (_req, res, next) => {
   res.setHeader("Cache-Control", "no-store");
   next();
 });
+
+// Basic security headers (keep it conservative to avoid breaking the static site).
+app.use((_req, res, next) => {
+  res.setHeader("X-Content-Type-Options", "nosniff");
+  res.setHeader("X-Frame-Options", "DENY");
+  res.setHeader("Referrer-Policy", "same-origin");
+  res.setHeader("Permissions-Policy", "geolocation=(), microphone=(), camera=()");
+  next();
+});
+
+const getClientIp = (req) => {
+  const ip = String(req.ip || req.connection?.remoteAddress || "").trim();
+  return ip || "unknown";
+};
+
+const createRateLimiter = ({ windowMs, max, keyPrefix }) => {
+  const buckets = new Map(); // key -> { count, resetAt }
+
+  return (req, res, next) => {
+    const now = Date.now();
+    const key = `${keyPrefix}:${getClientIp(req)}`;
+    const current = buckets.get(key);
+
+    if (!current || now >= current.resetAt) {
+      buckets.set(key, { count: 1, resetAt: now + windowMs });
+      next();
+      return;
+    }
+
+    current.count += 1;
+    if (current.count > max) {
+      const retryAfterSeconds = Math.max(1, Math.ceil((current.resetAt - now) / 1000));
+      res.setHeader("Retry-After", String(retryAfterSeconds));
+      res.status(429).json({ error: "rate_limited" });
+      return;
+    }
+
+    next();
+  };
+};
+
+// Rate-limits: tune as needed.
+const adminRateLimit = createRateLimiter({ windowMs: 10 * 60 * 1000, max: 600, keyPrefix: "admin" });
+const adminUploadRateLimit = createRateLimiter({ windowMs: 10 * 60 * 1000, max: 60, keyPrefix: "admin_upload" });
+const publicOrdersRateLimit = createRateLimiter({ windowMs: 10 * 60 * 1000, max: 40, keyPrefix: "public_orders" });
 
 const ensureDirsAndDb = async () => {
   if (!fssync.existsSync(DATA_DIR)) {
@@ -137,13 +185,19 @@ const normalizeMenuOptions = (value) => {
   return out;
 };
 
+const allowedUploadTypes = new Map([
+  ["image/jpeg", ".jpg"],
+  ["image/png", ".png"],
+  ["image/webp", ".webp"],
+]);
+
 const storage = multer.diskStorage({
   destination(_req, _file, cb) {
     cb(null, UPLOADS_DIR);
   },
   filename(_req, file, cb) {
-    const ext = path.extname(file.originalname || "").slice(0, 10);
-    const safeExt = ext && /^[a-z0-9.]+$/i.test(ext) ? ext : "";
+    // Never trust user-provided extensions. Derive from mimetype.
+    const safeExt = allowedUploadTypes.get(String(file.mimetype || "").toLowerCase()) || "";
     cb(null, `${Date.now()}_${crypto.randomUUID()}${safeExt}`);
   },
 });
@@ -151,6 +205,14 @@ const storage = multer.diskStorage({
 const upload = multer({
   storage,
   limits: { fileSize: 5 * 1024 * 1024 },
+  fileFilter(_req, file, cb) {
+    const type = String(file.mimetype || "").toLowerCase();
+    if (!allowedUploadTypes.has(type)) {
+      cb(new Error("invalid_file_type"));
+      return;
+    }
+    cb(null, true);
+  },
 });
 
 app.use("/uploads", express.static(UPLOADS_DIR));
@@ -197,7 +259,7 @@ app.get("/api/public/settings", async (_req, res) => {
   res.json({ nav: db.settings.nav });
 });
 
-app.post("/api/public/orders", async (req, res) => {
+app.post("/api/public/orders", publicOrdersRateLimit, async (req, res) => {
   const payload = req.body || {};
   const customer = payload.customer || {};
   const items = Array.isArray(payload.items) ? payload.items : [];
@@ -296,6 +358,8 @@ app.post("/api/public/orders", async (req, res) => {
 });
 
 // Admin API (token protected)
+app.use("/api/admin", adminRateLimit);
+
 app.get("/api/admin/menu", requireAdmin, async (_req, res) => {
   const db = await readDb();
   res.json(db.menu);
@@ -667,7 +731,7 @@ app.delete("/api/admin/promos/:id", requireAdmin, async (req, res) => {
   res.json({ ok: true });
 });
 
-app.post("/api/admin/upload", requireAdmin, upload.single("file"), (req, res) => {
+app.post("/api/admin/upload", requireAdmin, adminUploadRateLimit, upload.single("file"), (req, res) => {
   if (!req.file?.filename) {
     res.status(400).json({ error: "no_file" });
     return;
@@ -808,6 +872,15 @@ app.get("/api/admin/orders/archives/:file", requireAdmin, async (req, res) => {
 });
 
 app.use((err, _req, res, _next) => {
+  if (err?.message === "invalid_file_type") {
+    res.status(400).json({ error: "invalid_file_type" });
+    return;
+  }
+  if (err instanceof multer.MulterError) {
+    res.status(400).json({ error: err.code || "upload_error" });
+    return;
+  }
+
   // eslint-disable-next-line no-console
   console.error(err);
   res.status(500).json({ error: "server_error" });

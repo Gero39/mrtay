@@ -119,13 +119,16 @@
         const fullText = String(promo.text || "").trim();
         const oneLine = fullText.replaceAll("\r\n", "\n").replaceAll("\n", " ");
         const preview = oneLine.length > 70 ? `${oneLine.slice(0, 70).trimEnd()}…` : oneLine;
-        const bg = promo.imageUrl
+        const hasImage = Boolean(String(promo.imageUrl || "").trim());
+        const bg = hasImage
           ? `style="background-image: linear-gradient(140deg, rgba(255,255,255,0.0) 0%, rgba(255,255,255,0.55) 100%), url('${escapeHtml(
               promo.imageUrl,
             )}'); background-size: cover; background-position: center; border-color: rgba(255, 79, 95, 0.18);"`
           : "";
         return `
-          <article class="promo-card ${themeClass(promo.theme, idx)}" data-id="${escapeHtml(promo.id)}" ${bg}>
+          <article class="promo-card ${themeClass(promo.theme, idx)} ${hasImage ? "promo-card--has-image" : ""}" data-id="${escapeHtml(
+            promo.id,
+          )}" ${bg}>
             <h3>${escapeHtml(promo.title)}</h3>
             <p>${escapeHtml(preview)}</p>
           </article>

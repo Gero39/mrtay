@@ -323,6 +323,24 @@ body.modal-open {
   font-weight: 500;
 }
 
+.promo-card--has-image h3,
+.promo-card--has-image p {
+  text-shadow:
+    -1px -1px 0 rgba(255, 255, 255, 0.95),
+    1px -1px 0 rgba(255, 255, 255, 0.95),
+    -1px 1px 0 rgba(255, 255, 255, 0.95),
+    1px 1px 0 rgba(255, 255, 255, 0.95),
+    0 10px 22px rgba(0, 0, 0, 0.18);
+}
+
+.promo-card--has-image h3 {
+  color: #151a24;
+}
+
+.promo-card--has-image p {
+  color: #202531;
+}
+
 .promo-card--pink {
   background: var(--pink-soft);
 }
