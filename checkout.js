@@ -377,6 +377,28 @@ function setupAddressSearch({ ymaps, map, origin, freeRadiusMeters, paidRadiusMe
   };
 
   let addressPlacemark = null;
+  let suggestAnchor = streetInput;
+
+  const positionSuggest = () => {
+    if (suggestEl.hidden) return;
+    if (!suggestAnchor) return;
+
+    const rect = suggestAnchor.getBoundingClientRect();
+    const margin = 6;
+
+    suggestEl.style.left = `${Math.round(rect.left)}px`;
+    suggestEl.style.width = `${Math.round(rect.width)}px`;
+
+    let top = rect.bottom + margin;
+    suggestEl.style.top = `${Math.round(top)}px`;
+
+    // If it doesn't fit below, show above the input.
+    const height = suggestEl.offsetHeight || 0;
+    if (height && top + height > window.innerHeight - 8) {
+      top = Math.max(8, rect.top - margin - height);
+      suggestEl.style.top = `${Math.round(top)}px`;
+    }
+  };
 
   const applyGeoObject = (geoObject) => {
     autofillAddressFields({ geoObject, streetInput, houseInput });
@@ -413,6 +435,9 @@ function setupAddressSearch({ ymaps, map, origin, freeRadiusMeters, paidRadiusMe
   const hideSuggest = () => {
     suggestEl.hidden = true;
     suggestEl.innerHTML = "";
+    suggestEl.style.left = "";
+    suggestEl.style.top = "";
+    suggestEl.style.width = "";
   };
 
   const showSuggest = (items) => {
@@ -430,6 +455,8 @@ function setupAddressSearch({ ymaps, map, origin, freeRadiusMeters, paidRadiusMe
       .join("");
 
     suggestEl.hidden = false;
+    // Reposition after it's rendered so height is known.
+    requestAnimationFrame(positionSuggest);
   };
 
   const geocodeAndUpdate = async () => {
@@ -532,6 +559,18 @@ function setupAddressSearch({ ymaps, map, origin, freeRadiusMeters, paidRadiusMe
 
   streetInput.addEventListener("input", scheduleSuggest);
   houseInput.addEventListener("input", scheduleSuggest);
+
+  streetInput.addEventListener("focus", () => {
+    suggestAnchor = streetInput;
+    positionSuggest();
+  });
+  houseInput.addEventListener("focus", () => {
+    suggestAnchor = houseInput;
+    positionSuggest();
+  });
+
+  window.addEventListener("resize", positionSuggest);
+  window.addEventListener("scroll", positionSuggest, true);
 
   document.addEventListener("click", (event) => {
     if (event.target === streetInput || event.target === houseInput || suggestEl.contains(event.target)) return;

@@ -491,21 +491,18 @@ body.modal-open {
 
 .address-grid__street {
   grid-column: 1 / -1;
-  position: relative;
 }
 
 .address-suggest {
-  position: absolute;
-  left: 0;
-  right: 0;
-  top: 100%;
-  margin-top: 6px;
+  position: fixed;
   border: 1px solid var(--line);
   border-radius: 14px;
   background: #fff;
   box-shadow: 0 14px 28px rgba(20, 33, 56, 0.12);
   overflow: hidden;
   z-index: 50;
+  max-height: 240px;
+  overflow: auto;
 }
 
 .address-suggest__item {

@@ -1014,6 +1014,37 @@
   ],
   "orders": [
     {
+      "id": "ddad00fe-6c78-42f3-9ba4-7df56c962329",
+      "status": "delivered",
+      "customer": {
+        "name": "Нарзан",
+        "phone": "79781030117",
+        "address": "Балаклавская улица, 71, кв 85",
+        "comment": ""
+      },
+      "items": [
+        {
+          "id": "d6da7fbb-848f-4114-8d93-42e7be541cd0",
+          "name": "Аляска",
+          "optionId": "",
+          "optionLabel": "",
+          "price": 440,
+          "quantity": 1
+        },
+        {
+          "id": "6ae43ac1-4515-4bee-a609-ba8320fa5f59",
+          "name": "Хрустящий баклажан с грибочками",
+          "optionId": "",
+          "optionLabel": "",
+          "price": 400,
+          "quantity": 1
+        }
+      ],
+      "total": 840,
+      "createdAt": "2026-03-21T19:35:08.017Z",
+      "updatedAt": "2026-03-21T19:35:36.694Z"
+    },
+    {
       "id": "6efacb5e-42be-4ba2-ad0f-80bd705b9c8a",
       "status": "delivered",
       "customer": {
