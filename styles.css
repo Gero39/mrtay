@@ -463,6 +463,24 @@ body.modal-open {
   grid-column: 1 / -1;
 }
 
+#delivery-map {
+  width: 100%;
+  height: 320px;
+  border: 1px solid var(--line);
+  border-radius: 14px;
+  overflow: hidden;
+  background: #f6f7fb;
+}
+
+#delivery-map.checkout-map--fallback {
+  display: grid;
+  place-items: center;
+  padding: 16px;
+  text-align: center;
+  color: #556070;
+  font-weight: 700;
+}
+
 .checkout-form__footer {
   border: 1px solid var(--line);
   border-radius: 14px;

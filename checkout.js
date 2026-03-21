@@ -181,3 +181,125 @@
 
   renderOrderSummary();
 })();
+
+
+void initMap();
+
+let ymaps3LoadPromise = null;
+
+async function initMap() {
+  const container = document.getElementById("delivery-map");
+  if (!container) return;
+
+  const apiKey = String(container.dataset.ymapsApikey || "").trim();
+  if (!apiKey) {
+    renderMapFallback(container, "Не задан API-ключ Яндекс.Карт (data-ymaps-apikey).");
+    return;
+  }
+
+  try {
+    const ymaps3 = await loadYmaps3({ apiKey, lang: "ru_RU" });
+
+    // Промис `ymaps3.ready` будет зарезолвлен, когда загрузятся все компоненты основного модуля API
+    await ymaps3.ready;
+
+    const { YMap, YMapDefaultSchemeLayer } = ymaps3;
+
+    // Иницилиазируем карту
+    const map = new YMap(
+      // Передаём ссылку на HTMLElement контейнера
+      container,
+
+      // Передаём параметры инициализации карты
+      {
+        location: {
+          // Координаты центра карты
+          center: [37.588144, 55.733842],
+
+          // Уровень масштабирования
+          zoom: 10,
+        },
+      },
+    );
+
+    // Добавляем слой для отображения схематической карты
+    map.addChild(new YMapDefaultSchemeLayer());
+  } catch (error) {
+    console.error("[checkout] Yandex Maps init failed:", error);
+    renderMapFallback(
+      container,
+      "Карта не загрузилась. Частая причина: ключ не активирован или не настроено ограничение по HTTP Referer (в кабинете разработчика).",
+    );
+  }
+}
+
+function renderMapFallback(container, message) {
+  container.classList.add("checkout-map--fallback");
+  container.textContent = message;
+}
+
+function loadYmaps3({ apiKey, lang = "ru_RU", timeoutMs = 15000 } = {}) {
+  if (window.ymaps3) return Promise.resolve(window.ymaps3);
+  if (ymaps3LoadPromise) return ymaps3LoadPromise;
+
+  const src = `https://api-maps.yandex.ru/v3/?apikey=${encodeURIComponent(apiKey)}&lang=${encodeURIComponent(lang)}`;
+
+  ymaps3LoadPromise = new Promise((resolve, reject) => {
+    const script =
+      document.querySelector('script[data-ymaps3-api="true"]') || document.createElement("script");
+
+    let timeoutId = null;
+    let pollId = null;
+
+    const cleanup = () => {
+      script.removeEventListener("load", onLoad);
+      script.removeEventListener("error", onError);
+      if (timeoutId) clearTimeout(timeoutId);
+      if (pollId) clearInterval(pollId);
+    };
+
+    const onLoad = () => {
+      cleanup();
+      if (window.ymaps3) {
+        resolve(window.ymaps3);
+        return;
+      }
+      reject(new Error("Yandex Maps API script loaded, but ymaps3 is still unavailable"));
+    };
+
+    const onError = () => {
+      cleanup();
+      reject(new Error("Failed to load Yandex Maps API script"));
+    };
+
+    script.addEventListener("load", onLoad);
+    script.addEventListener("error", onError);
+
+    timeoutId = setTimeout(() => {
+      onError();
+    }, timeoutMs);
+
+    pollId = setInterval(() => {
+      if (!window.ymaps3) return;
+      cleanup();
+      resolve(window.ymaps3);
+    }, 50);
+
+    if (!script.parentNode) {
+      script.dataset.ymaps3Api = "true";
+      script.async = true;
+      script.src = src;
+      document.head.appendChild(script);
+      return;
+    }
+
+    if (script.src !== src) {
+      script.src = src;
+    }
+  }).catch((error) => {
+    ymaps3LoadPromise = null;
+    throw error;
+  });
+
+  return ymaps3LoadPromise;
+}
