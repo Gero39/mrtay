@@ -4,6 +4,8 @@
 
   const checkoutForm = document.querySelector("#checkout-form");
   const orderSummary = document.querySelector("#order-summary");
+  const itemsTotalField = document.querySelector("#items-total-field");
+  const deliveryFeeField = document.querySelector("#delivery-fee-field");
   const orderTotalField = document.querySelector("#order-total-field");
   const submitOrderButton = document.querySelector("#submit-order");
   const checkoutNote = document.querySelector("#checkout-note");
@@ -15,6 +17,8 @@
   if (
     !checkoutForm ||
     !orderSummary ||
+    !itemsTotalField ||
+    !deliveryFeeField ||
     !orderTotalField ||
     !submitOrderButton ||
     !checkoutNote ||
@@ -69,21 +73,53 @@
     }
   };
 
+  let deliveryState = { isKnown: false, allowed: true, feeRub: 0, distanceMeters: null, zone: null };
+
+  window.addEventListener("mr-tai-delivery", (event) => {
+    const next = event?.detail || {};
+    const feeRub = Math.round(Number(next.feeRub ?? 0));
+    deliveryState = {
+      isKnown: Boolean(next.isKnown !== undefined ? next.isKnown : true),
+      allowed: next.allowed !== undefined ? Boolean(next.allowed) : true,
+      feeRub: Number.isFinite(feeRub) && feeRub > 0 ? feeRub : 0,
+      distanceMeters: Number.isFinite(Number(next.distanceMeters)) ? Math.round(Number(next.distanceMeters)) : null,
+      zone: next.zone ? String(next.zone) : null,
+    };
+    renderOrderSummary();
+  });
+
   const renderOrderSummary = () => {
     const items = loadCartItems();
     if (items.length === 0) {
       orderSummary.innerHTML =
         '<p class="order-summary__empty">Корзина пуста. Вернитесь в меню и добавьте блюда.</p>';
+      itemsTotalField.textContent = `0 \u20bd`;
+      deliveryFeeField.textContent = "—";
       orderTotalField.textContent = `0 \u20bd`;
       submitOrderButton.disabled = true;
       submitOrderButton.title = "Добавьте блюда в корзину";
       return;
     }
 
-    const total = items.reduce((sum, item) => sum + item.price * item.quantity, 0);
-    orderTotalField.textContent = formatPrice(total);
-    submitOrderButton.disabled = false;
-    submitOrderButton.removeAttribute("title");
+    const itemsTotal = items.reduce((sum, item) => sum + item.price * item.quantity, 0);
+    const fee = deliveryState.isKnown ? deliveryState.feeRub : 0;
+    const grandTotal = itemsTotal + fee;
+
+    itemsTotalField.textContent = formatPrice(itemsTotal);
+    deliveryFeeField.textContent = !deliveryState.isKnown
+      ? "—"
+      : deliveryState.allowed
+        ? formatPrice(fee)
+        : "Не обслуживаем";
+    orderTotalField.textContent = formatPrice(grandTotal);
+
+    const shouldDisable = !deliveryState.allowed;
+    submitOrderButton.disabled = shouldDisable;
+    if (shouldDisable) {
+      submitOrderButton.title = "Адрес вне зоны доставки";
+    } else {
+      submitOrderButton.removeAttribute("title");
+    }
 
     orderSummary.innerHTML = items
       .map((item) => {
@@ -140,6 +176,10 @@
       setNote("Корзина пуста. Добавьте блюда перед оформлением.", "error");
       return;
     }
+    if (deliveryState.isKnown && !deliveryState.allowed) {
+      setNote("Адрес вне зоны доставки.", "error");
+      return;
+    }
 
     const form = new FormData(checkoutForm);
     const addressLegacy = String(form.get("address") || "").trim();
@@ -174,7 +214,17 @@
       const res = await fetch("/api/public/orders", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ customer, items: orderItems }),
+        body: JSON.stringify({
+          customer,
+          items: orderItems,
+          delivery: deliveryState.isKnown
+            ? {
+                feeRub: deliveryState.feeRub,
+                distanceMeters: deliveryState.distanceMeters,
+                zone: deliveryState.zone,
+              }
+            : null,
+        }),
       });
       const json = await res.json().catch(() => ({}));
       if (!res.ok) {
@@ -192,7 +242,7 @@
       setNote(`Не удалось отправить заказ: ${err.message}`, "error");
     } finally {
       if (!didSucceed) {
-        submitOrderButton.disabled = false;
+        renderOrderSummary();
       }
     }
   });
@@ -202,6 +252,173 @@
 
 
 var ymaps2LoadPromise = null;
+
+const rubles = new Intl.NumberFormat("ru-RU");
+
+function formatRub(value) {
+  return `${rubles.format(Number(value) || 0)} \u20bd`;
+}
+
+async function fetchPublicDeliverySettings(timeoutMs = 3500) {
+  const controller = new AbortController();
+  const timeoutId = setTimeout(() => controller.abort(), timeoutMs);
+  try {
+    const res = await fetch("/api/public/settings", { signal: controller.signal });
+    if (!res.ok) return null;
+    const json = await res.json().catch(() => null);
+    const delivery = json?.delivery;
+    if (!delivery || typeof delivery !== "object") return null;
+    return delivery;
+  } catch {
+    return null;
+  } finally {
+    clearTimeout(timeoutId);
+  }
+}
+
+function buildFallbackDeliveryConfig(container) {
+  const origin = parseLatLon(container.dataset.freeCenter);
+  const freeRadiusKm = parseFlexibleNumber(container.dataset.freeRadiusKm);
+  const serviceRadiusKm = parseFlexibleNumber(container.dataset.paidRadiusKm);
+
+  if (!origin) return null;
+  if (!Number.isFinite(freeRadiusKm) || freeRadiusKm <= 0) return null;
+  if (!Number.isFinite(serviceRadiusKm) || serviceRadiusKm <= 0) return null;
+
+  return {
+    city: String(container.dataset.addressCity || "").trim(),
+    origin,
+    freeRadiusKm,
+    serviceRadiusKm: Math.max(serviceRadiusKm, freeRadiusKm),
+    tiers: [{ fromKm: 0, feeRub: 0 }],
+    incremental: { enabled: false, fromKm: 20, stepMeters: 1000, stepFeeRub: 0 },
+  };
+}
+
+function mergeDeliveryConfig(base, raw) {
+  const out = {
+    city: base.city,
+    origin: Array.isArray(base.origin) ? [...base.origin] : base.origin,
+    freeRadiusKm: Number(base.freeRadiusKm),
+    serviceRadiusKm: Number(base.serviceRadiusKm),
+    tiers: Array.isArray(base.tiers) ? [...base.tiers] : [{ fromKm: 0, feeRub: 0 }],
+    incremental: { ...(base.incremental || { enabled: false, fromKm: 20, stepMeters: 1000, stepFeeRub: 0 }) },
+  };
+
+  if (!raw || typeof raw !== "object") {
+    return out;
+  }
+
+  const nextCity = raw.city !== undefined ? String(raw.city || "").trim() : "";
+  if (nextCity) out.city = nextCity;
+
+  const nextLat = Number(raw.origin?.lat);
+  const nextLon = Number(raw.origin?.lon);
+  if (Number.isFinite(nextLat) && nextLat >= -90 && nextLat <= 90 && Number.isFinite(nextLon) && nextLon >= -180 && nextLon <= 180) {
+    out.origin = [nextLat, nextLon];
+  }
+
+  const nextFreeRadiusKm = Number(raw.freeRadiusKm);
+  if (Number.isFinite(nextFreeRadiusKm) && nextFreeRadiusKm > 0) {
+    out.freeRadiusKm = nextFreeRadiusKm;
+  }
+
+  const nextServiceRadiusKm = Number(raw.serviceRadiusKm);
+  if (Number.isFinite(nextServiceRadiusKm) && nextServiceRadiusKm > 0) {
+    out.serviceRadiusKm = nextServiceRadiusKm;
+  }
+  out.serviceRadiusKm = Math.max(out.serviceRadiusKm, out.freeRadiusKm);
+
+  if (Array.isArray(raw.tiers)) {
+    const normalized = raw.tiers
+      .map((tier) => ({
+        fromKm: Number(tier?.fromKm),
+        feeRub: Math.round(Number(tier?.feeRub)),
+      }))
+      .filter((tier) => Number.isFinite(tier.fromKm) && tier.fromKm >= 0 && Number.isFinite(tier.feeRub) && tier.feeRub >= 0)
+      .sort((a, b) => a.fromKm - b.fromKm);
+    if (normalized.length > 0) {
+      out.tiers = normalized;
+    }
+  }
+
+  const inc = raw.incremental;
+  if (inc && typeof inc === "object") {
+    const fromKm = Number(inc.fromKm);
+    const stepMeters = Math.round(Number(inc.stepMeters));
+    const stepFeeRub = Math.round(Number(inc.stepFeeRub));
+    out.incremental = {
+      enabled: Boolean(inc.enabled),
+      fromKm: Number.isFinite(fromKm) && fromKm >= 0 ? fromKm : Number(out.incremental.fromKm) || 20,
+      stepMeters: Number.isFinite(stepMeters) && stepMeters > 0 ? stepMeters : Math.round(Number(out.incremental.stepMeters)) || 1000,
+      stepFeeRub: Number.isFinite(stepFeeRub) && stepFeeRub >= 0 ? stepFeeRub : Math.round(Number(out.incremental.stepFeeRub)) || 0,
+    };
+  }
+
+  return out;
+}
+
+function calculateDeliveryQuote(distanceMeters, { freeRadiusMeters, paidRadiusMeters, tiers, incremental } = {}) {
+  const distance = Math.round(Number(distanceMeters));
+  if (!Number.isFinite(distance) || distance < 0) {
+    return { isKnown: false, allowed: true, feeRub: 0, distanceMeters: null, zone: null };
+  }
+
+  const freeMeters = Number(freeRadiusMeters);
+  const serviceMeters = Number(paidRadiusMeters);
+
+  if (Number.isFinite(freeMeters) && distance <= freeMeters) {
+    return { isKnown: true, allowed: true, feeRub: 0, distanceMeters: distance, zone: "free" };
+  }
+
+  if (Number.isFinite(serviceMeters) && distance > serviceMeters) {
+    return { isKnown: true, allowed: false, feeRub: 0, distanceMeters: distance, zone: "none" };
+  }
+
+  const distanceKm = distance / 1000;
+  const normalizedTiers = (Array.isArray(tiers) ? tiers : [])
+    .map((tier) => ({
+      fromKm: Number(tier?.fromKm),
+      feeRub: Math.round(Number(tier?.feeRub)),
+    }))
+    .filter((tier) => Number.isFinite(tier.fromKm) && tier.fromKm >= 0 && Number.isFinite(tier.feeRub) && tier.feeRub >= 0)
+    .sort((a, b) => a.fromKm - b.fromKm);
+
+  if (normalizedTiers.length === 0) {
+    normalizedTiers.push({ fromKm: 0, feeRub: 0 });
+  }
+
+  let feeRub = 0;
+  for (const tier of normalizedTiers) {
+    if (distanceKm >= tier.fromKm) {
+      feeRub = tier.feeRub;
+      continue;
+    }
+    break;
+  }
+
+  const inc = incremental || {};
+  if (inc.enabled) {
+    const fromMeters = Number(inc.fromKm) * 1000;
+    const stepMeters = Math.round(Number(inc.stepMeters));
+    const stepFeeRub = Math.round(Number(inc.stepFeeRub));
+    if (
+      Number.isFinite(fromMeters) &&
+      Number.isFinite(stepMeters) &&
+      stepMeters > 0 &&
+      Number.isFinite(stepFeeRub) &&
+      stepFeeRub > 0 &&
+      distance > fromMeters
+    ) {
+      const extraDistance = distance - fromMeters;
+      const steps = Math.ceil(extraDistance / stepMeters);
+      feeRub += steps * stepFeeRub;
+    }
+  }
+
+  if (!Number.isFinite(feeRub) || feeRub < 0) feeRub = 0;
+  return { isKnown: true, allowed: true, feeRub, distanceMeters: distance, zone: "paid" };
+}
 
 async function initMap() {
   const container = document.getElementById("delivery-map");
@@ -213,18 +430,17 @@ async function initMap() {
     return;
   }
 
-  const zones = parseDeliveryZones(
-    container.dataset.freeCenter,
-    container.dataset.freeRadiusKm,
-    container.dataset.paidRadiusKm,
-  );
-  if (!zones) {
+  const fallbackConfig = buildFallbackDeliveryConfig(container);
+  if (!fallbackConfig) {
     renderMapFallback(
       container,
       "Некорректные параметры зон доставки (data-free-center / data-free-radius-km / data-paid-radius-km).",
     );
     return;
   }
+
+  const settingsDelivery = await fetchPublicDeliverySettings();
+  const deliveryConfig = mergeDeliveryConfig(fallbackConfig, settingsDelivery);
 
   try {
     const ymaps = await loadYmaps2({ apiKey, lang: "ru_RU" });
@@ -233,7 +449,9 @@ async function initMap() {
       ymaps.ready(resolve);
     });
 
-    const { center, freeRadiusMeters, paidRadiusMeters } = zones;
+    const center = deliveryConfig.origin;
+    const freeRadiusMeters = deliveryConfig.freeRadiusKm * 1000;
+    const paidRadiusMeters = Math.max(deliveryConfig.serviceRadiusKm, deliveryConfig.freeRadiusKm) * 1000;
     const configuredZoom = parseFlexibleNumber(container.dataset.mapZoom);
     const zoom =
       Number.isFinite(configuredZoom) && configuredZoom > 0
@@ -326,7 +544,8 @@ async function initMap() {
       origin: center,
       freeRadiusMeters,
       paidRadiusMeters,
-      city: String(container.dataset.addressCity || "").trim(),
+      city: deliveryConfig.city,
+      pricing: { tiers: deliveryConfig.tiers, incremental: deliveryConfig.incremental },
     });
 
   } catch (error) {
@@ -343,7 +562,7 @@ function renderMapFallback(container, message) {
   container.textContent = message;
 }
 
-function setupAddressSearch({ ymaps, map, origin, freeRadiusMeters, paidRadiusMeters, city }) {
+function setupAddressSearch({ ymaps, map, origin, freeRadiusMeters, paidRadiusMeters, city, pricing }) {
   const streetInput = document.getElementById("address-street");
   const houseInput = document.getElementById("address-house");
   const apartmentInput = document.getElementById("address-apartment");
@@ -378,6 +597,13 @@ function setupAddressSearch({ ymaps, map, origin, freeRadiusMeters, paidRadiusMe
 
   let addressPlacemark = null;
   let suggestAnchor = streetInput;
+  const notifyDeliveryUnknown = () => {
+    window.dispatchEvent(
+      new CustomEvent("mr-tai-delivery", {
+        detail: { isKnown: false, allowed: true, feeRub: 0, distanceMeters: null, zone: null },
+      }),
+    );
+  };
 
   const positionSuggest = () => {
     if (suggestEl.hidden) return;
@@ -405,23 +631,30 @@ function setupAddressSearch({ ymaps, map, origin, freeRadiusMeters, paidRadiusMe
 
     const coords = geoObject.geometry.getCoordinates();
     const distance = distanceMeters(origin, coords);
-    const distanceKm = Math.round(distance / 10) / 100;
+    const quote = calculateDeliveryQuote(distance, {
+      freeRadiusMeters,
+      paidRadiusMeters,
+      tiers: pricing?.tiers,
+      incremental: pricing?.incremental,
+    });
+    const distanceKm = quote.distanceMeters !== null ? Math.round(quote.distanceMeters / 10) / 100 : 0;
 
     let kind = "ok";
     let preset = "islands#greenIcon";
     let label = `Бесплатная доставка • ${distanceKm} км`;
 
-    if (distance > freeRadiusMeters && distance <= paidRadiusMeters) {
-      kind = "warn";
-      preset = "islands#orangeIcon";
-      label = `Платная доставка • ${distanceKm} км`;
-    } else if (distance > paidRadiusMeters) {
+    if (!quote.allowed) {
       kind = "bad";
       preset = "islands#redIcon";
       label = `Вне зоны доставки • ${distanceKm} км`;
+    } else if (quote.zone === "paid") {
+      kind = "warn";
+      preset = "islands#orangeIcon";
+      label = `Доставка ${formatRub(quote.feeRub)} • ${distanceKm} км`;
     }
 
     setStatus(label, kind);
+    window.dispatchEvent(new CustomEvent("mr-tai-delivery", { detail: quote }));
 
     if (addressPlacemark) {
       map.geoObjects.remove(addressPlacemark);
@@ -501,6 +734,7 @@ function setupAddressSearch({ ymaps, map, origin, freeRadiusMeters, paidRadiusMe
   let suggestTimer = null;
 
   const scheduleSuggest = () => {
+    notifyDeliveryUnknown();
     if (suggestTimer) clearTimeout(suggestTimer);
     suggestTimer = setTimeout(() => {
       void updateSuggest();

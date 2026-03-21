@@ -92,6 +92,18 @@ const ensureDirsAndDb = async () => {
           allCategoryPosition: "top",
           shuffleAll: true,
         },
+        delivery: {
+          city: "Симферополь",
+          origin: { lat: 44.981547, lon: 34.091607 },
+          freeRadiusKm: 5,
+          serviceRadiusKm: 20,
+          tiers: [
+            { fromKm: 0, feeRub: 0 },
+            { fromKm: 15, feeRub: 200 },
+            { fromKm: 18, feeRub: 250 },
+          ],
+          incremental: { enabled: false, fromKm: 20, stepMeters: 1000, stepFeeRub: 50 },
+        },
       },
     };
     await fs.writeFile(DB_FILE, JSON.stringify(initial, null, 2), "utf8");
@@ -116,6 +128,64 @@ const readDb = async () => {
     parsed.settings.nav.allCategoryPosition === "bottom" ? "bottom" : "top";
   parsed.settings.nav.shuffleAll =
     parsed.settings.nav.shuffleAll !== undefined ? Boolean(parsed.settings.nav.shuffleAll) : true;
+  parsed.settings.delivery ||= {};
+  parsed.settings.delivery.city = String(parsed.settings.delivery.city || "Симферополь").trim() || "Симферополь";
+  parsed.settings.delivery.origin ||= { lat: 44.981547, lon: 34.091607 };
+  parsed.settings.delivery.origin.lat = Number(parsed.settings.delivery.origin.lat);
+  parsed.settings.delivery.origin.lon = Number(parsed.settings.delivery.origin.lon);
+  if (
+    !Number.isFinite(parsed.settings.delivery.origin.lat) ||
+    parsed.settings.delivery.origin.lat < -90 ||
+    parsed.settings.delivery.origin.lat > 90
+  ) {
+    parsed.settings.delivery.origin.lat = 44.981547;
+  }
+  if (
+    !Number.isFinite(parsed.settings.delivery.origin.lon) ||
+    parsed.settings.delivery.origin.lon < -180 ||
+    parsed.settings.delivery.origin.lon > 180
+  ) {
+    parsed.settings.delivery.origin.lon = 34.091607;
+  }
+  parsed.settings.delivery.freeRadiusKm = Number(parsed.settings.delivery.freeRadiusKm);
+  if (!Number.isFinite(parsed.settings.delivery.freeRadiusKm) || parsed.settings.delivery.freeRadiusKm <= 0) {
+    parsed.settings.delivery.freeRadiusKm = 5;
+  }
+  parsed.settings.delivery.serviceRadiusKm = Number(parsed.settings.delivery.serviceRadiusKm);
+  if (
+    !Number.isFinite(parsed.settings.delivery.serviceRadiusKm) ||
+    parsed.settings.delivery.serviceRadiusKm <= 0 ||
+    parsed.settings.delivery.serviceRadiusKm < parsed.settings.delivery.freeRadiusKm
+  ) {
+    parsed.settings.delivery.serviceRadiusKm = Math.max(20, parsed.settings.delivery.freeRadiusKm);
+  }
+  parsed.settings.delivery.tiers = Array.isArray(parsed.settings.delivery.tiers) ? parsed.settings.delivery.tiers : [];
+  parsed.settings.delivery.tiers = parsed.settings.delivery.tiers
+    .map((tier) => ({
+      fromKm: Number(tier?.fromKm),
+      feeRub: Math.round(Number(tier?.feeRub)),
+    }))
+    .filter((tier) => Number.isFinite(tier.fromKm) && tier.fromKm >= 0 && Number.isFinite(tier.feeRub) && tier.feeRub >= 0)
+    .sort((a, b) => a.fromKm - b.fromKm);
+  if (parsed.settings.delivery.tiers.length === 0) {
+    parsed.settings.delivery.tiers = [{ fromKm: 0, feeRub: 0 }];
+  }
+  const inc = parsed.settings.delivery.incremental || {};
+  parsed.settings.delivery.incremental = {
+    enabled: Boolean(inc.enabled),
+    fromKm: Number(inc.fromKm),
+    stepMeters: Math.round(Number(inc.stepMeters)),
+    stepFeeRub: Math.round(Number(inc.stepFeeRub)),
+  };
+  if (!Number.isFinite(parsed.settings.delivery.incremental.fromKm) || parsed.settings.delivery.incremental.fromKm < 0) {
+    parsed.settings.delivery.incremental.fromKm = 20;
+  }
+  if (!Number.isFinite(parsed.settings.delivery.incremental.stepMeters) || parsed.settings.delivery.incremental.stepMeters <= 0) {
+    parsed.settings.delivery.incremental.stepMeters = 1000;
+  }
+  if (!Number.isFinite(parsed.settings.delivery.incremental.stepFeeRub) || parsed.settings.delivery.incremental.stepFeeRub < 0) {
+    parsed.settings.delivery.incremental.stepFeeRub = 0;
+  }
   return parsed;
 };
 
@@ -183,6 +253,63 @@ const normalizeMenuOptions = (value) => {
   }
 
   return out;
+};
+
+const calculateDeliveryQuote = (distanceMeters, settings) => {
+  const distance = Math.round(Number(distanceMeters));
+  if (!Number.isFinite(distance) || distance < 0) {
+    return { isKnown: false, allowed: true, feeRub: 0, distanceMeters: null, zone: null };
+  }
+
+  const freeRadiusMeters = Number(settings?.freeRadiusKm) * 1000;
+  const serviceRadiusMeters = Number(settings?.serviceRadiusKm) * 1000;
+
+  if (Number.isFinite(freeRadiusMeters) && distance <= freeRadiusMeters) {
+    return { isKnown: true, allowed: true, feeRub: 0, distanceMeters: distance, zone: "free" };
+  }
+
+  if (Number.isFinite(serviceRadiusMeters) && distance > serviceRadiusMeters) {
+    return { isKnown: true, allowed: false, feeRub: 0, distanceMeters: distance, zone: "none" };
+  }
+
+  const distanceKm = distance / 1000;
+  const tiers = Array.isArray(settings?.tiers) ? settings.tiers : [];
+  let feeRub = 0;
+
+  for (const tier of tiers) {
+    if (!tier) continue;
+    const fromKm = Number(tier.fromKm);
+    const tierFee = Math.round(Number(tier.feeRub));
+    if (!Number.isFinite(fromKm) || fromKm < 0) continue;
+    if (!Number.isFinite(tierFee) || tierFee < 0) continue;
+    if (distanceKm >= fromKm) {
+      feeRub = tierFee;
+      continue;
+    }
+    break;
+  }
+
+  const inc = settings?.incremental || {};
+  if (inc.enabled) {
+    const fromMeters = Number(inc.fromKm) * 1000;
+    const stepMeters = Math.round(Number(inc.stepMeters));
+    const stepFeeRub = Math.round(Number(inc.stepFeeRub));
+    if (
+      Number.isFinite(fromMeters) &&
+      Number.isFinite(stepMeters) &&
+      stepMeters > 0 &&
+      Number.isFinite(stepFeeRub) &&
+      stepFeeRub > 0 &&
+      distance > fromMeters
+    ) {
+      const extraDistance = distance - fromMeters;
+      const steps = Math.ceil(extraDistance / stepMeters);
+      feeRub += steps * stepFeeRub;
+    }
+  }
+
+  if (!Number.isFinite(feeRub) || feeRub < 0) feeRub = 0;
+  return { isKnown: true, allowed: true, feeRub, distanceMeters: distance, zone: "paid" };
 };
 
 const allowedUploadTypes = new Map([
@@ -256,18 +383,22 @@ app.get("/api/public/categories", async (_req, res) => {
 
 app.get("/api/public/settings", async (_req, res) => {
   const db = await readDb();
-  res.json({ nav: db.settings.nav });
+  res.json({ nav: db.settings.nav, delivery: db.settings.delivery });
 });
 
 app.post("/api/public/orders", publicOrdersRateLimit, async (req, res) => {
   const payload = req.body || {};
   const customer = payload.customer || {};
   const items = Array.isArray(payload.items) ? payload.items : [];
+  const delivery = payload.delivery || {};
 
   const name = String(customer.name || "").trim();
   const phone = String(customer.phone || "").trim();
   const address = String(customer.address || "").trim();
   const comment = String(customer.comment || "").trim();
+  const deliveryDistanceMeters = Number.isFinite(Number(delivery.distanceMeters))
+    ? Math.round(Number(delivery.distanceMeters))
+    : null;
 
   if (!name || !phone || !address) {
     res.status(400).json({ error: "missing_fields" });
@@ -333,13 +464,26 @@ app.post("/api/public/orders", publicOrdersRateLimit, async (req, res) => {
       return null;
     }
 
-    const total = normalizedItems.reduce((sum, i) => sum + i.price * i.quantity, 0);
+    const itemsTotal = normalizedItems.reduce((sum, i) => sum + i.price * i.quantity, 0);
+    const quote =
+      deliveryDistanceMeters !== null ? calculateDeliveryQuote(deliveryDistanceMeters, db.settings?.delivery) : null;
+    if (quote && quote.isKnown && !quote.allowed) {
+      return "delivery_out_of_zone";
+    }
+
+    const fee = quote && Number.isFinite(quote.feeRub) && quote.feeRub > 0 ? quote.feeRub : 0;
+    const total = itemsTotal + fee;
     const createdAt = new Date().toISOString();
     const newOrder = {
       id: crypto.randomUUID(),
       status: "incoming",
       customer: { name, phone, address, comment },
       items: normalizedItems,
+      delivery: {
+        feeRub: fee,
+        distanceMeters: quote?.distanceMeters ?? deliveryDistanceMeters ?? null,
+        zone: quote?.zone ?? null,
+      },
       total,
       createdAt,
       updatedAt: createdAt,
@@ -348,6 +492,11 @@ app.post("/api/public/orders", publicOrdersRateLimit, async (req, res) => {
     db.orders.unshift(newOrder);
     return newOrder;
   });
+
+  if (order === "delivery_out_of_zone") {
+    res.status(400).json({ error: "delivery_out_of_zone" });
+    return;
+  }
 
   if (!order) {
     res.status(400).json({ error: "invalid_items" });
@@ -372,12 +521,13 @@ app.get("/api/admin/categories", requireAdmin, async (_req, res) => {
 
 app.get("/api/admin/settings", requireAdmin, async (_req, res) => {
   const db = await readDb();
-  res.json({ nav: db.settings.nav });
+  res.json({ nav: db.settings.nav, delivery: db.settings.delivery });
 });
 
 app.put("/api/admin/settings", requireAdmin, async (req, res) => {
   const payload = req.body || {};
   const nav = payload.nav || {};
+  const delivery = payload.delivery;
 
   const next = await updateDb(async (db) => {
     const current = db.settings?.nav || {};
@@ -397,15 +547,112 @@ app.put("/api/admin/settings", requireAdmin, async (req, res) => {
       allCategoryPosition,
       shuffleAll,
     };
-    return db.settings.nav;
+
+    if (delivery && typeof delivery === "object") {
+      const currentDelivery = db.settings.delivery || {};
+      const city = delivery.city !== undefined ? String(delivery.city || "").trim() : currentDelivery.city;
+      const origin = delivery.origin !== undefined ? delivery.origin : currentDelivery.origin;
+      const freeRadiusKm =
+        delivery.freeRadiusKm !== undefined ? Number(delivery.freeRadiusKm) : Number(currentDelivery.freeRadiusKm);
+      const serviceRadiusKm =
+        delivery.serviceRadiusKm !== undefined ? Number(delivery.serviceRadiusKm) : Number(currentDelivery.serviceRadiusKm);
+      const tiers = Array.isArray(delivery.tiers) ? delivery.tiers : currentDelivery.tiers;
+      const incremental = delivery.incremental !== undefined ? delivery.incremental : currentDelivery.incremental;
+
+      const originLat = Number(origin?.lat);
+      const originLon = Number(origin?.lon);
+      if (
+        !Number.isFinite(originLat) ||
+        originLat < -90 ||
+        originLat > 90 ||
+        !Number.isFinite(originLon) ||
+        originLon < -180 ||
+        originLon > 180
+      ) {
+        return "invalid_origin";
+      }
+      if (!Number.isFinite(freeRadiusKm) || freeRadiusKm <= 0) {
+        return "invalid_free_radius";
+      }
+      if (!Number.isFinite(serviceRadiusKm) || serviceRadiusKm <= 0 || serviceRadiusKm < freeRadiusKm) {
+        return "invalid_service_radius";
+      }
+
+      const normalizedTiers = (Array.isArray(tiers) ? tiers : [])
+        .map((tier) => ({
+          fromKm: Number(tier?.fromKm),
+          feeRub: Math.round(Number(tier?.feeRub)),
+        }))
+        .filter(
+          (tier) =>
+            Number.isFinite(tier.fromKm) &&
+            tier.fromKm >= 0 &&
+            Number.isFinite(tier.feeRub) &&
+            tier.feeRub >= 0,
+        )
+        .sort((a, b) => a.fromKm - b.fromKm);
+
+      if (normalizedTiers.length === 0) {
+        normalizedTiers.push({ fromKm: 0, feeRub: 0 });
+      }
+
+      const inc = incremental || {};
+      const incEnabled = Boolean(inc.enabled);
+      const incFromKm = Number(inc.fromKm);
+      const incStepMeters = Math.round(Number(inc.stepMeters));
+      const incStepFeeRub = Math.round(Number(inc.stepFeeRub));
+      if (!Number.isFinite(incFromKm) || incFromKm < 0) return "invalid_incremental_from";
+      if (!Number.isFinite(incStepMeters) || incStepMeters <= 0) return "invalid_incremental_step";
+      if (!Number.isFinite(incStepFeeRub) || incStepFeeRub < 0) return "invalid_incremental_fee";
+
+      db.settings.delivery = {
+        city: city || "Симферополь",
+        origin: { lat: originLat, lon: originLon },
+        freeRadiusKm,
+        serviceRadiusKm,
+        tiers: normalizedTiers,
+        incremental: {
+          enabled: incEnabled,
+          fromKm: incFromKm,
+          stepMeters: incStepMeters,
+          stepFeeRub: incStepFeeRub,
+        },
+      };
+    }
+
+    return { nav: db.settings.nav, delivery: db.settings.delivery };
   });
 
   if (next === "invalid_position") {
     res.status(400).json({ error: "invalid_position" });
     return;
   }
+  if (next === "invalid_origin") {
+    res.status(400).json({ error: "invalid_origin" });
+    return;
+  }
+  if (next === "invalid_free_radius") {
+    res.status(400).json({ error: "invalid_free_radius" });
+    return;
+  }
+  if (next === "invalid_service_radius") {
+    res.status(400).json({ error: "invalid_service_radius" });
+    return;
+  }
+  if (next === "invalid_incremental_from") {
+    res.status(400).json({ error: "invalid_incremental_from" });
+    return;
+  }
+  if (next === "invalid_incremental_step") {
+    res.status(400).json({ error: "invalid_incremental_step" });
+    return;
+  }
+  if (next === "invalid_incremental_fee") {
+    res.status(400).json({ error: "invalid_incremental_fee" });
+    return;
+  }
 
-  res.json({ nav: next });
+  res.json(next);
 });
 
 app.post("/api/admin/categories", requireAdmin, async (req, res) => {

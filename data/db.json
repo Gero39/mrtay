@@ -1,6 +1,45 @@
 {
   "menu": [
     {
+      "id": "7d418c30-2ce9-4c62-b004-b39638b10ca9",
+      "title": "Сет праздничный",
+      "description": "Филадельфия\nКалифорния с лососем\nУнаги блек\nМаки креветка",
+      "weight": "",
+      "category": "Сеты",
+      "imageUrl": "",
+      "price": 1500,
+      "options": [],
+      "active": true,
+      "createdAt": "2026-03-21T22:26:14.786Z",
+      "updatedAt": "2026-03-21T22:26:14.786Z"
+    },
+    {
+      "id": "2c6975dc-0abf-49c0-9471-738afe0e9d9c",
+      "title": "Сет тёплый",
+      "description": "Запечённый ролл с креветкой\nЗапечённый ролл с лососем\nРолл Темпура с лососем\nРолл Темпура с угрем",
+      "weight": "",
+      "category": "Сеты",
+      "imageUrl": "",
+      "price": 1790,
+      "options": [],
+      "active": true,
+      "createdAt": "2026-03-21T22:25:59.480Z",
+      "updatedAt": "2026-03-21T22:25:59.480Z"
+    },
+    {
+      "id": "c080ade1-4308-4bd7-8be1-0b3fc4368dee",
+      "title": "Сет Тай",
+      "description": "Ролл тай\nКалифорния лосось\nМаки с угрём\nПицца мясная 30см\nУдон с курочкой - 2 штуки",
+      "weight": "",
+      "category": "Сеты",
+      "imageUrl": "",
+      "price": 2650,
+      "options": [],
+      "active": true,
+      "createdAt": "2026-03-21T22:25:31.559Z",
+      "updatedAt": "2026-03-21T22:25:31.559Z"
+    },
+    {
       "id": "acb19df0-7688-46e0-91d6-da302249108b",
       "title": "Суши пицца с лососем",
       "description": "Рис, нори, помидор, лосось, огур сол, лук красный, моцарелла, соус спайси, унаги, кунжут, лук зелёный",
@@ -1014,6 +1053,34 @@
   ],
   "orders": [
     {
+      "id": "5e75014d-1239-4f4a-8313-00d1ff979131",
+      "status": "incoming",
+      "customer": {
+        "name": "Никита",
+        "phone": "+79781030117",
+        "address": "Балаклавская улица, 71, кв 85",
+        "comment": ""
+      },
+      "items": [
+        {
+          "id": "8e1801bd-85bd-4b3a-bfe7-f91ff21ed4b0",
+          "name": "Цезарь с курицей",
+          "optionId": "",
+          "optionLabel": "",
+          "price": 450,
+          "quantity": 1
+        }
+      ],
+      "delivery": {
+        "feeRub": 200,
+        "distanceMeters": 7294,
+        "zone": "paid"
+      },
+      "total": 650,
+      "createdAt": "2026-03-21T22:20:19.595Z",
+      "updatedAt": "2026-03-21T22:20:19.595Z"
+    },
+    {
       "id": "ddad00fe-6c78-42f3-9ba4-7df56c962329",
       "status": "delivered",
       "customer": {
@@ -1122,6 +1189,27 @@
       "allCategoryEnabled": false,
       "allCategoryPosition": "top",
       "shuffleAll": false
+    },
+    "delivery": {
+      "city": "Симферополь",
+      "origin": {
+        "lat": 44.981547,
+        "lon": 34.091607
+      },
+      "freeRadiusKm": 5,
+      "serviceRadiusKm": 20,
+      "tiers": [
+        {
+          "fromKm": 5,
+          "feeRub": 200
+        }
+      ],
+      "incremental": {
+        "enabled": false,
+        "fromKm": 2,
+        "stepMeters": 50,
+        "stepFeeRub": 100
+      }
     }
   }
 }

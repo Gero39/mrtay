@@ -77,7 +77,11 @@
           </div>
 
           <div class="checkout-form__footer checkout-form__wide">
-            <p>Итого: <strong id="order-total-field">0 &#8381;</strong></p>
+            <div class="checkout-totals">
+              <p>Блюда: <strong id="items-total-field">0 &#8381;</strong></p>
+              <p>Доставка: <strong id="delivery-fee-field">—</strong></p>
+              <p>Итого: <strong id="order-total-field">0 &#8381;</strong></p>
+            </div>
             <button type="submit" class="checkout-submit" id="submit-order">Заказать</button>
           </div>
           <p class="checkout-note checkout-form__wide" id="checkout-note"></p>
@@ -98,6 +102,6 @@
     </div>
   </div>
 
-  <script src="checkout.js?v=20260321-16"></script>
+  <script src="checkout.js?v=20260321-17"></script>
 </body>
 </html>

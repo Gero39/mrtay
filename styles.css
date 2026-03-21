@@ -578,6 +578,16 @@ body.modal-open {
   gap: 12px;
 }
 
+.checkout-totals {
+  display: grid;
+  gap: 4px;
+}
+
+.checkout-totals p {
+  margin: 0;
+  font-weight: 700;
+}
+
 .checkout-form__footer p {
   margin: 0;
   font-weight: 700;

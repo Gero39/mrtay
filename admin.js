@@ -1,5 +1,9 @@
 const TOKEN_KEY = "mr_tai_admin_token";
 
+// Показывать/скрывать "Город" и координаты в настройках доставки.
+// Поменяйте на true, если нужно вернуть эти поля в админке.
+const SHOW_DELIVERY_ADVANCED_FIELDS = false;
+
 const tokenInput = document.querySelector("#admin-token-input");
 const tokenSaveButton = document.querySelector("#admin-token-save");
 const authStatus = document.querySelector("#admin-auth-status");
@@ -8,6 +12,7 @@ const tabButtons = Array.from(document.querySelectorAll(".admin-tab-btn"));
 const panels = {
   orders: document.querySelector("#panel-orders"),
   categories: document.querySelector("#panel-categories"),
+  delivery: document.querySelector("#panel-delivery"),
   menu: document.querySelector("#panel-menu"),
   promos: document.querySelector("#panel-promos"),
 };
@@ -21,6 +26,7 @@ const ordersNote = document.querySelector("#orders-note");
 
 const categoriesList = document.querySelector("#categories-list");
 const categoriesRefresh = document.querySelector("#categories-refresh");
+const deliveryRefresh = document.querySelector("#delivery-refresh");
 const categoryForm = document.querySelector("#category-form");
 const categoryFormTitle = document.querySelector("#category-form-title");
 const categoryNote = document.querySelector("#category-note");
@@ -33,6 +39,21 @@ const navAllPosition = document.querySelector("#nav-all-position");
 const navShuffleAll = document.querySelector("#nav-shuffle-all");
 const navSettingsSave = document.querySelector("#nav-settings-save");
 const navSettingsNote = document.querySelector("#nav-settings-note");
+
+const deliveryCity = document.querySelector("#delivery-city");
+const deliveryOriginLat = document.querySelector("#delivery-origin-lat");
+const deliveryOriginLon = document.querySelector("#delivery-origin-lon");
+const deliveryFreeRadiusKm = document.querySelector("#delivery-free-radius-km");
+const deliveryServiceRadiusKm = document.querySelector("#delivery-service-radius-km");
+const deliverySettingsSave = document.querySelector("#delivery-settings-save");
+const deliverySettingsNote = document.querySelector("#delivery-settings-note");
+const deliveryTiersList = document.querySelector("#delivery-tiers-list");
+const deliveryTierAdd = document.querySelector("#delivery-tier-add");
+const deliveryIncEnabled = document.querySelector("#delivery-inc-enabled");
+const deliveryIncFromKm = document.querySelector("#delivery-inc-from-km");
+const deliveryIncStepMeters = document.querySelector("#delivery-inc-step-meters");
+const deliveryIncStepFeeRub = document.querySelector("#delivery-inc-step-fee-rub");
+const deliveryAdvancedLabels = Array.from(document.querySelectorAll('[data-delivery-advanced="true"]'));
 
 const menuList = document.querySelector("#menu-list");
 const menuRefresh = document.querySelector("#menu-refresh");
@@ -73,6 +94,10 @@ const promoImagePreview = document.querySelector("#promo-image-preview");
 
 const currency = new Intl.NumberFormat("ru-RU");
 const formatPrice = (value) => `${currency.format(Number(value) || 0)} \u20bd`;
+
+for (const label of deliveryAdvancedLabels) {
+  label.style.display = SHOW_DELIVERY_ADVANCED_FIELDS ? "" : "none";
+}
 
 const escapeHtml = (value) =>
   String(value ?? "")
@@ -469,6 +494,7 @@ const readMenuOptionsFromEditor = () => {
 
 let categoriesData = [];
 let navSettings = { allCategoryEnabled: true, allCategoryPosition: "top", shuffleAll: true };
+let deliverySettings = null;
 
 const setNavSettingsForm = (nav) => {
   if (!navAllEnabled || !navAllPosition || !navShuffleAll) return;
@@ -476,6 +502,242 @@ const setNavSettingsForm = (nav) => {
   navAllPosition.value = nav.allCategoryPosition === "bottom" ? "bottom" : "top";
   navShuffleAll.checked = nav.shuffleAll !== false;
   if (navSettingsNote) navSettingsNote.textContent = "";
+};
+
+const deliveryErrorMessage = (code) => {
+  switch (code) {
+    case "invalid_origin":
+      return "Некорректные координаты точки доставки.";
+    case "invalid_free_radius":
+      return "Некорректный радиус бесплатной доставки.";
+    case "invalid_service_radius":
+      return "Некорректный радиус зоны обслуживания.";
+    case "invalid_incremental_from":
+      return "Некорректное значение 'после (км)' для автодобавки.";
+    case "invalid_incremental_step":
+      return "Некорректный шаг (м) для автодобавки.";
+    case "invalid_incremental_fee":
+      return "Некорректная надбавка (₽) для автодобавки.";
+    default:
+      return code || "Ошибка";
+  }
+};
+
+const normalizeDeliverySettings = (raw) => {
+  const delivery = raw && typeof raw === "object" ? raw : {};
+  const city = String(delivery.city || "").trim() || "Симферополь";
+
+  const originLat = Number(delivery.origin?.lat);
+  const originLon = Number(delivery.origin?.lon);
+  const origin = {
+    lat: Number.isFinite(originLat) ? originLat : 44.981547,
+    lon: Number.isFinite(originLon) ? originLon : 34.091607,
+  };
+
+  const freeRadiusKm = Number(delivery.freeRadiusKm);
+  const serviceRadiusKm = Number(delivery.serviceRadiusKm);
+  const safeFree = Number.isFinite(freeRadiusKm) && freeRadiusKm > 0 ? freeRadiusKm : 5;
+  const safeService = Number.isFinite(serviceRadiusKm) && serviceRadiusKm > 0 ? serviceRadiusKm : Math.max(20, safeFree);
+
+  const tiers = Array.isArray(delivery.tiers) ? delivery.tiers : [];
+  const normalizedTiers = tiers
+    .map((tier) => ({
+      fromKm: Number(tier?.fromKm),
+      feeRub: Math.round(Number(tier?.feeRub)),
+    }))
+    .filter((tier) => Number.isFinite(tier.fromKm) && tier.fromKm >= 0 && Number.isFinite(tier.feeRub) && tier.feeRub >= 0)
+    .sort((a, b) => a.fromKm - b.fromKm);
+
+  if (normalizedTiers.length === 0) {
+    normalizedTiers.push({ fromKm: 0, feeRub: 0 });
+  }
+
+  const inc = delivery.incremental || {};
+  const incFromKm = Number(inc.fromKm);
+  const incStepMeters = Math.round(Number(inc.stepMeters));
+  const incStepFeeRub = Math.round(Number(inc.stepFeeRub));
+
+  return {
+    city,
+    origin,
+    freeRadiusKm: safeFree,
+    serviceRadiusKm: Math.max(safeService, safeFree),
+    tiers: normalizedTiers,
+    incremental: {
+      enabled: Boolean(inc.enabled),
+      fromKm: Number.isFinite(incFromKm) && incFromKm >= 0 ? incFromKm : 20,
+      stepMeters: Number.isFinite(incStepMeters) && incStepMeters > 0 ? incStepMeters : 1000,
+      stepFeeRub: Number.isFinite(incStepFeeRub) && incStepFeeRub >= 0 ? incStepFeeRub : 0,
+    },
+  };
+};
+
+const toggleIncrementalFields = () => {
+  if (!deliveryIncEnabled || !deliveryIncFromKm || !deliveryIncStepMeters || !deliveryIncStepFeeRub) return;
+  const enabled = Boolean(deliveryIncEnabled.checked);
+  deliveryIncFromKm.disabled = !enabled;
+  deliveryIncStepMeters.disabled = !enabled;
+  deliveryIncStepFeeRub.disabled = !enabled;
+};
+
+const addDeliveryTierRow = ({ fromKm = "", feeRub = "" } = {}) => {
+  if (!deliveryTiersList) return;
+
+  const row = document.createElement("div");
+  row.className = "admin-tier-row";
+  row.innerHTML = `
+    <input type="number" class="admin-tier-from" min="0" step="0.1" placeholder="От (км)" value="${Number.isFinite(fromKm) ? fromKm : ""}">
+    <input type="number" class="admin-tier-fee" min="0" step="1" placeholder="₽" value="${Number.isFinite(feeRub) ? feeRub : ""}">
+    <button class="admin-btn admin-btn--danger admin-btn--sm" type="button" data-action="remove-tier">Удалить</button>
+  `;
+  deliveryTiersList.appendChild(row);
+};
+
+const setDeliverySettingsForm = (delivery) => {
+  if (
+    !deliveryCity ||
+    !deliveryOriginLat ||
+    !deliveryOriginLon ||
+    !deliveryFreeRadiusKm ||
+    !deliveryServiceRadiusKm ||
+    !deliveryTiersList ||
+    !deliveryIncEnabled ||
+    !deliveryIncFromKm ||
+    !deliveryIncStepMeters ||
+    !deliveryIncStepFeeRub
+  ) {
+    return;
+  }
+
+  deliveryCity.value = String(delivery.city || "").trim();
+  deliveryOriginLat.value = String(delivery.origin?.lat ?? "");
+  deliveryOriginLon.value = String(delivery.origin?.lon ?? "");
+  deliveryFreeRadiusKm.value = String(delivery.freeRadiusKm ?? "");
+  deliveryServiceRadiusKm.value = String(delivery.serviceRadiusKm ?? "");
+
+  deliveryIncEnabled.checked = Boolean(delivery.incremental?.enabled);
+  deliveryIncFromKm.value = String(delivery.incremental?.fromKm ?? "");
+  deliveryIncStepMeters.value = String(delivery.incremental?.stepMeters ?? "");
+  deliveryIncStepFeeRub.value = String(delivery.incremental?.stepFeeRub ?? "");
+  toggleIncrementalFields();
+
+  deliveryTiersList.innerHTML = "";
+  const tiers = Array.isArray(delivery.tiers) ? delivery.tiers : [];
+  for (const tier of tiers) {
+    addDeliveryTierRow({ fromKm: Number(tier?.fromKm), feeRub: Number(tier?.feeRub) });
+  }
+  if (tiers.length === 0) {
+    addDeliveryTierRow({ fromKm: 0, feeRub: 0 });
+  }
+
+  if (deliverySettingsNote) deliverySettingsNote.textContent = "";
+};
+
+const readDeliveryTiersFromEditor = () => {
+  if (!deliveryTiersList) return { tiers: [], error: null };
+
+  const rows = Array.from(deliveryTiersList.querySelectorAll(".admin-tier-row"));
+  const out = [];
+
+  for (const row of rows) {
+    const fromInput = row.querySelector(".admin-tier-from");
+    const feeInput = row.querySelector(".admin-tier-fee");
+    const rawFrom = String(fromInput?.value || "").trim();
+    const rawFee = String(feeInput?.value || "").trim();
+
+    if (!rawFrom && !rawFee) {
+      continue;
+    }
+
+    const fromKm = Number(rawFrom);
+    const feeRub = Number(rawFee);
+    if (!Number.isFinite(fromKm) || fromKm < 0) {
+      return { tiers: [], error: "Неверное значение 'От (км)'." };
+    }
+    if (!Number.isFinite(feeRub) || feeRub < 0) {
+      return { tiers: [], error: "Неверное значение цены (₽)." };
+    }
+
+    out.push({ fromKm, feeRub: Math.round(feeRub) });
+  }
+
+  if (out.length === 0) {
+    out.push({ fromKm: 0, feeRub: 0 });
+  }
+
+  return { tiers: out, error: null };
+};
+
+const readDeliverySettingsFromForm = () => {
+  if (
+    !deliveryCity ||
+    !deliveryOriginLat ||
+    !deliveryOriginLon ||
+    !deliveryFreeRadiusKm ||
+    !deliveryServiceRadiusKm ||
+    !deliveryIncEnabled ||
+    !deliveryIncFromKm ||
+    !deliveryIncStepMeters ||
+    !deliveryIncStepFeeRub
+  ) {
+    return { delivery: null, error: "Форма доставки не найдена." };
+  }
+
+  const base = deliverySettings || normalizeDeliverySettings(null);
+
+  const city = SHOW_DELIVERY_ADVANCED_FIELDS ? String(deliveryCity.value || "").trim() : String(base.city || "").trim();
+  if (!city) return { delivery: null, error: "Введите город." };
+
+  const lat = SHOW_DELIVERY_ADVANCED_FIELDS ? Number(String(deliveryOriginLat.value || "").trim()) : Number(base.origin?.lat);
+  const lon = SHOW_DELIVERY_ADVANCED_FIELDS ? Number(String(deliveryOriginLon.value || "").trim()) : Number(base.origin?.lon);
+  if (!Number.isFinite(lat) || lat < -90 || lat > 90 || !Number.isFinite(lon) || lon < -180 || lon > 180) {
+    return { delivery: null, error: "Координаты должны быть в диапазоне lat [-90..90], lon [-180..180]." };
+  }
+
+  const freeRadiusKm = Number(String(deliveryFreeRadiusKm.value || "").trim());
+  if (!Number.isFinite(freeRadiusKm) || freeRadiusKm <= 0) {
+    return { delivery: null, error: "Неверный радиус бесплатной доставки." };
+  }
+
+  const serviceRadiusKm = Number(String(deliveryServiceRadiusKm.value || "").trim());
+  if (!Number.isFinite(serviceRadiusKm) || serviceRadiusKm <= 0 || serviceRadiusKm < freeRadiusKm) {
+    return { delivery: null, error: "Радиус зоны обслуживания должен быть >= радиуса бесплатной доставки." };
+  }
+
+  const { tiers, error: tiersError } = readDeliveryTiersFromEditor();
+  if (tiersError) return { delivery: null, error: tiersError };
+
+  const incEnabled = Boolean(deliveryIncEnabled.checked);
+  const incFromKm = Number(String(deliveryIncFromKm.value || "").trim());
+  const incStepMeters = Number(String(deliveryIncStepMeters.value || "").trim());
+  const incStepFeeRub = Number(String(deliveryIncStepFeeRub.value || "").trim());
+
+  if (!Number.isFinite(incFromKm) || incFromKm < 0) {
+    return { delivery: null, error: "Неверное значение 'После (км)'." };
+  }
+  if (!Number.isFinite(incStepMeters) || incStepMeters <= 0) {
+    return { delivery: null, error: "Неверный шаг (м)." };
+  }
+  if (!Number.isFinite(incStepFeeRub) || incStepFeeRub < 0) {
+    return { delivery: null, error: "Неверная надбавка (₽)." };
+  }
+
+  return {
+    delivery: {
+      city,
+      origin: { lat, lon },
+      freeRadiusKm,
+      serviceRadiusKm,
+      tiers,
+      incremental: {
+        enabled: incEnabled,
+        fromKm: incFromKm,
+        stepMeters: Math.round(incStepMeters),
+        stepFeeRub: Math.round(incStepFeeRub),
+      },
+    },
+    error: null,
+  };
 };
 
 const loadNavSettings = async () => {
@@ -487,6 +749,11 @@ const loadNavSettings = async () => {
     shuffleAll: nav.shuffleAll !== undefined ? Boolean(nav.shuffleAll) : true,
   };
   setNavSettingsForm(navSettings);
+
+  deliverySettings = normalizeDeliverySettings(settings?.delivery);
+  if (deliverySettings) {
+    setDeliverySettingsForm(deliverySettings);
+  }
 };
 
 const populateCategorySelect = () => {
@@ -842,6 +1109,16 @@ if (categoriesRefresh) {
   });
 }
 
+if (deliveryRefresh) {
+  deliveryRefresh.addEventListener("click", async () => {
+    try {
+      await loadNavSettings();
+    } catch (err) {
+      setAuthStatus(`Ошибка: ${err.message}`, true);
+    }
+  });
+}
+
 if (navSettingsSave) {
   navSettingsSave.addEventListener("click", async () => {
     if (!navAllEnabled || !navAllPosition || !navShuffleAll) return;
@@ -873,6 +1150,71 @@ if (navSettingsSave) {
       if (navSettingsNote) navSettingsNote.textContent = "Сохранено. Обновите сайт (F5), чтобы увидеть изменения.";
     } catch (err) {
       if (navSettingsNote) navSettingsNote.textContent = `Ошибка: ${err.message}`;
+    }
+  });
+}
+
+if (deliveryIncEnabled) {
+  deliveryIncEnabled.addEventListener("change", toggleIncrementalFields);
+}
+
+if (deliveryTierAdd) {
+  deliveryTierAdd.addEventListener("click", () => {
+    if (!deliveryTiersList) return;
+
+    const rows = Array.from(deliveryTiersList.querySelectorAll(".admin-tier-row"));
+    const lastRow = rows[rows.length - 1];
+    const lastFrom = lastRow ? Number(String(lastRow.querySelector(".admin-tier-from")?.value || "").trim()) : NaN;
+    const nextFromKm = Number.isFinite(lastFrom) ? Math.max(0, Math.round((lastFrom + 1) * 10) / 10) : 0;
+    addDeliveryTierRow({ fromKm: nextFromKm, feeRub: 0 });
+  });
+}
+
+if (deliveryTiersList) {
+  deliveryTiersList.addEventListener("click", (event) => {
+    const target = event.target;
+    if (!(target instanceof HTMLElement)) return;
+
+    const btn = target.closest('[data-action="remove-tier"]');
+    if (!btn) return;
+
+    const row = btn.closest(".admin-tier-row");
+    row?.remove();
+
+    if (deliveryTiersList.querySelectorAll(".admin-tier-row").length === 0) {
+      addDeliveryTierRow({ fromKm: 0, feeRub: 0 });
+    }
+  });
+}
+
+if (deliverySettingsSave) {
+  deliverySettingsSave.addEventListener("click", async () => {
+    if (deliverySettingsNote) deliverySettingsNote.textContent = "";
+    const { delivery, error } = readDeliverySettingsFromForm();
+    if (error) {
+      if (deliverySettingsNote) deliverySettingsNote.textContent = error;
+      return;
+    }
+
+    deliverySettingsSave.disabled = true;
+    try {
+      const updated = await apiJson("/api/admin/settings", {
+        method: "PUT",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ delivery }),
+      });
+
+      deliverySettings = normalizeDeliverySettings(updated?.delivery || delivery);
+      setDeliverySettingsForm(deliverySettings);
+
+      if (deliverySettingsNote) {
+        deliverySettingsNote.textContent =
+          "Сохранено. Обновите страницу оформления заказа (F5), чтобы увидеть новые зоны и цены.";
+      }
+    } catch (err) {
+      if (deliverySettingsNote) deliverySettingsNote.textContent = `Ошибка: ${deliveryErrorMessage(err.message)}`;
+    } finally {
+      deliverySettingsSave.disabled = false;
     }
   });
 }
