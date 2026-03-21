@@ -491,6 +491,45 @@ body.modal-open {
 
 .address-grid__street {
   grid-column: 1 / -1;
+  position: relative;
+}
+
+.address-suggest {
+  position: absolute;
+  left: 0;
+  right: 0;
+  top: 100%;
+  margin-top: 6px;
+  border: 1px solid var(--line);
+  border-radius: 14px;
+  background: #fff;
+  box-shadow: 0 14px 28px rgba(20, 33, 56, 0.12);
+  overflow: hidden;
+  z-index: 50;
+}
+
+.address-suggest__item {
+  width: 100%;
+  border: 0;
+  background: transparent;
+  text-align: left;
+  padding: 10px 12px;
+  font: inherit;
+  cursor: pointer;
+}
+
+.address-suggest__item:hover,
+.address-suggest__item:focus-visible {
+  background: #fff5f6;
+  outline: none;
+}
+
+.address-suggest__meta {
+  display: block;
+  margin-top: 2px;
+  font-size: 0.85rem;
+  color: #556070;
+  font-weight: 600;
 }
 
 .address-grid__actions {

@@ -349,8 +349,10 @@ function setupAddressSearch({ ymaps, map, origin, freeRadiusMeters, paidRadiusMe
   const apartmentInput = document.getElementById("address-apartment");
   const searchButton = document.getElementById("address-search");
   const statusEl = document.getElementById("address-status");
+  const suggestEl = document.getElementById("address-suggest");
 
   if (!streetInput || !houseInput || !searchButton || !statusEl) return;
+  if (!suggestEl) return;
 
   const setStatus = (text, kind = "") => {
     statusEl.textContent = text;
@@ -376,6 +378,60 @@ function setupAddressSearch({ ymaps, map, origin, freeRadiusMeters, paidRadiusMe
 
   let addressPlacemark = null;
 
+  const applyGeoObject = (geoObject) => {
+    autofillAddressFields({ geoObject, streetInput, houseInput });
+
+    const coords = geoObject.geometry.getCoordinates();
+    const distance = distanceMeters(origin, coords);
+    const distanceKm = Math.round(distance / 10) / 100;
+
+    let kind = "ok";
+    let preset = "islands#greenIcon";
+    let label = `Бесплатная доставка • ${distanceKm} км`;
+
+    if (distance > freeRadiusMeters && distance <= paidRadiusMeters) {
+      kind = "warn";
+      preset = "islands#orangeIcon";
+      label = `Платная доставка • ${distanceKm} км`;
+    } else if (distance > paidRadiusMeters) {
+      kind = "bad";
+      preset = "islands#redIcon";
+      label = `Вне зоны доставки • ${distanceKm} км`;
+    }
+
+    setStatus(label, kind);
+
+    if (addressPlacemark) {
+      map.geoObjects.remove(addressPlacemark);
+    }
+
+    addressPlacemark = new ymaps.Placemark(coords, {}, { preset, zIndex: 40 });
+    map.geoObjects.add(addressPlacemark);
+    map.setCenter(coords, map.getZoom(), { duration: 250 });
+  };
+
+  const hideSuggest = () => {
+    suggestEl.hidden = true;
+    suggestEl.innerHTML = "";
+  };
+
+  const showSuggest = (items) => {
+    if (!Array.isArray(items) || items.length === 0) {
+      hideSuggest();
+      return;
+    }
+
+    suggestEl.innerHTML = items
+      .map((item, index) => {
+        const title = escapeHtmlInline(item.title);
+        const meta = escapeHtmlInline(item.meta);
+        return `<button class="address-suggest__item" type="button" data-index="${index}">${title}<span class="address-suggest__meta">${meta}</span></button>`;
+      })
+      .join("");
+
+    suggestEl.hidden = false;
+  };
+
   const geocodeAndUpdate = async () => {
     const query = buildQuery();
     if (!query) {
@@ -386,40 +442,14 @@ function setupAddressSearch({ ymaps, map, origin, freeRadiusMeters, paidRadiusMe
     setStatus("Ищем адрес…", "warn");
 
     try {
-      const result = await ymaps.geocode(query, { results: 1 });
+      const result = await ymaps.geocode(query, { results: 1, kind: "house" });
       const geoObject = result.geoObjects.get(0);
       if (!geoObject) {
         setStatus("Адрес не найден. Уточните улицу/дом.", "bad");
         return;
       }
 
-      const coords = geoObject.geometry.getCoordinates();
-      const distance = distanceMeters(origin, coords);
-      const distanceKm = Math.round(distance / 10) / 100;
-
-      let kind = "ok";
-      let preset = "islands#greenIcon";
-      let label = `Бесплатная доставка • ${distanceKm} км`;
-
-      if (distance > freeRadiusMeters && distance <= paidRadiusMeters) {
-        kind = "warn";
-        preset = "islands#orangeIcon";
-        label = `Платная доставка • ${distanceKm} км`;
-      } else if (distance > paidRadiusMeters) {
-        kind = "bad";
-        preset = "islands#redIcon";
-        label = `Вне зоны доставки • ${distanceKm} км`;
-      }
-
-      setStatus(label, kind);
-
-      if (addressPlacemark) {
-        map.geoObjects.remove(addressPlacemark);
-      }
-
-      addressPlacemark = new ymaps.Placemark(coords, {}, { preset, zIndex: 40 });
-      map.geoObjects.add(addressPlacemark);
-      map.setCenter(coords, map.getZoom(), { duration: 250 });
+      applyGeoObject(geoObject);
     } catch (error) {
       console.error("[checkout] address geocode failed:", error);
       setStatus("Не удалось найти адрес. Проверьте интернет и попробуйте снова.", "bad");
@@ -440,15 +470,142 @@ function setupAddressSearch({ ymaps, map, origin, freeRadiusMeters, paidRadiusMe
   houseInput.addEventListener("keydown", onKeyDown);
   apartmentInput?.addEventListener("keydown", onKeyDown);
 
+  let suggestSeq = 0;
+  let suggestTimer = null;
+
+  const scheduleSuggest = () => {
+    if (suggestTimer) clearTimeout(suggestTimer);
+    suggestTimer = setTimeout(() => {
+      void updateSuggest();
+    }, 250);
+  };
+
+  const updateSuggest = async () => {
+    const street = streetInput.value.trim();
+    const house = houseInput.value.trim();
+
+    if (street.length < 2) {
+      hideSuggest();
+      return;
+    }
+
+    const queryParts = [];
+    if (city) queryParts.push(city);
+    queryParts.push(street);
+    if (house) queryParts.push(house);
+    const query = queryParts.join(", ");
+
+    const mySeq = (suggestSeq += 1);
+    try {
+      const kind = house ? "house" : "street";
+      const result = await ymaps.geocode(query, { results: 5, kind });
+      if (mySeq !== suggestSeq) return;
+
+      const items = [];
+      result.geoObjects.each((geoObject) => {
+        const addressLine =
+          typeof geoObject.getAddressLine === "function"
+            ? geoObject.getAddressLine()
+            : geoObject.properties?.get?.("text") || "";
+        const parts = extractAddressPartsFromGeoObject(geoObject);
+        const title = parts?.street || addressLine || "Адрес";
+        const meta = parts?.house ? `дом ${parts.house}` : addressLine;
+        items.push({ title, meta, geoObject });
+      });
+
+      showSuggest(items);
+
+      suggestEl.onclick = (event) => {
+        const target = event.target.closest(".address-suggest__item");
+        if (!target) return;
+        const index = Number(target.dataset.index);
+        const selected = items[index];
+        if (!selected?.geoObject) return;
+        hideSuggest();
+        applyGeoObject(selected.geoObject);
+      };
+    } catch {
+      if (mySeq !== suggestSeq) return;
+      hideSuggest();
+    }
+  };
+
+  streetInput.addEventListener("input", scheduleSuggest);
+  houseInput.addEventListener("input", scheduleSuggest);
+
+  document.addEventListener("click", (event) => {
+    if (event.target === streetInput || event.target === houseInput || suggestEl.contains(event.target)) return;
+    hideSuggest();
+  });
+}
+
+function escapeHtmlInline(value) {
+  return String(value ?? "")
+    .replaceAll("&", "&amp;")
+    .replaceAll("<", "&lt;")
+    .replaceAll(">", "&gt;")
+    .replaceAll('"', "&quot;")
+    .replaceAll("'", "&#39;");
+}
+
+function autofillAddressFields({ geoObject, streetInput, houseInput }) {
+  const parts = extractAddressPartsFromGeoObject(geoObject);
+  if (!parts) return;
+
+  if (parts.street) {
+    streetInput.value = parts.street;
+  }
+
+  if (parts.house && !houseInput.value.trim()) {
+    houseInput.value = parts.house;
+  }
+}
+
+function extractAddressPartsFromGeoObject(geoObject) {
   try {
-    const suggestView = new ymaps.SuggestView(streetInput.id);
-    suggestView.events.add("select", (event) => {
-      const item = event.get("item");
-      if (item?.value) streetInput.value = String(item.value);
-      void geocodeAndUpdate();
-    });
-  } catch (error) {
-    console.warn("[checkout] address suggest init failed:", error);
+    const meta = geoObject?.properties?.get?.("metaDataProperty.GeocoderMetaData");
+    const components = meta?.Address?.Components;
+    if (!Array.isArray(components)) return null;
+
+    const findByKind = (...kinds) =>
+      components.find((c) => c && kinds.includes(c.kind) && typeof c.name === "string" && c.name.trim());
+
+    const street =
+      findByKind("street")?.name ||
+      findByKind("route")?.name ||
+      findByKind("thoroughfare")?.name ||
+      "";
+
+    const house =
+      findByKind("house")?.name ||
+      findByKind("premise")?.name ||
+      findByKind("entrance")?.name ||
+      "";
+
+    if (!street && !house) return null;
+    return { street, house };
+  } catch {
+    return parseAddressLineFallback(geoObject);
+  }
+}
+
+function parseAddressLineFallback(geoObject) {
+  try {
+    const addressLine =
+      typeof geoObject?.getAddressLine === "function"
+        ? geoObject.getAddressLine()
+        : geoObject?.properties?.get?.("text") || "";
+    const parts = String(addressLine)
+      .split(",")
+      .map((p) => p.trim())
+      .filter(Boolean);
+
+    const streetPart = parts.find((p) => /ул\.|улица|проспект|пр-т|шоссе|пер\.|переулок|бульвар|пл\.|площадь/i.test(p));
+    const housePart = parts.find((p) => /^\d+[а-яА-Яa-zA-Z0-9\\/-]*$/.test(p));
+    if (!streetPart && !housePart) return null;
+    return { street: streetPart || "", house: housePart || "" };
+  } catch {
+    return null;
   }
 }
 
