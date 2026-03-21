@@ -183,9 +183,7 @@
 })();
 
 
-void initMap();
-
-let ymaps3LoadPromise = null;
+var ymaps3LoadPromise = null;
 
 async function initMap() {
   const container = document.getElementById("delivery-map");
@@ -302,4 +300,16 @@ function loadYmaps3({ apiKey, lang = "ru_RU", timeoutMs = 15000 } = {}) {
   });
 
   return ymaps3LoadPromise;
+}
+
+if (document.readyState === "loading") {
+  document.addEventListener(
+    "DOMContentLoaded",
+    () => {
+      void initMap();
+    },
+    { once: true },
+  );
+} else {
+  void initMap();
 }
