@@ -41,6 +41,13 @@
       .replaceAll('"', "&quot;")
       .replaceAll("'", "&#39;");
 
+  const formatAddress = ({ street, house, apartment }) => {
+    const base = [street, house].filter(Boolean).join(", ");
+    if (!base) return "";
+    if (!apartment) return base;
+    return `${base}, кв ${apartment}`;
+  };
+
   const loadCartItems = () => {
     const raw = localStorage.getItem(STORAGE_KEY);
     if (!raw) {
@@ -135,10 +142,21 @@
     }
 
     const form = new FormData(checkoutForm);
+    const addressLegacy = String(form.get("address") || "").trim();
+    const addressStreet = String(form.get("addressStreet") || "").trim();
+    const addressHouse = String(form.get("addressHouse") || "").trim();
+    const addressApartment = String(form.get("addressApartment") || "").trim();
+    const formattedAddress =
+      addressLegacy ||
+      formatAddress({
+        street: addressStreet,
+        house: addressHouse,
+        apartment: addressApartment,
+      });
     const customer = {
       name: String(form.get("name") || "").trim(),
       phone: String(form.get("phone") || "").trim(),
-      address: String(form.get("address") || "").trim(),
+      address: formattedAddress,
       comment: String(form.get("comment") || "").trim(),
     };
 
@@ -302,6 +320,15 @@ async function initMap() {
       ),
     );
 
+    setupAddressSearch({
+      ymaps,
+      map,
+      origin: center,
+      freeRadiusMeters,
+      paidRadiusMeters,
+      city: String(container.dataset.addressCity || "").trim(),
+    });
+
   } catch (error) {
     console.error("[checkout] Yandex Maps init failed:", error);
     renderMapFallback(
@@ -314,6 +341,115 @@ async function initMap() {
 function renderMapFallback(container, message) {
   container.classList.add("checkout-map--fallback");
   container.textContent = message;
+}
+
+function setupAddressSearch({ ymaps, map, origin, freeRadiusMeters, paidRadiusMeters, city }) {
+  const streetInput = document.getElementById("address-street");
+  const houseInput = document.getElementById("address-house");
+  const apartmentInput = document.getElementById("address-apartment");
+  const searchButton = document.getElementById("address-search");
+  const statusEl = document.getElementById("address-status");
+
+  if (!streetInput || !houseInput || !searchButton || !statusEl) return;
+
+  const setStatus = (text, kind = "") => {
+    statusEl.textContent = text;
+    statusEl.classList.remove("address-status--ok", "address-status--warn", "address-status--bad");
+    if (kind) statusEl.classList.add(`address-status--${kind}`);
+  };
+
+  const buildQuery = () => {
+    const street = streetInput.value.trim();
+    const house = houseInput.value.trim();
+    const apartment = apartmentInput?.value.trim() || "";
+
+    const parts = [];
+    if (city) parts.push(city);
+    if (street) parts.push(street);
+    if (house) parts.push(house);
+
+    const base = parts.join(", ");
+    if (!base) return "";
+    if (!apartment) return base;
+    return `${base}, кв ${apartment}`;
+  };
+
+  let addressPlacemark = null;
+
+  const geocodeAndUpdate = async () => {
+    const query = buildQuery();
+    if (!query) {
+      setStatus("Введите улицу и дом.", "bad");
+      return;
+    }
+
+    setStatus("Ищем адрес…", "warn");
+
+    try {
+      const result = await ymaps.geocode(query, { results: 1 });
+      const geoObject = result.geoObjects.get(0);
+      if (!geoObject) {
+        setStatus("Адрес не найден. Уточните улицу/дом.", "bad");
+        return;
+      }
+
+      const coords = geoObject.geometry.getCoordinates();
+      const distance = distanceMeters(origin, coords);
+      const distanceKm = Math.round(distance / 10) / 100;
+
+      let kind = "ok";
+      let preset = "islands#greenIcon";
+      let label = `Бесплатная доставка • ${distanceKm} км`;
+
+      if (distance > freeRadiusMeters && distance <= paidRadiusMeters) {
+        kind = "warn";
+        preset = "islands#orangeIcon";
+        label = `Платная доставка • ${distanceKm} км`;
+      } else if (distance > paidRadiusMeters) {
+        kind = "bad";
+        preset = "islands#redIcon";
+        label = `Вне зоны доставки • ${distanceKm} км`;
+      }
+
+      setStatus(label, kind);
+
+      if (addressPlacemark) {
+        map.geoObjects.remove(addressPlacemark);
+      }
+
+      addressPlacemark = new ymaps.Placemark(coords, {}, { preset, zIndex: 40 });
+      map.geoObjects.add(addressPlacemark);
+      map.setCenter(coords, map.getZoom(), { duration: 250 });
+    } catch (error) {
+      console.error("[checkout] address geocode failed:", error);
+      setStatus("Не удалось найти адрес. Проверьте интернет и попробуйте снова.", "bad");
+    }
+  };
+
+  searchButton.addEventListener("click", () => {
+    void geocodeAndUpdate();
+  });
+
+  const onKeyDown = (event) => {
+    if (event.key !== "Enter") return;
+    event.preventDefault();
+    void geocodeAndUpdate();
+  };
+
+  streetInput.addEventListener("keydown", onKeyDown);
+  houseInput.addEventListener("keydown", onKeyDown);
+  apartmentInput?.addEventListener("keydown", onKeyDown);
+
+  try {
+    const suggestView = new ymaps.SuggestView(streetInput.id);
+    suggestView.events.add("select", (event) => {
+      const item = event.get("item");
+      if (item?.value) streetInput.value = String(item.value);
+      void geocodeAndUpdate();
+    });
+  } catch (error) {
+    console.warn("[checkout] address suggest init failed:", error);
+  }
 }
 
 function parseDeliveryZones(rawCenter, rawFreeRadiusKm, rawPaidRadiusKm) {
@@ -449,6 +585,22 @@ function normalizeLongitude(lon) {
   while (result > 180) result -= 360;
   while (result < -180) result += 360;
   return result;
+}
+
+function distanceMeters(a, b) {
+  const [lat1, lon1] = a;
+  const [lat2, lon2] = b;
+
+  const earthRadius = 6378137;
+  const dLat = toRadians(lat2 - lat1);
+  const dLon = toRadians(lon2 - lon1);
+
+  const sinLat = Math.sin(dLat / 2);
+  const sinLon = Math.sin(dLon / 2);
+  const h =
+    sinLat * sinLat +
+    Math.cos(toRadians(lat1)) * Math.cos(toRadians(lat2)) * sinLon * sinLon;
+  return 2 * earthRadius * Math.asin(Math.min(1, Math.sqrt(h)));
 }
 
 function loadYmaps2({ apiKey, lang = "ru_RU", timeoutMs = 15000 } = {}) {

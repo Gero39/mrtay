@@ -30,11 +30,12 @@
 
         <form id="checkout-form" class="checkout-form" autocomplete="off">
            <div class="checkout-form__wide" id="delivery-map"
-                 data-ymaps-apikey="115d334b-9e0c-4429-8caf-47cf888d0c7c"
-                 data-free-center="44.981547,34.091607"
-                 data-free-radius-km="5"
-                 data-paid-radius-km="20"
-                 data-map-zoom="16"></div>
+                data-ymaps-apikey="115d334b-9e0c-4429-8caf-47cf888d0c7c"
+                data-address-city="Симферополь"
+                data-free-center="44.981547,34.091607"
+                data-free-radius-km="5"
+                data-paid-radius-km="20"
+                data-map-zoom="16"></div>
           <label>
             Имя
             <input type="text" name="name" placeholder="Ваше имя" required>
@@ -43,10 +44,27 @@
             Телефон
             <input type="tel" name="phone" placeholder="+7 (___) ___-__-__" required>
           </label>
-          <label class="checkout-form__wide">
-            Адрес доставки
-            <input id="address-input" type="text" name="address" placeholder="г. Симферополь, ул. ..." required>
-          </label>
+          <div class="checkout-form__wide">
+            <p class="field-label">Адрес доставки</p>
+            <div class="address-grid">
+              <label class="address-grid__street">
+                Улица
+                <input id="address-street" type="text" name="addressStreet" placeholder="Напр., Киевская" required>
+              </label>
+              <label>
+                Дом
+                <input id="address-house" type="text" name="addressHouse" placeholder="12" required>
+              </label>
+              <label>
+                Квартира
+                <input id="address-apartment" type="text" name="addressApartment" placeholder="кв 45">
+              </label>
+              <div class="address-grid__actions">
+                <button type="button" class="address-search" id="address-search">Показать на карте</button>
+              </div>
+            </div>
+            <p class="address-status" id="address-status" aria-live="polite"></p>
+          </div>
           <label class="checkout-form__wide">
             Комментарий к заказу
             <textarea name="comment" rows="3" placeholder="Например: домофон 12, не звонить в дверь"></textarea>
@@ -79,6 +97,6 @@
     </div>
   </div>
 
-  <script src="checkout.js?v=20260321-10"></script>
+  <script src="checkout.js?v=20260321-12"></script>
 </body>
 </html>

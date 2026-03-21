@@ -481,6 +481,57 @@ body.modal-open {
   font-weight: 700;
 }
 
+.address-grid {
+  margin-top: 8px;
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 12px;
+  align-items: end;
+}
+
+.address-grid__street {
+  grid-column: 1 / -1;
+}
+
+.address-grid__actions {
+  grid-column: 1 / -1;
+  display: flex;
+  justify-content: flex-end;
+}
+
+.address-search {
+  border: 1px solid var(--line);
+  border-radius: 999px;
+  background: #fff;
+  padding: 11px 16px;
+  font: inherit;
+  font-weight: 800;
+  cursor: pointer;
+}
+
+.address-search:hover {
+  background: #fff5f6;
+}
+
+.address-status {
+  margin: 10px 0 0;
+  font-size: 0.92rem;
+  font-weight: 700;
+  color: #556070;
+}
+
+.address-status--ok {
+  color: #2f9e6b;
+}
+
+.address-status--warn {
+  color: #c26b0d;
+}
+
+.address-status--bad {
+  color: #c81d31;
+}
+
 .checkout-form__footer {
   border: 1px solid var(--line);
   border-radius: 14px;
