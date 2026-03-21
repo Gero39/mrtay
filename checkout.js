@@ -195,9 +195,16 @@ async function initMap() {
     return;
   }
 
-  const freeZone = parseFreeZone(container.dataset.freeCenter, container.dataset.freeRadiusKm);
-  if (!freeZone) {
-    renderMapFallback(container, "Некорректные параметры зоны доставки (data-free-center / data-free-radius-km).");
+  const zones = parseDeliveryZones(
+    container.dataset.freeCenter,
+    container.dataset.freeRadiusKm,
+    container.dataset.paidRadiusKm,
+  );
+  if (!zones) {
+    renderMapFallback(
+      container,
+      "Некорректные параметры зон доставки (data-free-center / data-free-radius-km / data-paid-radius-km).",
+    );
     return;
   }
 
@@ -208,12 +215,12 @@ async function initMap() {
       ymaps.ready(resolve);
     });
 
-    const { center, radiusMeters } = freeZone;
+    const { center, freeRadiusMeters, paidRadiusMeters } = zones;
     const configuredZoom = parseFlexibleNumber(container.dataset.mapZoom);
     const zoom =
       Number.isFinite(configuredZoom) && configuredZoom > 0
         ? configuredZoom
-        : suggestZoomForRadius(radiusMeters);
+        : suggestZoomForRadius(paidRadiusMeters);
 
     const map = new ymaps.Map(
       container,
@@ -229,13 +236,26 @@ async function initMap() {
     map.controls.add("zoomControl");
     map.behaviors.disable('ruler');
 
-    const redMask = new ymaps.Polygon(
-      [buildOuterContour(center, radiusMeters), buildCircleContour(center, radiusMeters).reverse()],
+    const outsideMask = new ymaps.Polygon(
+      [buildOuterContour(center, paidRadiusMeters), buildCircleContour(center, paidRadiusMeters).reverse()],
       {},
       {
+        fillColor: "#6b7280",
+        fillOpacity: 0.2,
+        opacity: 0.2,
+        strokeWidth: 0,
+        interactivityModel: "default#transparent",
+        zIndex: 5,
+      },
+    );
+
+    const paidFillCircle = new ymaps.Circle(
+      [center, paidRadiusMeters],
+      { hintContent: "Зона платной доставки" },
+      {
         fillColor: "#d20000",
-        fillOpacity: 0.22,
-        opacity: 0.22,
+        fillOpacity: 0.14,
+        opacity: 0.14,
         strokeWidth: 0,
         interactivityModel: "default#transparent",
         zIndex: 10,
@@ -243,7 +263,7 @@ async function initMap() {
     );
 
     const freeCircle = new ymaps.Circle(
-      [center, radiusMeters],
+      [center, freeRadiusMeters],
       { hintContent: "Зона бесплатной доставки" },
       {
         fillColor: "#00a05a",
@@ -253,11 +273,26 @@ async function initMap() {
         strokeOpacity: 0.95,
         strokeWidth: 2,
         interactivityModel: "default#transparent",
+        zIndex: 30,
+      },
+    );
+
+    const paidCircle = new ymaps.Circle(
+      [center, paidRadiusMeters],
+      { hintContent: "Зона платной доставки" },
+      {
+        fillOpacity: 0,
+        strokeColor: "#d20000",
+        strokeOpacity: 0.9,
+        strokeWidth: 2,
+        interactivityModel: "default#transparent",
         zIndex: 20,
       },
     );
 
-    map.geoObjects.add(redMask);
+    map.geoObjects.add(outsideMask);
+    map.geoObjects.add(paidFillCircle);
+    map.geoObjects.add(paidCircle);
     map.geoObjects.add(freeCircle);
     map.geoObjects.add(
       new ymaps.Placemark(
@@ -281,11 +316,20 @@ function renderMapFallback(container, message) {
   container.textContent = message;
 }
 
-function parseFreeZone(rawCenter, rawRadiusKm) {
+function parseDeliveryZones(rawCenter, rawFreeRadiusKm, rawPaidRadiusKm) {
   const center = parseLatLon(rawCenter);
-  const radiusKm = parseFlexibleNumber(rawRadiusKm);
-  if (!center || !Number.isFinite(radiusKm) || radiusKm <= 0) return null;
-  return { center, radiusMeters: radiusKm * 1000 };
+  const freeRadiusKm = parseFlexibleNumber(rawFreeRadiusKm);
+  const paidRadiusKm = parseFlexibleNumber(rawPaidRadiusKm);
+  if (!center) return null;
+  if (!Number.isFinite(freeRadiusKm) || freeRadiusKm <= 0) return null;
+  if (!Number.isFinite(paidRadiusKm) || paidRadiusKm <= 0) return null;
+
+  const safePaidKm = Math.max(paidRadiusKm, freeRadiusKm);
+  return {
+    center,
+    freeRadiusMeters: freeRadiusKm * 1000,
+    paidRadiusMeters: safePaidKm * 1000,
+  };
 }
 
 function parseFlexibleNumber(raw) {
