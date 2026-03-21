@@ -183,7 +183,7 @@
 })();
 
 
-var ymaps3LoadPromise = null;
+var ymaps2LoadPromise = null;
 
 async function initMap() {
   const container = document.getElementById("delivery-map");
@@ -195,38 +195,83 @@ async function initMap() {
     return;
   }
 
+  const freeZone = parseFreeZone(container.dataset.freeCenter, container.dataset.freeRadiusKm);
+  if (!freeZone) {
+    renderMapFallback(container, "Некорректные параметры зоны доставки (data-free-center / data-free-radius-km).");
+    return;
+  }
+
   try {
-    const ymaps3 = await loadYmaps3({ apiKey, lang: "ru_RU" });
+    const ymaps = await loadYmaps2({ apiKey, lang: "ru_RU" });
 
-    // Промис `ymaps3.ready` будет зарезолвлен, когда загрузятся все компоненты основного модуля API
-    await ymaps3.ready;
+    await new Promise((resolve) => {
+      ymaps.ready(resolve);
+    });
 
-    const { YMap, YMapDefaultSchemeLayer } = ymaps3;
+    const { center, radiusMeters } = freeZone;
+    const configuredZoom = parseFlexibleNumber(container.dataset.mapZoom);
+    const zoom =
+      Number.isFinite(configuredZoom) && configuredZoom > 0
+        ? configuredZoom
+        : suggestZoomForRadius(radiusMeters);
 
-    // Иницилиазируем карту
-    const map = new YMap(
-      // Передаём ссылку на HTMLElement контейнера
+    const map = new ymaps.Map(
       container,
-
-      // Передаём параметры инициализации карты
       {
-        location: {
-          // Координаты центра карты
-          center: [37.588144, 55.733842],
+        center,
+        zoom,
+        type: "yandex#map",
+        controls: [],
+      },
+      { suppressMapOpenBlock: true },
+    );
 
-          // Уровень масштабирования
-          zoom: 10,
-        },
+    map.controls.add("zoomControl");
+    map.behaviors.disable('ruler');
+
+    const redMask = new ymaps.Polygon(
+      [buildOuterContour(center, radiusMeters), buildCircleContour(center, radiusMeters).reverse()],
+      {},
+      {
+        fillColor: "#d20000",
+        fillOpacity: 0.22,
+        opacity: 0.22,
+        strokeWidth: 0,
+        interactivityModel: "default#transparent",
+        zIndex: 10,
       },
     );
 
-    // Добавляем слой для отображения схематической карты
-    map.addChild(new YMapDefaultSchemeLayer());
+    const freeCircle = new ymaps.Circle(
+      [center, radiusMeters],
+      { hintContent: "Зона бесплатной доставки" },
+      {
+        fillColor: "#00a05a",
+        fillOpacity: 0.32,
+        opacity: 0.95,
+        strokeColor: "#00a05a",
+        strokeOpacity: 0.95,
+        strokeWidth: 2,
+        interactivityModel: "default#transparent",
+        zIndex: 20,
+      },
+    );
+
+    map.geoObjects.add(redMask);
+    map.geoObjects.add(freeCircle);
+    map.geoObjects.add(
+      new ymaps.Placemark(
+        center,
+        {},
+        { preset: "islands#greenDotIcon" },
+      ),
+    );
+
   } catch (error) {
     console.error("[checkout] Yandex Maps init failed:", error);
     renderMapFallback(
       container,
-      "Карта не загрузилась. Частая причина: ключ не активирован или не настроено ограничение по HTTP Referer (в кабинете разработчика).",
+      "Карта не загрузилась.",
     );
   }
 }
@@ -236,15 +281,141 @@ function renderMapFallback(container, message) {
   container.textContent = message;
 }
 
-function loadYmaps3({ apiKey, lang = "ru_RU", timeoutMs = 15000 } = {}) {
-  if (window.ymaps3) return Promise.resolve(window.ymaps3);
-  if (ymaps3LoadPromise) return ymaps3LoadPromise;
+function parseFreeZone(rawCenter, rawRadiusKm) {
+  const center = parseLatLon(rawCenter);
+  const radiusKm = parseFlexibleNumber(rawRadiusKm);
+  if (!center || !Number.isFinite(radiusKm) || radiusKm <= 0) return null;
+  return { center, radiusMeters: radiusKm * 1000 };
+}
 
-  const src = `https://api-maps.yandex.ru/v3/?apikey=${encodeURIComponent(apiKey)}&lang=${encodeURIComponent(lang)}`;
+function parseFlexibleNumber(raw) {
+  const normalized = String(raw ?? "").trim().replace(",", ".");
+  return Number(normalized);
+}
 
-  ymaps3LoadPromise = new Promise((resolve, reject) => {
+function parseLatLon(raw) {
+  const parts = String(raw ?? "")
+    .split(",")
+    .map((p) => p.trim())
+    .filter(Boolean);
+
+  if (parts.length !== 2) return null;
+
+  const lat = Number(parts[0]);
+  const lon = Number(parts[1]);
+  if (!Number.isFinite(lat) || !Number.isFinite(lon)) return null;
+  if (lat < -90 || lat > 90 || lon < -180 || lon > 180) return null;
+  return [lat, lon];
+}
+
+function suggestZoomForRadius(radiusMeters) {
+  const radiusKm = radiusMeters / 1000;
+  if (radiusKm <= 0.5) return 15;
+  if (radiusKm <= 1) return 14;
+  if (radiusKm <= 2) return 13;
+  if (radiusKm <= 5) return 12;
+  if (radiusKm <= 10) return 11;
+  if (radiusKm <= 20) return 10;
+  return 9;
+}
+
+function buildOuterContour(center, radiusMeters) {
+  const outerDistance = Math.max(radiusMeters * 8, 20000);
+  const north = destinationPoint(center, outerDistance, 0);
+  const south = destinationPoint(center, outerDistance, 180);
+  const east = destinationPoint(center, outerDistance, 90);
+  const west = destinationPoint(center, outerDistance, 270);
+
+  const northLat = north[0];
+  const southLat = south[0];
+  const eastLon = east[1];
+  const westLon = west[1];
+
+  return [
+    [northLat, westLon],
+    [northLat, eastLon],
+    [southLat, eastLon],
+    [southLat, westLon],
+    [northLat, westLon],
+  ];
+}
+
+function buildCircleContour(center, radiusMeters, points = 72) {
+  const [lat, lon] = center;
+  const earthRadius = 6378137;
+  const angularDistance = radiusMeters / earthRadius;
+  const lat1 = toRadians(lat);
+  const lon1 = toRadians(lon);
+
+  const result = [];
+  for (let i = 0; i <= points; i += 1) {
+    const bearing = (2 * Math.PI * i) / points;
+    const lat2 = Math.asin(
+      Math.sin(lat1) * Math.cos(angularDistance) +
+        Math.cos(lat1) * Math.sin(angularDistance) * Math.cos(bearing),
+    );
+    const lon2 =
+      lon1 +
+      Math.atan2(
+        Math.sin(bearing) * Math.sin(angularDistance) * Math.cos(lat1),
+        Math.cos(angularDistance) - Math.sin(lat1) * Math.sin(lat2),
+      );
+    result.push([toDegrees(lat2), normalizeLongitude(toDegrees(lon2))]);
+  }
+
+  if (result.length > 1) {
+    result[result.length - 1] = result[0];
+  }
+
+  return result;
+}
+
+function destinationPoint(center, distanceMeters, bearingDegrees) {
+  const [lat, lon] = center;
+  const earthRadius = 6378137;
+  const angularDistance = distanceMeters / earthRadius;
+  const bearing = toRadians(bearingDegrees);
+  const lat1 = toRadians(lat);
+  const lon1 = toRadians(lon);
+
+  const lat2 = Math.asin(
+    Math.sin(lat1) * Math.cos(angularDistance) +
+      Math.cos(lat1) * Math.sin(angularDistance) * Math.cos(bearing),
+  );
+  const lon2 =
+    lon1 +
+    Math.atan2(
+      Math.sin(bearing) * Math.sin(angularDistance) * Math.cos(lat1),
+      Math.cos(angularDistance) - Math.sin(lat1) * Math.sin(lat2),
+    );
+
+  return [toDegrees(lat2), normalizeLongitude(toDegrees(lon2))];
+}
+
+function toRadians(degrees) {
+  return (degrees * Math.PI) / 180;
+}
+
+function toDegrees(radians) {
+  return (radians * 180) / Math.PI;
+}
+
+function normalizeLongitude(lon) {
+  let result = lon;
+  while (result > 180) result -= 360;
+  while (result < -180) result += 360;
+  return result;
+}
+
+function loadYmaps2({ apiKey, lang = "ru_RU", timeoutMs = 15000 } = {}) {
+  if (window.ymaps) return Promise.resolve(window.ymaps);
+  if (ymaps2LoadPromise) return ymaps2LoadPromise;
+
+  const src = `https://api-maps.yandex.ru/2.1/?apikey=${encodeURIComponent(apiKey)}&lang=${encodeURIComponent(lang)}&load=package.full`;
+
+  ymaps2LoadPromise = new Promise((resolve, reject) => {
     const script =
-      document.querySelector('script[data-ymaps3-api="true"]') || document.createElement("script");
+      document.querySelector('script[data-ymaps2-api="true"]') || document.createElement("script");
 
     let timeoutId = null;
     let pollId = null;
@@ -258,16 +429,16 @@ function loadYmaps3({ apiKey, lang = "ru_RU", timeoutMs = 15000 } = {}) {
 
     const onLoad = () => {
       cleanup();
-      if (window.ymaps3) {
-        resolve(window.ymaps3);
+      if (window.ymaps) {
+        resolve(window.ymaps);
         return;
       }
-      reject(new Error("Yandex Maps API script loaded, but ymaps3 is still unavailable"));
+      reject(new Error("Yandex Maps API 2.1 script loaded, but ymaps is still unavailable"));
     };
 
     const onError = () => {
       cleanup();
-      reject(new Error("Failed to load Yandex Maps API script"));
+      reject(new Error("Failed to load Yandex Maps API 2.1 script"));
     };
 
     script.addEventListener("load", onLoad);
@@ -278,13 +449,13 @@ function loadYmaps3({ apiKey, lang = "ru_RU", timeoutMs = 15000 } = {}) {
     }, timeoutMs);
 
     pollId = setInterval(() => {
-      if (!window.ymaps3) return;
+      if (!window.ymaps) return;
       cleanup();
-      resolve(window.ymaps3);
+      resolve(window.ymaps);
     }, 50);
 
     if (!script.parentNode) {
-      script.dataset.ymaps3Api = "true";
+      script.dataset.ymaps2Api = "true";
       script.async = true;
       script.src = src;
       document.head.appendChild(script);
@@ -295,11 +466,11 @@ function loadYmaps3({ apiKey, lang = "ru_RU", timeoutMs = 15000 } = {}) {
       script.src = src;
     }
   }).catch((error) => {
-    ymaps3LoadPromise = null;
+    ymaps2LoadPromise = null;
     throw error;
   });
 
-  return ymaps3LoadPromise;
+  return ymaps2LoadPromise;
 }
 
 if (document.readyState === "loading") {
