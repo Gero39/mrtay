@@ -6,12 +6,12 @@
       "description": "Филадельфия\nКалифорния с лососем\nУнаги блек\nМаки креветка",
       "weight": "",
       "category": "Сеты",
-      "imageUrl": "",
+      "imageUrl": "/uploads/1774199807568_fde14947-2400-475b-a48d-70f0b5c4024f.png",
       "price": 1500,
       "options": [],
       "active": true,
       "createdAt": "2026-03-21T22:26:14.786Z",
-      "updatedAt": "2026-03-21T22:26:14.786Z"
+      "updatedAt": "2026-03-22T17:16:55.612Z"
     },
     {
       "id": "2c6975dc-0abf-49c0-9471-738afe0e9d9c",
@@ -245,12 +245,12 @@
       "description": "Рис, нори, угорь, крем-чиз, огурец, икра, темпура, сухари, унаги, кунжут",
       "weight": "8 шт.",
       "category": "Роллы темпура",
-      "imageUrl": "/uploads/1773640219940_4a6c9219-c296-44e1-86c7-664109151dce.jpeg",
+      "imageUrl": "/uploads/1774209963632_17b3e26c-dd31-4ce9-a747-af316caaf257.png",
       "price": 500,
       "options": [],
       "active": true,
       "createdAt": "2026-03-16T05:50:20.729Z",
-      "updatedAt": "2026-03-16T05:50:20.729Z"
+      "updatedAt": "2026-03-22T20:06:17.088Z"
     },
     {
       "id": "6f29b81f-bf72-4bea-b508-b509a0b2d690",
@@ -258,12 +258,12 @@
       "description": "Рис, нори, креветка, крем-чиз, огурец, икра, темпура, сухари, унаги, кунжут",
       "weight": "8 шт.",
       "category": "Роллы темпура",
-      "imageUrl": "/uploads/1773640294859_3d202d96-0eba-427b-94f5-b2930ee858b9.jpeg",
+      "imageUrl": "/uploads/1774207994033_d0044eea-11a1-4891-9fc0-8c68ddfee53c.png",
       "price": 500,
       "options": [],
       "active": true,
       "createdAt": "2026-03-16T05:47:41.427Z",
-      "updatedAt": "2026-03-16T05:51:35.554Z"
+      "updatedAt": "2026-03-22T19:33:18.717Z"
     },
     {
       "id": "9583f5a7-ee29-45fb-9a19-c1b8a5c660a4",
@@ -271,12 +271,12 @@
       "description": "Рис, нори, курочка, крем-чиз, огурец, икра, темпура, сухари, унаги, кунжут",
       "weight": "8 шт.",
       "category": "Роллы темпура",
-      "imageUrl": "/uploads/1773639916398_d3840cdf-1ce8-4367-a4a8-cc48cf1fb134.jpeg",
+      "imageUrl": "/uploads/1774214992336_7bbbb146-8f86-4536-ab7a-44a6d6f7a55f.png",
       "price": 500,
       "options": [],
       "active": true,
       "createdAt": "2026-03-16T05:45:16.937Z",
-      "updatedAt": "2026-03-16T05:45:16.937Z"
+      "updatedAt": "2026-03-22T21:30:02.288Z"
     },
     {
       "id": "356cc375-1c20-421d-b9b6-a7ddb0beda06",
@@ -284,12 +284,12 @@
       "description": "Рис, нори, лосось, крем-чиз, икра, огурец, темпура, сухари, унаги, кунжут",
       "weight": "8 шт.",
       "category": "Роллы темпура",
-      "imageUrl": "/uploads/1773639843958_138c908f-b6a4-4a77-80f3-a747a8b11bbe.jpeg",
+      "imageUrl": "/uploads/1774215168457_4d0eafa7-2b7f-413f-9c56-329eaacaff16.png",
       "price": 500,
       "options": [],
       "active": true,
       "createdAt": "2026-03-16T05:44:07.201Z",
-      "updatedAt": "2026-03-16T05:44:16.056Z"
+      "updatedAt": "2026-03-22T21:32:50.970Z"
     },
     {
       "id": "c808120f-83b4-4ef4-bc0b-6a7925677b06",
@@ -375,12 +375,12 @@
       "description": "Рис, нори, креветка, огурец, крем-чиз, икра",
       "weight": "8 шт.",
       "category": "Роллы",
-      "imageUrl": "/uploads/1773638711473_b5879473-4c44-4a2e-8bfd-b1a149e87b57.jpeg",
+      "imageUrl": "/uploads/1774215515933_dbd7382d-5273-45ff-b92f-bea13499fe18.png",
       "price": 440,
       "options": [],
       "active": true,
       "createdAt": "2026-03-16T05:25:12.210Z",
-      "updatedAt": "2026-03-16T05:25:12.210Z"
+      "updatedAt": "2026-03-22T21:38:38.200Z"
     },
     {
       "id": "c70301b0-9d6a-418a-bf22-a43a63c9f186",
@@ -518,12 +518,12 @@
       "description": "Рис, нори, креветка",
       "weight": "8 шт.",
       "category": "Маки",
-      "imageUrl": "/uploads/1773446355799_3be1b793-7855-4754-adf3-1726e7518910.jpeg",
+      "imageUrl": "/uploads/1774199183761_e6e54152-c7f7-4f5f-a4cc-fe9a3c52ba68.jpg",
       "price": 320,
       "options": [],
       "active": true,
       "createdAt": "2026-03-13T23:59:16.765Z",
-      "updatedAt": "2026-03-13T23:59:16.765Z"
+      "updatedAt": "2026-03-22T17:06:25.816Z"
     },
     {
       "id": "c7af10ee-b3b6-4d7f-a67c-bbb356ebccb6",
