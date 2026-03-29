@@ -23,6 +23,7 @@ const ordersRefresh = document.querySelector("#orders-refresh");
 const ordersArchive = document.querySelector("#orders-archive");
 const ordersClear = document.querySelector("#orders-clear");
 const ordersNote = document.querySelector("#orders-note");
+const newOrderSound = document.querySelector("#new-order-sound");
 
 const categoriesList = document.querySelector("#categories-list");
 const categoriesRefresh = document.querySelector("#categories-refresh");
@@ -123,6 +124,19 @@ const setOrdersNote = (html, isError = false) => {
   if (!ordersNote) return;
   ordersNote.innerHTML = html || "";
   ordersNote.style.color = isError ? "#c81d31" : "";
+};
+
+const playNewOrderSound = async () => {
+  if (!(newOrderSound instanceof HTMLAudioElement)) {
+    return;
+  }
+
+  try {
+    newOrderSound.currentTime = 0;
+    await newOrderSound.play();
+  } catch {
+    // Browsers may block autoplay until the page gets a user gesture.
+  }
 };
 
 const apiFetch = async (url, options = {}) => {
@@ -315,6 +329,7 @@ const pollOrders = async () => {
   if (currentTab === "orders") {
     await loadOrders(sortedAll);
     if (newIncoming.length > 0) {
+      playNewOrderSound();
       setOrdersNote(`Новый заказ: +<b>${newIncoming.length}</b>`);
       setTimeout(() => {
         if (ordersNote && ordersNote.textContent.startsWith("Новый заказ")) {
