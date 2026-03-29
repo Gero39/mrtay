@@ -414,12 +414,12 @@
       "description": "Рис, нори, угорь, огурец, крем-чиз, икра",
       "weight": "8 шт.",
       "category": "Роллы",
-      "imageUrl": "/uploads/1773638190521_4a13cdce-d858-4e3c-bf84-279db08754f5.jpeg",
+      "imageUrl": "/uploads/1774781956938_51bc0fb5-464d-432a-948e-4207365d4c5d.png",
       "price": 440,
       "options": [],
       "active": true,
       "createdAt": "2026-03-16T05:16:32.521Z",
-      "updatedAt": "2026-03-16T05:16:32.521Z"
+      "updatedAt": "2026-03-29T10:59:17.563Z"
     },
     {
       "id": "a429de62-a015-4cc3-8ec8-5b8753cde026",
@@ -466,12 +466,12 @@
       "description": "Рис, нори, креветка тигр, крем-чиз, огурец",
       "weight": "8 шт.",
       "category": "Роллы",
-      "imageUrl": "/uploads/1773637317407_332662d2-ec2b-47a3-b2dd-958c50a14ba5.jpeg",
+      "imageUrl": "/uploads/1774781512436_bd3fbec1-77c4-46aa-8e59-878d23ebc46e.png",
       "price": 620,
       "options": [],
       "active": true,
       "createdAt": "2026-03-16T05:02:08.263Z",
-      "updatedAt": "2026-03-16T05:02:08.263Z"
+      "updatedAt": "2026-03-29T10:51:54.431Z"
     },
     {
       "id": "0ba90584-d457-4570-bfb1-15831fe27d20",
@@ -479,12 +479,12 @@
       "description": "Рис, нори, лосось, огурец, крем-чиз",
       "weight": "8 шт.",
       "category": "Роллы",
-      "imageUrl": "/uploads/1773637091653_c1f6d9b6-d0cb-4ca9-89f9-9858a5993642.jpeg",
+      "imageUrl": "/uploads/1774779445243_00cf9bdd-9396-43b0-8ffc-6795efcf68a3.png",
       "price": 440,
       "options": [],
       "active": true,
       "createdAt": "2026-03-16T04:58:46.453Z",
-      "updatedAt": "2026-03-16T05:04:52.094Z"
+      "updatedAt": "2026-03-29T10:19:56.839Z"
     },
     {
       "id": "d6da7fbb-848f-4114-8d93-42e7be541cd0",
@@ -492,12 +492,12 @@
       "description": "Рис, нори, лосось, огурец, крем-чиз, кунжут",
       "weight": "8 шт.",
       "category": "Роллы",
-      "imageUrl": "/uploads/1773636569359_edbe4a85-bafc-4ba4-9ce0-0ccd69051ac7.jpeg",
+      "imageUrl": "/uploads/1774804638425_14748ab5-6344-4586-973b-9d8ff8254cb3.png",
       "price": 440,
       "options": [],
       "active": true,
       "createdAt": "2026-03-16T04:49:30.935Z",
-      "updatedAt": "2026-03-16T05:04:54.959Z"
+      "updatedAt": "2026-03-29T17:17:19.172Z"
     },
     {
       "id": "c8439c84-532a-468d-83eb-fa1d96872dab",
@@ -696,7 +696,7 @@
       "title": "Том-ям с морепродуктами",
       "description": "Соус том-ям, моцарелла, помидор, грибы, кальмар, креветка, мидия",
       "category": "Пицца",
-      "imageUrl": "/uploads/1773439887749_ec44860a-fb68-4d84-b3d3-2ad579ab87be.jpeg",
+      "imageUrl": "/uploads/1774778436163_2bd68b9d-1426-47a5-a26c-d0cc9a3cb937.png",
       "price": 650,
       "options": [
         {
@@ -712,7 +712,8 @@
       ],
       "active": true,
       "createdAt": "2026-03-13T21:56:51.316Z",
-      "updatedAt": "2026-03-13T22:11:28.771Z"
+      "updatedAt": "2026-03-29T10:00:37.515Z",
+      "weight": ""
     },
     {
       "id": "40203dbe-8576-4a3e-b27f-a79e38e0674e",
@@ -742,11 +743,11 @@
       "title": "Охота",
       "description": "Красный соус, моцарелла, помидор, грибы, охотничьи колбаски",
       "category": "Пицца",
-      "imageUrl": "/uploads/1773440135238_d56e5214-c9f5-4447-8a2d-b7175d0f1fb3.jpeg",
+      "imageUrl": "/uploads/1774778961001_99a5ccb8-7931-4afe-855e-f350d1c16bb1.png",
       "price": 550,
       "active": true,
       "createdAt": "2026-03-11T19:03:01.084Z",
-      "updatedAt": "2026-03-13T22:15:36.054Z",
+      "updatedAt": "2026-03-29T10:09:22.625Z",
       "options": [
         {
           "id": "d30f43fc-27ca-4a12-9d8b-869660a283ed",
@@ -758,7 +759,8 @@
           "label": "40 см",
           "price": 750
         }
-      ]
+      ],
+      "weight": ""
     },
     {
       "id": "2f705929-5603-46e8-9b19-44d34909604d",
@@ -811,11 +813,11 @@
       "title": "Яхта",
       "description": "Белый соус, горчица зерно, моцарелла, лосось, помидор, огур сол, лук красный",
       "category": "Пицца",
-      "imageUrl": "/uploads/1773440708190_b24b6ecd-42e2-4871-96d0-4dd476c49b75.jpeg",
+      "imageUrl": "/uploads/1774786478272_3f8d1570-a869-40bb-a263-d3a5e7f07986.png",
       "price": 650,
       "active": true,
       "createdAt": "2026-03-11T19:01:31.799Z",
-      "updatedAt": "2026-03-13T22:25:09.525Z",
+      "updatedAt": "2026-03-29T12:14:39.060Z",
       "options": [
         {
           "id": "db31ff9c-d9ca-40f7-9322-50fe93270e9a",
@@ -827,18 +829,19 @@
           "label": "40 см",
           "price": 850
         }
-      ]
+      ],
+      "weight": ""
     },
     {
       "id": "9367ae75-82f8-443e-89f2-804677ee3385",
       "title": "Жульен",
       "description": "Белый соус, моцарелла, кур филе, грибы, лук",
       "category": "Пицца",
-      "imageUrl": "/uploads/1773440754591_b56b38c0-9def-4159-8bbd-e5a6c3d5480c.jpeg",
+      "imageUrl": "/uploads/1774786254149_39d739c6-6667-4f3e-825b-e523a11967b7.png",
       "price": 550,
       "active": true,
       "createdAt": "2026-03-11T19:00:59.700Z",
-      "updatedAt": "2026-03-13T22:25:59.819Z",
+      "updatedAt": "2026-03-29T12:10:54.884Z",
       "options": [
         {
           "id": "ba351b52-1e6e-41da-8e08-bf0d40a3c79b",
@@ -850,7 +853,8 @@
           "label": "40 см",
           "price": 750
         }
-      ]
+      ],
+      "weight": ""
     },
     {
       "id": "33e3ea42-8f69-45b6-af2e-c63020c0d4b2",
