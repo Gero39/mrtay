@@ -141,6 +141,10 @@
                   <input id="delivery-free-radius-km" type="number" min="0.1" step="0.1" placeholder="5">
                 </label>
                 <label>
+                  Бесплатная доставка от суммы (₽)
+                  <input id="delivery-free-from-subtotal-rub" type="number" min="0" step="1" placeholder="0">
+                </label>
+                <label>
                   Обслуживаем до (км)
                   <input id="delivery-service-radius-km" type="number" min="0.1" step="0.1" placeholder="20">
                 </label>
@@ -153,7 +157,7 @@
                   <button class="admin-btn admin-btn--sm" id="delivery-tier-add" type="button">Добавить границу</button>
                 </div>
                 <div class="admin-options__list" id="delivery-tiers-list"></div>
-                <p class="admin-note">Пример: от 15 км — 200 ₽, от 18 км — 250 ₽.</p>
+                <p class="admin-note">Пример: от 0 км — 150 ₽, от 15 км — 200 ₽, от 18 км — 250 ₽. Если сумма заказа ниже порога бесплатной доставки, используется этот тариф.</p>
               </div>
 
               <div class="admin-options">

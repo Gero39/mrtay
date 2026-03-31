@@ -16,6 +16,15 @@ const ARCHIVES_DIR = path.join(DATA_DIR, "archives");
 
 const app = express();
 
+const formatErrorForLog = (err) => ({
+  name: err?.name || "Error",
+  message: err?.message || String(err),
+  code: err?.code || "",
+  syscall: err?.syscall || "",
+  path: err?.path || "",
+  stack: err?.stack || "",
+});
+
 // Behind nginx we want correct client IP (x-forwarded-for) for rate-limits.
 app.set("trust proxy", 1);
 
@@ -96,6 +105,7 @@ const ensureDirsAndDb = async () => {
           city: "Симферополь",
           origin: { lat: 44.981547, lon: 34.091607 },
           freeRadiusKm: 5,
+          freeFromSubtotalRub: 0,
           serviceRadiusKm: 20,
           tiers: [
             { fromKm: 0, feeRub: 0 },
@@ -151,6 +161,10 @@ const readDb = async () => {
   if (!Number.isFinite(parsed.settings.delivery.freeRadiusKm) || parsed.settings.delivery.freeRadiusKm <= 0) {
     parsed.settings.delivery.freeRadiusKm = 5;
   }
+  parsed.settings.delivery.freeFromSubtotalRub = Math.round(Number(parsed.settings.delivery.freeFromSubtotalRub));
+  if (!Number.isFinite(parsed.settings.delivery.freeFromSubtotalRub) || parsed.settings.delivery.freeFromSubtotalRub < 0) {
+    parsed.settings.delivery.freeFromSubtotalRub = 0;
+  }
   parsed.settings.delivery.serviceRadiusKm = Number(parsed.settings.delivery.serviceRadiusKm);
   if (
     !Number.isFinite(parsed.settings.delivery.serviceRadiusKm) ||
@@ -191,19 +205,41 @@ const readDb = async () => {
 
 const writeDbAtomic = async (db) => {
   const tmp = `${DB_FILE}.tmp`;
-  await fs.writeFile(tmp, JSON.stringify(db, null, 2), "utf8");
-  await fs.rename(tmp, DB_FILE);
+  const serialized = JSON.stringify(db, null, 2);
+
+  await fs.writeFile(tmp, serialized, "utf8");
+  try {
+    await fs.rename(tmp, DB_FILE);
+  } catch (err) {
+    const code = String(err?.code || "").toUpperCase();
+    if (code === "EPERM" || code === "EBUSY" || code === "EXDEV") {
+      // Some hosting/storage backends are flaky with atomic rename of temp files.
+      await fs.writeFile(DB_FILE, serialized, "utf8");
+      await fs.unlink(tmp).catch(() => {});
+      return;
+    }
+    await fs.unlink(tmp).catch(() => {});
+    throw err;
+  }
 };
 
 let writeQueue = Promise.resolve();
 const updateDb = async (mutator) => {
-  writeQueue = writeQueue.then(async () => {
+  const run = async () => {
     const db = await readDb();
     const result = await mutator(db);
     await writeDbAtomic(db);
     return result;
-  });
+  };
+
+  // Allow the queue to recover after a previous failed write instead of keeping
+  // all subsequent mutations permanently rejected.
+  writeQueue = writeQueue.then(run, run);
   return writeQueue;
+};
+
+const asyncRoute = (handler) => (req, res, next) => {
+  Promise.resolve(handler(req, res, next)).catch(next);
 };
 
 const requireAdmin = (req, res, next) => {
@@ -255,7 +291,7 @@ const normalizeMenuOptions = (value) => {
   return out;
 };
 
-const calculateDeliveryQuote = (distanceMeters, settings) => {
+const calculateDeliveryQuote = (distanceMeters, settings, itemsSubtotalRub = 0) => {
   const distance = Math.round(Number(distanceMeters));
   if (!Number.isFinite(distance) || distance < 0) {
     return { isKnown: false, allowed: true, feeRub: 0, distanceMeters: null, zone: null };
@@ -263,9 +299,25 @@ const calculateDeliveryQuote = (distanceMeters, settings) => {
 
   const freeRadiusMeters = Number(settings?.freeRadiusKm) * 1000;
   const serviceRadiusMeters = Number(settings?.serviceRadiusKm) * 1000;
+  const subtotalRub = Math.round(Number(itemsSubtotalRub));
+  const freeFromSubtotalRub = Math.round(Number(settings?.freeFromSubtotalRub));
+  const hasFreeThreshold =
+    Number.isFinite(freeFromSubtotalRub) &&
+    freeFromSubtotalRub > 0;
+  const thresholdReached =
+    !hasFreeThreshold || (Number.isFinite(subtotalRub) && subtotalRub >= freeFromSubtotalRub);
 
-  if (Number.isFinite(freeRadiusMeters) && distance <= freeRadiusMeters) {
-    return { isKnown: true, allowed: true, feeRub: 0, distanceMeters: distance, zone: "free" };
+  if (Number.isFinite(freeRadiusMeters) && distance <= freeRadiusMeters && thresholdReached) {
+    return {
+      isKnown: true,
+      allowed: true,
+      feeRub: 0,
+      distanceMeters: distance,
+      zone: "free",
+      freeFromSubtotalRub: hasFreeThreshold ? freeFromSubtotalRub : 0,
+      freeThresholdReached: true,
+      freeThresholdRemainingRub: 0,
+    };
   }
 
   if (Number.isFinite(serviceRadiusMeters) && distance > serviceRadiusMeters) {
@@ -309,7 +361,18 @@ const calculateDeliveryQuote = (distanceMeters, settings) => {
   }
 
   if (!Number.isFinite(feeRub) || feeRub < 0) feeRub = 0;
-  return { isKnown: true, allowed: true, feeRub, distanceMeters: distance, zone: "paid" };
+  const remainingRub =
+    hasFreeThreshold && Number.isFinite(subtotalRub) ? Math.max(0, freeFromSubtotalRub - subtotalRub) : 0;
+  return {
+    isKnown: true,
+    allowed: true,
+    feeRub,
+    distanceMeters: distance,
+    zone: "paid",
+    freeFromSubtotalRub: hasFreeThreshold ? freeFromSubtotalRub : 0,
+    freeThresholdReached: !hasFreeThreshold || remainingRub <= 0,
+    freeThresholdRemainingRub: remainingRub,
+  };
 };
 
 const allowedUploadTypes = new Map([
@@ -366,27 +429,27 @@ app.use((req, res, next) => {
 app.use(express.static(__dirname));
 
 // Public API
-app.get("/api/public/menu", async (_req, res) => {
+app.get("/api/public/menu", asyncRoute(async (_req, res) => {
   const db = await readDb();
   res.json(db.menu.filter((item) => item.active));
-});
+}));
 
-app.get("/api/public/promos", async (_req, res) => {
+app.get("/api/public/promos", asyncRoute(async (_req, res) => {
   const db = await readDb();
   res.json(db.promos.filter((promo) => promo.active));
-});
+}));
 
-app.get("/api/public/categories", async (_req, res) => {
+app.get("/api/public/categories", asyncRoute(async (_req, res) => {
   const db = await readDb();
   res.json(db.categories);
-});
+}));
 
-app.get("/api/public/settings", async (_req, res) => {
+app.get("/api/public/settings", asyncRoute(async (_req, res) => {
   const db = await readDb();
   res.json({ nav: db.settings.nav, delivery: db.settings.delivery });
-});
+}));
 
-app.post("/api/public/orders", publicOrdersRateLimit, async (req, res) => {
+app.post("/api/public/orders", publicOrdersRateLimit, asyncRoute(async (req, res) => {
   const payload = req.body || {};
   const customer = payload.customer || {};
   const items = Array.isArray(payload.items) ? payload.items : [];
@@ -466,7 +529,9 @@ app.post("/api/public/orders", publicOrdersRateLimit, async (req, res) => {
 
     const itemsTotal = normalizedItems.reduce((sum, i) => sum + i.price * i.quantity, 0);
     const quote =
-      deliveryDistanceMeters !== null ? calculateDeliveryQuote(deliveryDistanceMeters, db.settings?.delivery) : null;
+      deliveryDistanceMeters !== null
+        ? calculateDeliveryQuote(deliveryDistanceMeters, db.settings?.delivery, itemsTotal)
+        : null;
     if (quote && quote.isKnown && !quote.allowed) {
       return "delivery_out_of_zone";
     }
@@ -504,7 +569,7 @@ app.post("/api/public/orders", publicOrdersRateLimit, async (req, res) => {
   }
 
   res.json({ id: order.id, status: order.status, total: order.total });
-});
+}));
 
 // Admin API (token protected)
 app.use("/api/admin", adminRateLimit);
@@ -554,6 +619,10 @@ app.put("/api/admin/settings", requireAdmin, async (req, res) => {
       const origin = delivery.origin !== undefined ? delivery.origin : currentDelivery.origin;
       const freeRadiusKm =
         delivery.freeRadiusKm !== undefined ? Number(delivery.freeRadiusKm) : Number(currentDelivery.freeRadiusKm);
+      const freeFromSubtotalRub =
+        delivery.freeFromSubtotalRub !== undefined
+          ? Math.round(Number(delivery.freeFromSubtotalRub))
+          : Math.round(Number(currentDelivery.freeFromSubtotalRub));
       const serviceRadiusKm =
         delivery.serviceRadiusKm !== undefined ? Number(delivery.serviceRadiusKm) : Number(currentDelivery.serviceRadiusKm);
       const tiers = Array.isArray(delivery.tiers) ? delivery.tiers : currentDelivery.tiers;
@@ -573,6 +642,9 @@ app.put("/api/admin/settings", requireAdmin, async (req, res) => {
       }
       if (!Number.isFinite(freeRadiusKm) || freeRadiusKm <= 0) {
         return "invalid_free_radius";
+      }
+      if (!Number.isFinite(freeFromSubtotalRub) || freeFromSubtotalRub < 0) {
+        return "invalid_free_from_subtotal";
       }
       if (!Number.isFinite(serviceRadiusKm) || serviceRadiusKm <= 0 || serviceRadiusKm < freeRadiusKm) {
         return "invalid_service_radius";
@@ -609,6 +681,7 @@ app.put("/api/admin/settings", requireAdmin, async (req, res) => {
         city: city || "Симферополь",
         origin: { lat: originLat, lon: originLon },
         freeRadiusKm,
+        freeFromSubtotalRub,
         serviceRadiusKm,
         tiers: normalizedTiers,
         incremental: {
@@ -637,6 +710,10 @@ app.put("/api/admin/settings", requireAdmin, async (req, res) => {
   }
   if (next === "invalid_service_radius") {
     res.status(400).json({ error: "invalid_service_radius" });
+    return;
+  }
+  if (next === "invalid_free_from_subtotal") {
+    res.status(400).json({ error: "invalid_free_from_subtotal" });
     return;
   }
   if (next === "invalid_incremental_from") {
@@ -1118,7 +1195,7 @@ app.get("/api/admin/orders/archives/:file", requireAdmin, async (req, res) => {
   }
 });
 
-app.use((err, _req, res, _next) => {
+app.use((err, req, res, _next) => {
   if (err?.message === "invalid_file_type") {
     res.status(400).json({ error: "invalid_file_type" });
     return;
@@ -1129,7 +1206,27 @@ app.use((err, _req, res, _next) => {
   }
 
   // eslint-disable-next-line no-console
-  console.error(err);
+  console.error("[server] request failed", {
+    method: req.method,
+    path: req.originalUrl || req.url,
+    ip: getClientIp(req),
+    error: formatErrorForLog(err),
+  });
+
+  if (req.path === "/api/public/orders") {
+    const body = req.body || {};
+    const items = Array.isArray(body.items) ? body.items : [];
+    // eslint-disable-next-line no-console
+    console.error("[orders] failed payload summary", {
+      customerName: String(body.customer?.name || "").trim(),
+      customerPhone: String(body.customer?.phone || "").trim(),
+      addressLength: String(body.customer?.address || "").trim().length,
+      itemsCount: items.length,
+      itemIds: items.map((item) => String(item?.id || "")).filter(Boolean).slice(0, 20),
+      hasDeliveryDistance: Number.isFinite(Number(body.delivery?.distanceMeters)),
+    });
+  }
+
   res.status(500).json({ error: "server_error" });
 });
 

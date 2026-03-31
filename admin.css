@@ -213,6 +213,34 @@
   gap: 8px;
 }
 
+.admin-item--order.incoming {
+  border-color: #ffd2d8;
+  background: linear-gradient(180deg, #fff6f7 0%, #fff1f3 100%);
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.9);
+}
+
+.admin-item--order.incoming .admin-item__title {
+  color: #a81a2b;
+}
+
+.admin-item--order.incoming .admin-item__meta {
+  color: #7f4a52;
+}
+
+.admin-item--order.incoming .admin-details {
+  border-color: #ffd2d8;
+  background: rgba(255, 255, 255, 0.55);
+}
+
+.admin-item--order.incoming .admin-items {
+  color: #5a3a40;
+}
+
+.admin-item--order.incoming .admin-status-select {
+  border-color: #ffd2d8;
+  background: #fff8f8;
+}
+
 .admin-item__top {
   display: flex;
   justify-content: space-between;

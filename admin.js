@@ -45,6 +45,7 @@ const deliveryCity = document.querySelector("#delivery-city");
 const deliveryOriginLat = document.querySelector("#delivery-origin-lat");
 const deliveryOriginLon = document.querySelector("#delivery-origin-lon");
 const deliveryFreeRadiusKm = document.querySelector("#delivery-free-radius-km");
+const deliveryFreeFromSubtotalRub = document.querySelector("#delivery-free-from-subtotal-rub");
 const deliveryServiceRadiusKm = document.querySelector("#delivery-service-radius-km");
 const deliverySettingsSave = document.querySelector("#delivery-settings-save");
 const deliverySettingsNote = document.querySelector("#delivery-settings-note");
@@ -241,7 +242,7 @@ const renderOrders = (orders) => {
         .join("");
 
       return `
-        <article class="admin-item">
+        <article class="admin-item admin-item--order ${order.status === "incoming" ? "incoming" : ""}">
           <div class="admin-item__top">
             <div>
               <p class="admin-item__title">${order.customer?.name || "—"}</p>
@@ -527,6 +528,8 @@ const deliveryErrorMessage = (code) => {
       return "Некорректный радиус бесплатной доставки.";
     case "invalid_service_radius":
       return "Некорректный радиус зоны обслуживания.";
+    case "invalid_free_from_subtotal":
+      return "Некорректная сумма для бесплатной доставки.";
     case "invalid_incremental_from":
       return "Некорректное значение 'после (км)' для автодобавки.";
     case "invalid_incremental_step":
@@ -550,8 +553,11 @@ const normalizeDeliverySettings = (raw) => {
   };
 
   const freeRadiusKm = Number(delivery.freeRadiusKm);
+  const freeFromSubtotalRub = Math.round(Number(delivery.freeFromSubtotalRub));
   const serviceRadiusKm = Number(delivery.serviceRadiusKm);
   const safeFree = Number.isFinite(freeRadiusKm) && freeRadiusKm > 0 ? freeRadiusKm : 5;
+  const safeFreeFromSubtotalRub =
+    Number.isFinite(freeFromSubtotalRub) && freeFromSubtotalRub >= 0 ? freeFromSubtotalRub : 0;
   const safeService = Number.isFinite(serviceRadiusKm) && serviceRadiusKm > 0 ? serviceRadiusKm : Math.max(20, safeFree);
 
   const tiers = Array.isArray(delivery.tiers) ? delivery.tiers : [];
@@ -576,6 +582,7 @@ const normalizeDeliverySettings = (raw) => {
     city,
     origin,
     freeRadiusKm: safeFree,
+    freeFromSubtotalRub: safeFreeFromSubtotalRub,
     serviceRadiusKm: Math.max(safeService, safeFree),
     tiers: normalizedTiers,
     incremental: {
@@ -614,6 +621,7 @@ const setDeliverySettingsForm = (delivery) => {
     !deliveryOriginLat ||
     !deliveryOriginLon ||
     !deliveryFreeRadiusKm ||
+    !deliveryFreeFromSubtotalRub ||
     !deliveryServiceRadiusKm ||
     !deliveryTiersList ||
     !deliveryIncEnabled ||
@@ -628,6 +636,7 @@ const setDeliverySettingsForm = (delivery) => {
   deliveryOriginLat.value = String(delivery.origin?.lat ?? "");
   deliveryOriginLon.value = String(delivery.origin?.lon ?? "");
   deliveryFreeRadiusKm.value = String(delivery.freeRadiusKm ?? "");
+  deliveryFreeFromSubtotalRub.value = String(delivery.freeFromSubtotalRub ?? 0);
   deliveryServiceRadiusKm.value = String(delivery.serviceRadiusKm ?? "");
 
   deliveryIncEnabled.checked = Boolean(delivery.incremental?.enabled);
@@ -689,6 +698,7 @@ const readDeliverySettingsFromForm = () => {
     !deliveryOriginLat ||
     !deliveryOriginLon ||
     !deliveryFreeRadiusKm ||
+    !deliveryFreeFromSubtotalRub ||
     !deliveryServiceRadiusKm ||
     !deliveryIncEnabled ||
     !deliveryIncFromKm ||
@@ -712,6 +722,11 @@ const readDeliverySettingsFromForm = () => {
   const freeRadiusKm = Number(String(deliveryFreeRadiusKm.value || "").trim());
   if (!Number.isFinite(freeRadiusKm) || freeRadiusKm <= 0) {
     return { delivery: null, error: "Неверный радиус бесплатной доставки." };
+  }
+
+  const freeFromSubtotalRub = Number(String(deliveryFreeFromSubtotalRub.value || "").trim());
+  if (!Number.isFinite(freeFromSubtotalRub) || freeFromSubtotalRub < 0) {
+    return { delivery: null, error: "Неверная сумма для бесплатной доставки." };
   }
 
   const serviceRadiusKm = Number(String(deliveryServiceRadiusKm.value || "").trim());
@@ -742,6 +757,7 @@ const readDeliverySettingsFromForm = () => {
       city,
       origin: { lat, lon },
       freeRadiusKm,
+      freeFromSubtotalRub: Math.round(freeFromSubtotalRub),
       serviceRadiusKm,
       tiers,
       incremental: {
